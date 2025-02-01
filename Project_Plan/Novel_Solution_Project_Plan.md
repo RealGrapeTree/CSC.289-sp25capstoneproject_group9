@@ -166,7 +166,6 @@ The materials required for the success of this project are:
 
 
 ### Team Collaboration and Communication – Jake 
-{Specify the collaboration and communication tools / platforms that will be used in this project development. Describe how your group will use these tools / platforms during this project development.}
 ---
 **Microsoft Teams:**
 Microsoft teams will be the main communication platform for this project.
