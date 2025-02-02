@@ -245,7 +245,7 @@ Each team member will easily be able to contribute to the project with the use o
 -	Set due dates
 
 
-### Project Management Plan and Methodologies - Andres / Jake backup
+### Project Management Plan and Methodologies - Andres / Jake (backup)
 ---
 Our Project Management plan follows Agile practices and utilizes the SCRUM Framework.
 These practices will allow us to perform iterative development, continuous feedback, with rapid delivery and the ability to quickly adapt to change.
