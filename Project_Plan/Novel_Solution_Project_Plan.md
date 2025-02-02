@@ -4,7 +4,7 @@
 
 ### Project Name: Novel Solutions
 ### Team Number:  9
-### Team project Manager 
+### Team project Manager : Timothy Hayes
 ---
 
 ### Team Member Details
