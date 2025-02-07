@@ -1,0 +1,20 @@
+
+
+create a .env file to store environmental variables in the Novel_Solutions Folder
+containing 
+
+# Environment Variables
+secret_key = "" you will fill the string later 
+
+in terminal
+cd Novel_Solutions
+select interpreter (if in vscode)
+pipenv install
+pipenv install -r requirements.txt
+
+
+pipenv run python config.py  this will run and print a random hexadecimal key to be used as the secret key for the app 
+copy the string in the terminal and insert it into the secret key variable in your .env file
+secret_key = "example" 
+
+pipenv run flask --app app.py run --debug # this is debug mode will update as you save files 
