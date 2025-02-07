@@ -1,1 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.env/
+
+# Flask
+instance/
+.webassets-cache
+
+# VSCode
+.vscode/
+
+# Global (macOS, Windows)
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Miscellaneous
+*.bak
+*.swp
+*~
 
