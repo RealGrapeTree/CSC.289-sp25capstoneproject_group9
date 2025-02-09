@@ -3,7 +3,7 @@ from flask import Flask
 
 from dotenv import load_dotenv
 from blueprints.loginpage.Novel_login import Novel_login
-from extensions import db
+from extensions import db, bcrypt, login_manager
 
 # import os module to access environment variables
 import os
@@ -20,6 +20,16 @@ app.secret_key = os.getenv('SECRET_KEY')
 # Configure the SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db.init_app(app)
+
+# Create the database tables
+with app.app_context():
+    db.create_all()
+
+# Configure the Bcrypt module
+bcrypt.init_app(app)
+
+# Configure the LoginManager
+login_manager.init_app(app)
 
 # registers the Novel login blueprint to the app 
 app.register_blueprint(Novel_login)

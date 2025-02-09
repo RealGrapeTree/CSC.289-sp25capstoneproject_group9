@@ -2,11 +2,23 @@
 
 {% block content %}
 <h1>Register</h1>
+{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+<a href="{{ url_for('Novel_login.login') }}">Login</a>
 <form action = "#" method="post">
     <label for="Email">Email: </label>
     <input type="email" name="email"> </input>
     <label for="username">Username: </label>
     <input type="text" name="username"> </input>
+    <label for="firstname">First Name: </label>
+    <input type="text" name="firstname"> </input>
+    <label for="lastname">Last Name: </label>
+    <input type="text" name="lastname"> </input>
     <label for="password">Password: </label>
     <input type ="password" name="password"></input>
     <button type="submit">Submit</button>
