@@ -1,39 +1,38 @@
-import sqlite3
-import tkinter as tk
-from tkinter import messagebox
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 
-def search_book(search_term):
-    conn = sqlite3.connect('books.db')
-    cursor = conn.cursor()
-    query = '''SELECT * FROM books WHERE isbn=? OR sku=?'''
-    cursor.execute(query, (search_term, search_term))
-    result = cursor.fetchone()
-    conn.close()
-    return result
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'  # Using SQLite
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-def show_book_details(book):
+# Define the Book model
+class Book(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    isbn = db.Column(db.String(20), unique=True, nullable=False)
+    sku = db.Column(db.String(20), unique=True, nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    stock = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+
+# Create the database tables
+with app.app_context():
+    db.create_all()
+
+# Route to search for a book by ISBN or SKU
+@app.route('/search', methods=['GET'])
+def search_book():
+    search_term = request.args.get('q', '')  # Get search term from URL query parameter
+    book = Book.query.filter((Book.isbn == search_term) | (Book.sku == search_term)).first()
+
     if book:
-        details = f"Title: {book[3]}\nStock: {book[4]}\nPrice: ${book[5]:.2f}"
-        messagebox.showinfo("Book Details", details)
+        return jsonify({
+            "title": book.title,
+            "stock": book.stock,
+            "price": f"${book.price:.2f}"
+        })
     else:
-        messagebox.showerror("Error", "Book not found.")
+        return jsonify({"error": "Book not found"}), 404
 
-def search_button_click():
-    search_term = entry.get()
-    book = search_book(search_term)
-    show_book_details(book)
-
-# Tkinter GUI
-root = tk.Tk()
-root.title("Book Search")
-
-label = tk.Label(root, text="Enter ISBN or SKU:")
-label.pack()
-
-entry = tk.Entry(root)
-entry.pack()
-
-search_button = tk.Button(root, text="Search", command=search_button_click)
-search_button.pack()
-
-root.mainloop()
+if __name__ == '__main__':
+    app.run(debug=True)
