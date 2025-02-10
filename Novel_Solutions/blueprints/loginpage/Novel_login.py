@@ -22,9 +22,11 @@ login_manager.login_view = "Novel_login.login"
 
 # User Registration Form class
 class RegisterForm(FlaskForm):
-    username = StringField("Enter Username", validators=[InputRequired(), Length(min=4, max=20)]) # Supposed to send a message via label if username not entered or username too short/long
-    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=50)]) # Supposed to send a message via label if password not entered or password too short/long
-    email = EmailField("Enter Email", validators=[InputRequired(), Length(max=254)]) # EmailField already validates the email format and sends a message via label
+    username = StringField("Enter Username", validators=[InputRequired(), Length(min=4, max=20)]) 
+    firstname = StringField("Enter First Name", validators=[InputRequired(), Length(min=2, max=30)])
+    lastname = StringField("Enter Last Name", validators=[InputRequired(), Length(min=2, max=30)])
+    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=20)]) 
+    email = EmailField("Enter Email", validators=[InputRequired(), Length(max=254)]) 
 
     submit = SubmitField("Sign Up")
 
@@ -32,23 +34,22 @@ class RegisterForm(FlaskForm):
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user:
-            flash('Username already exists', 'danger')
-            return redirect(url_for('Novel_login.register'))
+            raise ValidationError('Username already exists')
         
 
     # Function to validate if email already exists
     def validate_email(self, email):
         email = User.query.filter_by(email=email.data).first()
         if email:
-            flash('Email already exists', 'danger')
-            return redirect(url_for('Novel_login.register'))
+            raise ValidationError('Email already exists')
 
 
 
 # Form for User Login
 class LoginForm(FlaskForm):
     username = StringField("Enter Username", validators=[InputRequired(), Length(min=4, max=20)])
-    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=50)])
+    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=80)])
+
     submit = SubmitField("Login")
 
 
@@ -61,7 +62,7 @@ class User(db.Model, UserMixin):  # Inherit from UserMixin to get default implem
     firstname = db.Column(db.String(30), nullable=False)
     lastname = db.Column(db.String(30), nullable=False)
     email = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(50), nullable=False)
+    password = db.Column(db.String(200), nullable=False)
 
     def get_id(self):
         return str(self.username)
@@ -85,10 +86,14 @@ def home():
 def login():
     
     if current_user.is_authenticated:
-        return redirect(url_for('Novel_login.inventory'))
+        return redirect(url_for('Novel_login.home'))
     form = LoginForm()
 
+
+
+
     if form.validate_on_submit():
+
 
         # query the database for the user
         user = User.query.filter_by(username=form.username.data).first()
@@ -108,7 +113,7 @@ def login():
             return redirect(url_for('Novel_login.login'))   
         
         
-    return render_template('login.html')
+    return render_template('login.html', form=form)
     
 
 @Novel_login.route('/logout', methods=['POST','GET'])
@@ -130,16 +135,14 @@ def register():
         return redirect(url_for("Novel_login.inventory"))
     
     form = RegisterForm()
+
+
     if form.validate_on_submit():
         
         
-        # check if the username already exists in the database
-        form.validate_username(form.username.data)
-        # check if the email already exists in the database
-        form.validate_email(form.email.data)
-
+      
         # hash the password
-        hashed_password = bcrypt.generate_password_hash(form.password.data)
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
 
         # create a new user object
         user = User(username=form.username.data, firstname=form.firstname.data, lastname=form.lastname.data, email=form.email.data, password=hashed_password)
@@ -159,7 +162,7 @@ def register():
         return redirect(url_for('Novel_login.inventory'))
 
         
-    return render_template('register.html')
+    return render_template('register.html', form=form)
 
 
 

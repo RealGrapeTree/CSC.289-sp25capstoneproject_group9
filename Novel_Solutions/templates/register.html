@@ -10,17 +10,14 @@
         {% endif %}
     {% endwith %}
 <a href="{{ url_for('Novel_login.login') }}">Login</a>
-<form action = "#" method="post">
-    <label for="Email">Email: </label>
-    <input type="email" name="email"> </input>
-    <label for="username">Username: </label>
-    <input type="text" name="username"> </input>
-    <label for="firstname">First Name: </label>
-    <input type="text" name="firstname"> </input>
-    <label for="lastname">Last Name: </label>
-    <input type="text" name="lastname"> </input>
-    <label for="password">Password: </label>
-    <input type ="password" name="password"></input>
-    <button type="submit">Submit</button>
+    {{form.csrf_token}}
+<form method="POST">
+    {{form.hidden_tag()}} 
+    {{form.email.label}} {{form.email}}
+    {{form.username.label}} {{form.username}} 
+    {{form.firstname.label}} {{form.firstname}} 
+    {{form.lastname.label}} {{form.lastname}} 
+    {{form.password.label}} {{form.password}} 
+    {{form.submit}}
 </form>    
 {% endblock %}

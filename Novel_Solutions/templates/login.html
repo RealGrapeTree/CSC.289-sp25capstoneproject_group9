@@ -9,12 +9,12 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-<form action = "#" method="post">
-    <label for="username">Username: </label>
-    <input type="text" name="username"> </input>
-    <label for="password">Password: </label>
-    <input type ="password" name="password"></input>
-    <button type="submit">Submit</button>
+    {{form.csrf_token}}
+<form method="POST">
+    {{form.hidden_tag()}} 
+    {{form.username.label}} {{form.username}} 
+    {{form.password.label}} {{form.password}} 
+    {{form.submit}}
 </form>    
 <a href="{{ url_for('Novel_login.register') }}">Register New User</a>
 {% endblock %}
