@@ -1,24 +1,23 @@
-import sqlite3
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-def create_books_table():
-    conn = sqlite3.connect('books.db')
-    cursor = conn.cursor()
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Creating the books table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS books (
-        id INTEGER PRIMARY KEY,
-        isbn TEXT,
-        sku TEXT,
-        title TEXT,
-        stock INTEGER,
-        price REAL
-    );
-    ''')
+db = SQLAlchemy(app)
 
-    conn.commit()
-    conn.close()
+# Define Book model using SQLAlchemy
+class Book(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    isbn = db.Column(db.String(20), unique=True, nullable=False)
+    sku = db.Column(db.String(20), unique=True, nullable=True)
+    title = db.Column(db.String(255), nullable=False)
+    stock = db.Column(db.Integer, default=0)
+    price = db.Column(db.Float, nullable=False)
 
+# Create the database and tables
 if __name__ == '__main__':
-    create_books_table()
-    print("Books table created successfully.")
+    with app.app_context():
+        db.create_all()
+        print("Books table created successfully.")
