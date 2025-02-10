@@ -21,3 +21,5 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         print("Books table created successfully.")
+import os
+print("Current working directory:", os.getcwd())
