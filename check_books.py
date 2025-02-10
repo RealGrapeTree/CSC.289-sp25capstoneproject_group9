@@ -1,15 +1,28 @@
-import sqlite3
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-# Connect to the SQLite database
-conn = sqlite3.connect('books.db')
-cursor = conn.cursor()
+# Initialize Flask app and SQLAlchemy
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-# Query all books
-cursor.execute("SELECT * FROM books")
-rows = cursor.fetchall()
+# Define Book model using SQLAlchemy
+class Book(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    isbn = db.Column(db.String(20), unique=True, nullable=False)
+    sku = db.Column(db.String(20), unique=True, nullable=True)
+    title = db.Column(db.String(255), nullable=False)
+    stock = db.Column(db.Integer, default=0)
+    price = db.Column(db.Float, nullable=False)
 
-# Print all rows in the books table
-for row in rows:
-    print(row)
+# Query all books and print them
+def check_books():
+    books = Book.query.all()
+    for book in books:
+        print(f"ID: {book.id}, ISBN: {book.isbn}, SKU: {book.sku}, Title: {book.title}, Stock: {book.stock}, Price: ${book.price:.2f}")
 
-conn.close()
+# Run the function to check books
+if __name__ == '__main__':
+    with app.app_context():
+        check_books()
