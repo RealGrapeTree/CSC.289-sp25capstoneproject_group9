@@ -23,7 +23,7 @@ login_manager.login_view = "Novel_login.login"
 # User Registration Form class
 class RegisterForm(FlaskForm):
     username = StringField("Enter Username", validators=[InputRequired(), Length(min=4, max=20)]) # Supposed to send a message via label if username not entered or username too short/long
-    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=20)]) # Supposed to send a message via label if password not entered or password too short/long
+    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=50)]) # Supposed to send a message via label if password not entered or password too short/long
     email = EmailField("Enter Email", validators=[InputRequired(), Length(max=254)]) # EmailField already validates the email format and sends a message via label
 
     submit = SubmitField("Sign Up")
@@ -48,7 +48,7 @@ class RegisterForm(FlaskForm):
 # Form for User Login
 class LoginForm(FlaskForm):
     username = StringField("Enter Username", validators=[InputRequired(), Length(min=4, max=20)])
-    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=80)])
+    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=50)])
     submit = SubmitField("Login")
 
 
