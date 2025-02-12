@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3> User Logged in:{{ username }}</h3>
+{% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+<form action="{{ url_for('Novel_login.logout') }}" method="POST">
+    <button type="submit">Logout</button>
+</form>
+<h2>Inventory</h2>
+
+{% endblock %}
