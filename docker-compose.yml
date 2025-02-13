@@ -1,0 +1,12 @@
+name: Novel_Solutions
+services:
+  web:
+    image: novel_solutions:dev
+    container_name: novel_solutions
+    build:
+      context: ./Novel_Solutions 
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    
+
