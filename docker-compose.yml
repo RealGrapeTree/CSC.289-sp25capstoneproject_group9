@@ -6,7 +6,9 @@ services:
     build:
       context: ./Novel_Solutions 
       dockerfile: Dockerfile
+    volumes:
+      - ./Novel_Solutions/instance:/app/instance
     ports:
       - "5000:5000"
     
-
+  
