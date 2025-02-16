@@ -1,12 +1,14 @@
 import requests
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from Novel_inventory import Novel_inventory
+from extensions import db
 
-# Initialize Flask and SQLAlchemy
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+# # Initialize Flask and SQLAlchemy
+# app = Flask(__name__)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# db = SQLAlchemy(app)
 
 # Define the Book model (ensure it matches your database schema)
 class Book(db.Model):

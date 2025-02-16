@@ -4,8 +4,9 @@ from flask import Flask
 from dotenv import load_dotenv
 from blueprints.loginpage.Novel_login import Novel_login
 from blueprints.POS.Novel_POS import Novel_POS
+from blueprints.inventory.Novel_inventory import Novel_inventory
 from extensions import db, bcrypt, login_manager
-from models import User
+from models  import User, Book
 
 # import os module to access environment variables
 import os
@@ -39,6 +40,12 @@ app.register_blueprint(Novel_login)
 # registers the Novel POS blueprint to the app
 app.register_blueprint(Novel_POS)
 
+# registers the Novel inventory blueprint to the app
+app.register_blueprint(Novel_inventory)
+
+
+# Function to create the default manager account if it doesn't exist
+# maybe change for first logon so the admin can create their own password 
 def create_default_manager():
     with app.app_context():  # Ensure the Flask app context is active
         db.create_all()

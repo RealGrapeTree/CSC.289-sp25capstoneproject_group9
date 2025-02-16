@@ -48,7 +48,7 @@ def login():
             if bcrypt.check_password_hash(user.password, form.password.data):
                 # Log in the user after successful login
                 login_user(user)
-                # flash a success message and redirect to the inventory page
+                # flash a success message and redirect to dashboard
                 flash('Login successful!', 'success')
                 return redirect(url_for('Novel_login.dashboard'))
         else:   
@@ -94,7 +94,7 @@ def add_user():
 
         # flash a success message and redirect to the login page
         flash('User created successfully!', 'success')
-        # may change to Novel_inventory.inventory  or home once the inventory blueprint is created
+        
         return redirect(url_for('Novel_login.dashboard'))
 
     return render_template('add_user.html', form=form)
@@ -125,10 +125,4 @@ def dashboard():
     users = User.query.all() if current_user.is_authenticated and current_user.role == 'manager' else None
     return render_template('dashboard.html', user=current_user, users=users)
 
-
-# test route will move to inventory blueprint or change the login route to redirect to the inventory blueprint after it's created
-@Novel_login.route('/inventory', methods=['POST','GET'])
-@login_required
-def inventory():
-    return render_template('inventory.html', username=current_user.username)
 
