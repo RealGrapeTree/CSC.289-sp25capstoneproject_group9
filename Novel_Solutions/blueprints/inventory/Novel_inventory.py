@@ -9,23 +9,6 @@ from flask_login import login_required, current_user
 
 Novel_inventory = Blueprint('Novel_inventory', __name__, template_folder='templates')
 
-# app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'  # Using SQLite
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# db = SQLAlchemy(app)
-
-# # Define the Book model
-# class Book(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     isbn = db.Column(db.String(20), unique=True, nullable=False)
-#     sku = db.Column(db.String(20), unique=True, nullable=True)
-#     title = db.Column(db.String(100), nullable=False)
-#     stock = db.Column(db.Integer, nullable=False)
-#     price = db.Column(db.Float, nullable=False)
-
-# # Create the database tables
-# with app.app_context():
-#     db.create_all()
 
 # Route to search for a book by ISBN or SKU
 @Novel_inventory.route('/inventory', methods=['GET', 'POST'])
