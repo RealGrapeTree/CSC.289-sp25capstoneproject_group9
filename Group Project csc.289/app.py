@@ -70,14 +70,17 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
 
-# Process Sale Route (Restricted to Cashiers)
-@app.route('/process_sale')
-@login_required
-def process_sale():
-    if current_user.role != 'cashier':
-        flash('Unauthorized! Only cashiers can process sales.', 'danger')
-        return redirect(url_for('dashboard'))
-    return render_template('process_sale.html')
+
+    
+### moved to Novel_POS
+# # Process Sale Route (Restricted to Cashiers)
+# @app.route('/process_sale')
+# @login_required
+# def process_sale():
+#     if current_user.role != 'cashier':
+#         flash('Unauthorized! Only cashiers can process sales.', 'danger')
+#         return redirect(url_for('dashboard'))
+#     return render_template('process_sale.html')
 
 # Add User Route (Restricted to Managers)
 @app.route('/add_user', methods=['GET', 'POST'])
