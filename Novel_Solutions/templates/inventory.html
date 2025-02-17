@@ -14,4 +14,22 @@
 </form>
 <h2>Inventory</h2>
 
+
+
+<form method="POST" action="{{ url_for('Novel_inventory.inventory') }}">
+    <input type="text" name="search_term" placeholder="Enter ISBN or SKU" required>
+    <button type="submit">Search</button>
+</form>
+
+
+{% if book %}
+    <p>ISBN: {{book.isbn}}</p>
+    <p>Book Title: {{book.title}}</p>
+    <p>Author: {{book.authors}}</p>
+    <p>Stock: {{book.stock}}</p>
+    <p>Price: {{book.price}}</p>
+    
+{% endif %}
+
+
 {% endblock %}

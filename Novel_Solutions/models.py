@@ -20,3 +20,15 @@ class User(db.Model, UserMixin):  # Inherit from UserMixin to get default implem
     def __repr__(self):
         return f'<User {self.username} - {self.role}>'
     
+
+
+# Define Book model using SQLAlchemy
+class Book(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    isbn = db.Column(db.String(20), unique=True, nullable=False)
+    sku = db.Column(db.String(20), unique=True, nullable=True)
+    title = db.Column(db.String(255), nullable=False)
+    stock = db.Column(db.Integer, default=0)
+    price = db.Column(db.Float, nullable=False)
+    authors = db.Column(db.String(255), nullable=True)
+
