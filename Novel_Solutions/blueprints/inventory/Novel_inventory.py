@@ -7,6 +7,7 @@ from models import Book
 from flask_login import login_required, current_user
 
 
+
 Novel_inventory = Blueprint('Novel_inventory', __name__, template_folder='templates')
 
 
