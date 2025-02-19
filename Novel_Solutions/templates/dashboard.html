@@ -12,7 +12,6 @@
     {% endif %}
 {% endwith %}
 
-
 {% if user.role == 'manager' %}
     <h3>Manage Users</h3>
     <ul>
@@ -26,8 +25,7 @@
             {% else %}
                 <li>{{ user.username }} ({{ user.role }}) - Admin</li>
             {% endif %}
-    {% endfor %}
-    
+        {% endfor %}
     </ul>
     <a href="{{ url_for('Novel_login.add_user') }}">Add New User</a>
 {% endif %}
@@ -36,7 +34,29 @@
     <a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a>
 {% endif %}
 
-<a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a>
+<!-- Navigation Links -->
+<div class="nav-links">
+    <a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a>
+    <a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 My Cart</a>
 
-<a href="{{ url_for('Novel_login.logout') }}">Logout</a>
+    <a href="{{ url_for('Novel_login.logout') }}">Logout</a>
+</div>
+
+<style>
+    /* Style to align links horizontally */
+    .nav-links {
+        margin-top: 15px;
+    }
+    .nav-links a {
+        margin-right: 15px;
+        font-weight: bold;
+        text-decoration: none;
+        color: #007bff;
+    }
+    .nav-links a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+</style>
+
 {% endblock %}

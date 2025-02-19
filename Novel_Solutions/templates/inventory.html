@@ -1,35 +1,55 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Inventory</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Book Inventory</h1>
 
-{% block content %}
-<h3> User Logged in:{{ username }}</h3>
-{% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-            <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-<form action="{{ url_for('Novel_login.logout') }}" method="POST">
-    <button type="submit">Logout</button>
-</form>
-<h2>Inventory</h2>
+    <!-- ✅ Book Search Form -->
+    <form method="POST">
+        <input type="text" name="search_term" placeholder="Search by ISBN or SKU">
+        <button type="submit">Search</button>
+    </form>
 
+    <!-- ✅ Show Search Result (if any) -->
+    {% if search_result %}
+        <h2>Search Result</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Authors</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ search_result.title }}</td>
+                    <td>{{ search_result.authors }}</td>
+                    <td>${{ search_result.price }}</td>
+                    <td>
+                        <button onclick="addToCart({{ search_result.id }})">Add to Cart</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
 
+    <a href="{{ url_for('Novel_cart.view_cart') }}">View Cart</a>
 
-<form method="POST" action="{{ url_for('Novel_inventory.inventory') }}">
-    <input type="text" name="search_term" placeholder="Enter ISBN or SKU" required>
-    <button type="submit">Search</button>
-</form>
-
-
-{% if book %}
-    <p>ISBN: {{book.isbn}}</p>
-    <p>Book Title: {{book.title}}</p>
-    <p>Author: {{book.authors}}</p>
-    <p>Stock: {{book.stock}}</p>
-    <p>Price: {{book.price}}</p>
-    
-{% endif %}
-
-
-{% endblock %}
+    <script>
+        function addToCart(bookId) {
+            fetch(`/add_to_cart/${bookId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+        }
+    </script>
+</body>
+</html>
