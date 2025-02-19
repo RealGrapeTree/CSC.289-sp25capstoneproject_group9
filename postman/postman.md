@@ -13,7 +13,7 @@
 
 
 #### Make a GET request to the home page to ensure the application is running 
-3. Select "GET" from the dropdown menu and type your localhost url 127.0.0.1 as well as the port the application is running on ":5000"
+3. Select "GET" from the dropdown menu and type your localhost url http://127.0.0.1 as well as the port the application is running on ":5000"
 ![alt text](postmanget.png)
 4. Press the "Send" Button
 ![alt text](home.png)
@@ -22,7 +22,7 @@ If the  application is running you should receive a response in
 
 #### Make a POST request to login 
 
-5. Select "POST" from the dropdown menu and add /login to your url
+5. Select "POST" from the dropdown menu and change the url to http://127.0.0.1:5000/login
 6. Select the "raw" radio button and ensure JSON is select to the right
 7. add in JSON format to the text for the username and password of the admin account (or another account if it is already within your database)
 {
