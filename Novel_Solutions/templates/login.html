@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Login</h1>
+<h2>Login</h2>
+
+<div class="container-message">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
@@ -9,12 +11,20 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+</div>
+
     {{form.csrf_token}}
-<form method="POST">
-    {{form.hidden_tag()}} 
-    {{form.username.label}} {{form.username}} 
-    {{form.password.label}} {{form.password}} 
-    {{form.submit}}
-</form>    
-<a href="{{ url_for('Novel_login.add_user') }}">Add New User</a>
+<div class="container-form">
+    <form method="POST">
+        {{form.hidden_tag()}} 
+        {{form.username.label}} {{form.username}}
+        {{form.password.label}} {{form.password}}
+        <div style="margin-top:25px;">{{form.submit}}</div>
+    </form>
+</div>
+
+<ul>
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+</ul>
+
 {% endblock %}

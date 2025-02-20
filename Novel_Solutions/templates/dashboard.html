@@ -2,41 +2,63 @@
 
 {% block content %}
 <h2>Dashboard</h2>
-<p>Welcome, {{ user.username }}! (Role: {{ user.role }})</p>
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-        <p>{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+<div class="container-message">
+    <p>Welcome, {{ user.username }}! (Role: {{ user.role }})</p>
 
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
 
 {% if user.role == 'manager' %}
-    <h3>Manage Users</h3>
-    <ul>
+    <table>
+        <caption><h3>Manage Users</h3></caption>
+        <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Modify</th>
+        </tr>
         {% for user in users %}
             {% if user.username != 'admin' %}
-                <li>{{ user.username }} ({{ user.role }})
-                    <form action="{{ url_for('Novel_login.delete_user', username=user.username) }}" method="POST" style="display:inline;">
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.role }}</td>
+                <td><form action="{{ url_for('Novel_login.delete_user', username=user.username) }}" method="POST" style="display:inline;">
                         <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
-                    </form>
-                </li>
+                    </form></td>
+            </tr>
             {% else %}
-                <li>{{ user.username }} ({{ user.role }}) - Admin</li>
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.role }}</td>
+                <td>N/A - User is Admin</td>
+            </tr>
             {% endif %}
     {% endfor %}
     
-    </ul>
-    <a href="{{ url_for('Novel_login.add_user') }}">Add New User</a>
+    </table>
 {% endif %}
 
-{% if user.role == 'cashier' %}
-    <a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a>
-{% endif %}
+<ul>
+    <li><a class="active" href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
 
-<a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+    {% endif %}
 
-<a href="{{ url_for('Novel_login.logout') }}">Logout</a>
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
+
+
 {% endblock %}

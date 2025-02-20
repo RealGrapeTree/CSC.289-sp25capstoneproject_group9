@@ -2,14 +2,21 @@
 <html>
 <head>
     <title>{% block title %}Novel Solutions{% endblock %}</title>
-    
+    <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
+    <link rel="icon" type="image/png" href="{{url_for('static', filename='images/favicon.png')}}">
 </head>
 
 <body>
-    <h1>Novel Solutions</h1>
-    <!-- The content of the page will be inserted here using templating -->
-    {% block content %}
-    {% endblock %}
+    <div class="container-background">
+        <div class="flex-container" style="display:flex; align-items:center; justify-content:space-between;">
+            <img src="{{url_for('static', filename='images/logo.png')}}" style="width:100px; height:100px;">
+            <h1>A Novel Solution</h1>
+            <h4>2025SP.CSC.289</h4>
+        </div>
+        <!-- The content of the page will be inserted here using templating -->
+        {% block content %}
+        {% endblock %}
+    </div>
 </body>
 
 

@@ -1,19 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h3> User Logged in:{{ username }}</h3>
-{% with messages = get_flashed_messages() %}
+<h2>Inventory</h2>
+
+<div class="container-message">
+    <h3> User Logged in:{{ username }}</h3>
+    {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
             <p>{{ message }}</p>
             {% endfor %}
         {% endif %}
     {% endwith %}
+</div>
+
 <form action="{{ url_for('Novel_login.logout') }}" method="POST">
     <button type="submit">Logout</button>
 </form>
-<h2>Inventory</h2>
-
 
 
 <form method="POST" action="{{ url_for('Novel_inventory.inventory') }}">
@@ -23,13 +26,38 @@
 
 
 {% if book %}
-    <p>ISBN: {{book.isbn}}</p>
-    <p>Book Title: {{book.title}}</p>
-    <p>Author: {{book.authors}}</p>
-    <p>Stock: {{book.stock}}</p>
-    <p>Price: {{book.price}}</p>
-    
+<table>
+    <tr>
+        <th>ISBN</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Stock</th>
+        <th>Price</th>
+    </tr>
+    <tr>
+        <td>{{book.isbn}}</td>
+        <td>{{book.title}}</td>
+        <td>{{book.authors}}</td>
+        <td>{{book.stock}}</td>
+        <td>${{book.price}}</td>
+    </tr>
+</table> 
 {% endif %}
 
+<ul>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+    {% endif %}
+
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+
+    <li><a class="active" href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
 
 {% endblock %}
