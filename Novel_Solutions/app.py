@@ -1,17 +1,15 @@
 #import flask module
 from flask import Flask
-
 from dotenv import load_dotenv
 from blueprints.loginpage.Novel_login import Novel_login
 from blueprints.POS.Novel_POS import Novel_POS
 from blueprints.inventory.Novel_inventory import Novel_inventory
+from blueprints.cart.Novel_cart import Novel_cart  # Import the cart blueprint
 from extensions import db, bcrypt, login_manager
-from models  import User, Book
-
-# import os module to access environment variables
+from models import User, Book
 import os
 
-#load the environment variables from the .env file
+# Load the environment variables from the .env file
 load_dotenv()
 
 # Create an instance of the Flask application
@@ -34,34 +32,26 @@ bcrypt.init_app(app)
 # Configure the LoginManager
 login_manager.init_app(app)
 
-# registers the Novel login blueprint to the app 
+# Register blueprints
 app.register_blueprint(Novel_login)
-
-# registers the Novel POS blueprint to the app
 app.register_blueprint(Novel_POS)
-
-# registers the Novel inventory blueprint to the app
 app.register_blueprint(Novel_inventory)
-
+app.register_blueprint(Novel_cart)  # Register the Novel_cart blueprint
 
 # Function to create the default manager account if it doesn't exist
-# maybe change for first logon so the admin can create their own password 
 def create_default_manager():
     with app.app_context():  # Ensure the Flask app context is active
         db.create_all()
         if not User.query.filter_by(username="admin").first():
             hashed_password = bcrypt.generate_password_hash("admin123").decode('utf-8')
-            manager = User(username="admin", firstname="Admin", lastname="User", email="admin@example.com", password=hashed_password, role="manager")
+            manager = User(username="admin", firstname="Admin", lastname="User", 
+                           email="admin@example.com", password=hashed_password, role="manager")
             db.session.add(manager)
             db.session.commit()
             print("Default manager account created: admin/admin123")
 
-
-
-# maybe move this  
+# Create the default admin account
 create_default_manager()
 
-
 if __name__ == "__main__":
-    
     app.run(debug=True)
