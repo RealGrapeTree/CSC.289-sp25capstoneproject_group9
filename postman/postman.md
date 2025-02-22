@@ -48,8 +48,8 @@ If the  application is running you should receive a response in
 
 ### POST - search book/add book to database
 
-12. change the url to http://127.0.0.1:5000/book_search/<isbn> fill in the isbn you want after the / such as http://127.0.0.1:5000/book_search/9781501143519
-13. change the body radio button to none 
-![](search.png)
+12. change the url to http://127.0.0.1:5000/add_book 
+13. add Json formatted data with isbn, stock, and price of the book
+![alt text](add_book.png)
 14. press send
-![alt text](bookadded.png)
+![alt text](book_added.png)
