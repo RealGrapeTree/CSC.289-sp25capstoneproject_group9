@@ -13,4 +13,4 @@ def process_sale():
     if current_user.role != 'cashier':
         flash('Unauthorized! Only cashiers can process sales.', 'danger')
         return redirect(url_for('Novel_login.dashboard'))
-    return render_template('process_sale.html')
+    return render_template('process_sale.html', user=current_user)
