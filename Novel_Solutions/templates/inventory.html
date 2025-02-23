@@ -4,7 +4,7 @@
 <h2>Inventory</h2>
 
 <div class="container-message">
-    <h3> User Logged in:{{ username }}</h3>
+    <h3> User Logged in:{{ user }}</h3>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
@@ -14,9 +14,7 @@
     {% endwith %}
 </div>
 
-<form action="{{ url_for('Novel_login.logout') }}" method="POST">
-    <button type="submit">Logout</button>
-</form>
+
 
 
 <form method="POST" action="{{ url_for('Novel_inventory.inventory') }}">

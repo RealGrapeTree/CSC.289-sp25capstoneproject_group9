@@ -97,7 +97,7 @@ def add_user():
         
         return redirect(url_for('Novel_login.dashboard'))
 
-    return render_template('add_user.html', form=form, user = current_user)
+    return render_template('add_user.html', form=form, user=current_user)
 
 
 # Delete User Route

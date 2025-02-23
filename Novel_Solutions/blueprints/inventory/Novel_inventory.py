@@ -37,11 +37,11 @@ def inventory():
                 if isbn:
                     new_book = insert_book_into_db(isbn, title, authors)
 
-                    return render_template('inventory.html', book=new_book , username=current_user.username)
+                    return render_template('inventory.html', book=new_book , user=current_user.username)
                 else:
                     flash('Book not found.', 'danger')
 
-        return render_template('inventory.html', username=current_user.username)
+        return render_template('inventory.html', user=current_user.username)
 
 
 # Function to fetch book data from Open Library API using ISBN
