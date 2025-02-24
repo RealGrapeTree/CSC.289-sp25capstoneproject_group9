@@ -26,7 +26,7 @@ def inventory():
             # Check if the book exists within database
             if book:
                 # Render the inventory.html template with the book data
-                return render_template('inventory.html', book=book, username=current_user.username)
+                return render_template('inventory.html', book=book, user=current_user.username)
             
             # Fetch book data from Open Library API if not found within database
             else:
