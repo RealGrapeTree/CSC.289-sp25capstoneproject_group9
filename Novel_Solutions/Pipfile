@@ -12,6 +12,7 @@ flask-login = "*"
 flask-wtf = "*"
 wtforms = "*"
 requests = "*"
+stripe = "*"
 
 [dev-packages]
 
