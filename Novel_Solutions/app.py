@@ -59,12 +59,26 @@ def create_default_manager():
 # Create the default admin account
 create_default_manager()
 
-# Route to render the checkout page
+# ✅ Route to render the checkout page (Now generates PaymentIntent)
 @app.route("/checkout")
 def checkout():
-    return render_template("payment.html", stripe_publishable_key=stripe_publishable_key)
+    try:
+        amount = 5000  # Example: $50.00 (Stripe processes amounts in cents)
+    
+        # Create a PaymentIntent
+        intent = stripe.PaymentIntent.create(
+            amount=amount,
+            currency="usd",
+            payment_method_types=["card"]
+        )
 
-# Route to create a PaymentIntent
+        return render_template("payment.html", 
+                               stripe_publishable_key=stripe_publishable_key, 
+                               client_secret=intent.client_secret)
+    except Exception as e:
+        return jsonify(error=str(e)), 400
+
+# ✅ Route to create a PaymentIntent (Used by payment.html)
 @app.route("/create-payment-intent", methods=["POST"])
 def create_payment():
     try:
@@ -83,7 +97,12 @@ def create_payment():
     except Exception as e:
         return jsonify(error=str(e)), 400
 
-# Stripe Webhook for payment updates
+# ✅ Order Confirmation Page Route
+@app.route("/order-confirmation")
+def order_confirmation():
+    return render_template("order_confirmation.html")  # Redirects to a confirmation page
+
+# ✅ Stripe Webhook for Payment Updates
 @app.route("/webhook", methods=["POST"])
 def stripe_webhook():
     payload = request.get_data(as_text=True)
@@ -91,9 +110,9 @@ def stripe_webhook():
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, stripe_webhook_secret)
-    except ValueError as e:
+    except ValueError:
         return jsonify({"error": "Invalid payload"}), 400
-    except stripe.error.SignatureVerificationError as e:
+    except stripe.error.SignatureVerificationError:
         return jsonify({"error": "Invalid signature"}), 400
 
     if event["type"] == "payment_intent.succeeded":
