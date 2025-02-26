@@ -27,7 +27,6 @@
                 <td>${{ item.total }}</td>
                 <td>
                     <button onclick="removeFromCart({{ item.id }})">Remove</button>
-                    
                 </td>
             </tr>
             {% endfor %}
@@ -36,6 +35,9 @@
     <p>Total: $<span id="cart-total">{{ total_price }}</span></p>
 
     <button onclick="clearCart()">Clear Cart</button>
+
+    <!-- Proceed to Checkout Button -->
+    <a href="{{ url_for('checkout') }}" class="checkout-button">🛒 Proceed to Checkout</a>
 
     <!-- Back to Dashboard Button -->
     <a href="{{ url_for('Novel_login.dashboard') }}" class="back-button">⬅ Back to Dashboard</a>

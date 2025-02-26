@@ -1,9 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-
-
 from extensions import db, bcrypt, login_manager
-
 
 # Create a User model that works with Flask-Login
 class User(db.Model, UserMixin):  # Inherit from UserMixin to get default implementation of required methods
@@ -20,8 +17,6 @@ class User(db.Model, UserMixin):  # Inherit from UserMixin to get default implem
     def __repr__(self):
         return f'<User {self.username} - {self.role}>'
     
-
-
 # Define Book model using SQLAlchemy
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,6 +26,7 @@ class Book(db.Model):
     stock = db.Column(db.Integer, default=0)
     price = db.Column(db.Float, nullable=False)
     authors = db.Column(db.String(255), nullable=True)
+
 
 
 # Inventory class represents the stock of books in the system.
@@ -70,3 +66,18 @@ class InventoryTransaction(db.Model):
             "quantity": self.quantity,
             "timestamp": self.timestamp
         }
+
+# Define Transaction model for storing payment records
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Integer, nullable=False)  # Amount in cents
+    status = db.Column(db.String(50), nullable=False)  # 'pending', 'completed', 'failed'
+    stripe_payment_id = db.Column(db.String(100), unique=True, nullable=False)
+
+    def __init__(self, amount, status, stripe_payment_id):
+        self.amount = amount
+        self.status = status
+        self.stripe_payment_id = stripe_payment_id
+
+    def __repr__(self):
+        return f'<Transaction {self.id} - {self.status}>'

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/payment.css') }}">
+</head>
+<body>
+    <div class="payment-container">
+        <h2>💫 <b>Payment details</b></h2>
+        <form id="payment-form">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Name" required>
+            
+            <label for="card-element">Card number</label>
+            <div id="card-element"></div> <!-- Stripe Elements card input -->
+
+            <button id="submit">✨ Submit</button>
+        </form>
+        <p id="payment-message"></p>
+    </div>
+
+    <script>
+        const stripe = Stripe("{{ stripe_publishable_key }}");
+        const elements = stripe.elements();
+        const card = elements.create("card", { style: { base: { fontSize: '16px' } } });
+        card.mount("#card-element");
+
+        async function fetchClientSecret() {
+            const response = await fetch("/create-payment-intent", {
+                method: "POST",
+                body: JSON.stringify({ amount: 5000 }), // Example amount ($50.00)
+                headers: { "Content-Type": "application/json" }
+            });
+            const { clientSecret } = await response.json();
+            return clientSecret;
+        }
+
+        document.getElementById("payment-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const clientSecret = await fetchClientSecret();
+            
+            const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: card,
+                    billing_details: { name: document.getElementById("name").value }
+                }
+            });
+
+            const message = document.getElementById("payment-message");
+            if (error) {
+                message.textContent = `❌ ${error.message}`;
+            } else {
+                message.textContent = "✅ Payment successful!";
+                setTimeout(() => {
+                    window.location.href = "/order-confirmation"; // Redirect after success
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
