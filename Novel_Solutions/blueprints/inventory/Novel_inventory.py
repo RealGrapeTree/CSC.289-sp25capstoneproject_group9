@@ -1,11 +1,8 @@
-from flask import request, jsonify, Blueprint, request, render_template, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-
+from flask import request, jsonify, Blueprint, render_template, flash
 import requests
 from extensions import db
 from models import Book
 from flask_login import login_required, current_user
-
 
 Novel_inventory = Blueprint('Novel_inventory', __name__, template_folder='templates')
 
@@ -18,14 +15,13 @@ def insert_book_into_db(isbn, title, authors, number_of_pages, publishers, publi
 
 
 
-
-# Function to fetch book data from Open Library API using ISBN
+# ✅ Fetch book data from Open Library API using ISBN
 def get_book_data(isbn):
     url = f'https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data'
     response = requests.get(url)
     data = response.json()
-
     book_info = data.get(f'ISBN:{isbn}')
+    
     if book_info:
         title = book_info.get('title', 'Unknown Title')
         authors = ', '.join([author['name'] for author in book_info.get('authors', [])])

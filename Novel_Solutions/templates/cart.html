@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Your Cart</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="cart-items">
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.title }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.price }}</td>
+                <td>${{ item.total }}</td>
+                <td>
+                    <button onclick="removeFromCart({{ item.id }})">Remove</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Total: $<span id="cart-total">{{ total_price }}</span></p>
+
+    <button onclick="clearCart()">Clear Cart</button>
+
+    <!-- Proceed to Checkout Button -->
+    <a href="{{ url_for('checkout') }}" class="checkout-button">🛒 Proceed to Checkout</a>
+
+    <!-- Back to Dashboard Button -->
+    <a href="{{ url_for('Novel_login.dashboard') }}" class="back-button">⬅ Back to Dashboard</a>
+
+    <script>
+        function removeFromCart(bookId) {
+            fetch(`/remove_from_cart/${bookId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload(); // Refresh to update cart
+            });
+        }
+
+        function clearCart() {
+            fetch(`/clear_cart`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html>

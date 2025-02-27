@@ -6,14 +6,13 @@
 <div class="container-message">
     <p>Welcome, {{ user.username }}! (Role: {{ user.role }})</p>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-            <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
 {% if user.role == 'manager' %}
     <table>
@@ -39,8 +38,7 @@
                 <td>N/A - User is Admin</td>
             </tr>
             {% endif %}
-    {% endfor %}
-    
+        {% endfor %}
     </table>
 {% endif %}
 
@@ -55,10 +53,29 @@
     <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
     {% endif %}
 
-    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Item to Inventory</a></li>
+<!-- Navigation Links -->
+<div class="nav-links">
+    <a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a>
+    <a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 My Cart</a>
 
-    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
-</ul>
+    <a href="{{ url_for('Novel_login.logout') }}">Logout</a>
+</div>
 
+<style>
+    /* Style to align links horizontally */
+    .nav-links {
+        margin-top: 15px;
+    }
+    .nav-links a {
+        margin-right: 15px;
+        font-weight: bold;
+        text-decoration: none;
+        color: #007bff;
+    }
+    .nav-links a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+</style>
 
 {% endblock %}
