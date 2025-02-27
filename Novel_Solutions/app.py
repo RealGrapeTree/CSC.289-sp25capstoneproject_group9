@@ -1,10 +1,11 @@
 # Import necessary modules
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session
 from dotenv import load_dotenv
+from flask_login import LoginManager, login_required, current_user
 from blueprints.loginpage.Novel_login import Novel_login
 from blueprints.POS.Novel_POS import Novel_POS
 from blueprints.inventory.Novel_inventory import Novel_inventory
-from blueprints.cart.Novel_cart import Novel_cart
+from blueprints.cart.Novel_cart import Novel_cart, get_cart_total  # Import cart total function
 from extensions import db, bcrypt, login_manager
 from models import User, Book
 import os
@@ -59,35 +60,42 @@ def create_default_manager():
 # Create the default admin account
 create_default_manager()
 
-# ✅ Route to render the checkout page (Now generates PaymentIntent)
+# ✅ Route to render the checkout page (Now dynamically fetches total cart amount)
 @app.route("/checkout")
+@login_required  # Ensure only logged-in users can checkout
 def checkout():
     try:
-        amount = 5000  # Example: $50.00 (Stripe processes amounts in cents)
-    
-        # Create a PaymentIntent
+        subtotal, tax_amount, total_amount = get_cart_total()  # Fetch total from cart
+        amount_in_cents = int(total_amount * 100)  # Convert to cents for Stripe
+
+        # Create a PaymentIntent with the actual cart amount
         intent = stripe.PaymentIntent.create(
-            amount=amount,
+            amount=amount_in_cents,
             currency="usd",
             payment_method_types=["card"]
         )
 
         return render_template("payment.html", 
                                stripe_publishable_key=stripe_publishable_key, 
-                               client_secret=intent.client_secret)
+                               client_secret=intent.client_secret,
+                               subtotal=subtotal, 
+                               tax_amount=tax_amount, 
+                               total_amount=total_amount)  # Pass cart details
     except Exception as e:
         return jsonify(error=str(e)), 400
 
 # ✅ Route to create a PaymentIntent (Used by payment.html)
 @app.route("/create-payment-intent", methods=["POST"])
+@login_required
 def create_payment():
     try:
         data = request.json
-        amount = data.get("amount")  # Amount in cents
+        subtotal, tax_amount, total_amount = get_cart_total()  # Ensure correct total is used
+        amount_in_cents = int(total_amount * 100)  # Convert to cents
 
         # Create a PaymentIntent
         intent = stripe.PaymentIntent.create(
-            amount=amount,
+            amount=amount_in_cents,
             currency="usd",
             payment_method_types=["card"]
         )
@@ -99,6 +107,7 @@ def create_payment():
 
 # ✅ Order Confirmation Page Route
 @app.route("/order-confirmation")
+@login_required
 def order_confirmation():
     return render_template("order_confirmation.html")  # Redirects to a confirmation page
 
