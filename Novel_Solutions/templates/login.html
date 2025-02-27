@@ -5,20 +5,24 @@
 
 <div class="container-message">
     {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-            <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
+    {% if messages %}
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
 </div>
 
-    {{form.csrf_token}}
+{{form.csrf_token}}
 <div class="container-form">
-    <form method="POST">
-        {{form.hidden_tag()}} 
-        {{form.username.label}} {{form.username}}
-        {{form.password.label}} {{form.password}}
+    <form class="container mt-4" method="POST">
+        {{form.hidden_tag()}}
+        <div class="username-field">
+            {{form.username.label}} {{form.username}}
+        </div>
+        <div>
+            {{form.password.label}} {{form.password}}
+        </div>
         <div style="margin-top:25px;">{{form.submit}}</div>
     </form>
 </div>

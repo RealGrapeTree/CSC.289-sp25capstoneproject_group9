@@ -1,22 +1,33 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>{% block title %}Novel Solutions{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
     <link rel="icon" type="image/png" href="{{url_for('static', filename='images/favicon.png')}}">
 </head>
 
 <body>
     <div class="container-background">
-        <div class="flex-container" style="display:flex; align-items:center; justify-content:space-between;">
-            <img src="{{url_for('static', filename='images/logo.png')}}" style="width:100px; height:100px;">
-            <h1>A Novel Solution</h1>
-            <h4>2025SP.CSC.289</h4>
+        <div class="row align-items-center justify-content-between">
+            <div class="col-4 col-md-2 text-center">
+                <img src="{{url_for('static', filename='images/logo.png')}}" id="logo">
+            </div>
+            <div class="col-4 text center">
+                <h1>A Novel Solution</h1>
+            </div>
+            <div class="col-4 col-md-2 text-center">
+                <h4>2025SP.CSC.289</h4>
+            </div>
         </div>
         <!-- The content of the page will be inserted here using templating -->
         {% block content %}
         {% endblock %}
     </div>
+
 </body>
 
 
