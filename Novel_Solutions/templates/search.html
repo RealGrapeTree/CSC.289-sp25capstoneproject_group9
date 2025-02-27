@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Search Inventory</h2>
+
+<div class="container-message">
+    <h3> User Logged in:{{ user }}</h3>  
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}   
+</div>
+
+<form method="POST" action="{{ url_for('Novel_inventory.search') }}">
+    <input type="text" name="search_term" placeholder="Enter ISBN or SKU" required>
+    <button type="submit">Search</button>
+</form>
+
+{% if book %}
+    <table>
+        <tr>
+            <td> <img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150"/></td>
+            <td>{{book.isbn}}</td>
+            <td>{{book.title}}</td>
+            <td>{{book.authors}}</td>
+            <td>{{book.stock}}</td>
+            <td>${{book.price}}</td>
+            <td>{{book.publish_date}}</td>
+            <td>{{book.publishers}}</td>
+            <td>{{book.number_of_pages}}</td>
+        </tr>
+        
+    </table>
+    
+    <button onclick="addToCart('{{ book.id }}')">Add to Cart</button>
+{% endif %}
+<!-- Navigation Links -->
+<div class="nav-links">
+    <a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a>
+    <a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a>
+    <a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 My Cart</a>
+
+    <a href="{{ url_for('Novel_login.logout') }}">Logout</a>
+</div>
+
+<style>
+    /* Style to align links horizontally */
+    .nav-links {
+        margin-top: 15px;
+    }
+    .nav-links a {
+        margin-right: 15px;
+        font-weight: bold;
+        text-decoration: none;
+        color: #007bff;
+    }
+    .nav-links a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+</style>
+
+<script>
+    function addToCart(bookId) {
+        fetch(`/add_to_cart/${bookId}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        });
+    }
+</script>
+
+{% endblock %}

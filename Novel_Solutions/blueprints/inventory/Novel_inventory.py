@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint, render_template, flash
+from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for
 import requests
 from extensions import db
 from models import Book
@@ -84,5 +84,34 @@ def add_book():
                     flash('Book not found.', 'danger')
 
         return render_template('add_book.html', user=current_user.username)
+    
+
+@Novel_inventory.route('/inventory', methods=['GET'])
+@login_required
+def inventory():
+    if current_user.is_authenticated:
+        books = Book.query.all()
+        return render_template('inventory.html', books=books, user=current_user.username)
+    else:
+        return redirect(url_for('Novel_login.login'))
+    
+@Novel_inventory.route('/search', methods=['GET', 'POST'])
+@login_required
+def search():
+    # Check if the user is logged in
+    if current_user.is_authenticated:
+
+        # Get the search term from the form
+        if request.method == 'POST':
+            search_term = request.form['search_term']
+            book = Book.query.filter((Book.isbn == search_term) | (Book.sku == search_term)).first()
+            if book:
+                return render_template('search.html', book=book, user=current_user.username)
+            if not book:
+                flash('Book not found In Inventory.', 'danger')
+                return render_template('search.html', user=current_user.username)
+    
+  
+    return render_template('search.html', user=current_user.username)
 
 
