@@ -9,7 +9,16 @@
 </head>
 <body>
     <div class="payment-container">
-        <h2>💫 <b>Payment details</b></h2>
+        <h2>💫 <b>Payment Details</b></h2>
+
+        <!-- 🛍️ Display Cart Summary -->
+        <div class="cart-summary">
+            <h3>🛍️ Cart Summary</h3>
+            <p><strong>Subtotal:</strong> ${{ subtotal }}</p>
+            <p><strong>Tax (7.25%):</strong> ${{ tax_amount }}</p>
+            <h3><strong>Total Amount:</strong> ${{ total_amount }}</h3>
+        </div>
+
         <form id="payment-form">
             <label for="name">Name</label>
             <input type="text" id="name" placeholder="Name" required>
@@ -31,7 +40,7 @@
         async function fetchClientSecret() {
             const response = await fetch("/create-payment-intent", {
                 method: "POST",
-                body: JSON.stringify({ amount: 5000 }), // Example amount ($50.00)
+                body: JSON.stringify({ amount: {{ total_amount * 100 }} }), // Convert to cents for Stripe
                 headers: { "Content-Type": "application/json" }
             });
             const { clientSecret } = await response.json();
