@@ -7,3 +7,4 @@ flask_login
 flask-wtf
 wtforms
 stripe
+

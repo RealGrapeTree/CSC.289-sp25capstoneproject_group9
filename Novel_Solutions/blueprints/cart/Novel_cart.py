@@ -72,3 +72,17 @@ def clear_cart():
     session.pop('cart', None)
     session.modified = True
     return jsonify({'message': 'Cart cleared', 'success': True})
+
+def get_cart_total():
+    """Calculate and return the subtotal, tax, and total amount of the cart."""
+    initialize_cart()
+    subtotal = 0
+
+    for book_id, quantity in session['cart'].items():
+        book = Book.query.get(int(book_id))
+        if book:
+            subtotal += book.price * quantity
+
+    tax_amount = round(subtotal * NC_TAX_RATE, 2)
+    total_price = round(subtotal + tax_amount, 2)  # Total with tax
+    return subtotal, tax_amount, total_price

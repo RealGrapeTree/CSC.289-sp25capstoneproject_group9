@@ -1,10 +1,11 @@
 # Import necessary modules
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session
 from dotenv import load_dotenv
+from flask_login import LoginManager, login_required, current_user
 from blueprints.loginpage.Novel_login import Novel_login
 from blueprints.POS.Novel_POS import Novel_POS
 from blueprints.inventory.Novel_inventory import Novel_inventory
-from blueprints.cart.Novel_cart import Novel_cart
+from blueprints.cart.Novel_cart import Novel_cart, get_cart_total  # Import cart total function
 from extensions import db, bcrypt, login_manager
 from models import User, Book
 import os
