@@ -25,8 +25,12 @@ class Book(db.Model):
     title = db.Column(db.String(255), nullable=False)
     stock = db.Column(db.Integer, default=0)
     price = db.Column(db.Float, nullable=False)
+    number_of_pages = db.Column(db.Integer, nullable=True)
     authors = db.Column(db.String(255), nullable=True)
-
+    publishers = db.Column(db.String(255), nullable=True)
+    publish_date = db.Column(db.String(20), nullable=True)
+    thumbnail_url = db.Column(db.String(255), nullable=True)
+    cover = db.Column(db.String(255), nullable=True)
 
 
 # Inventory class represents the stock of books in the system.
@@ -81,3 +85,4 @@ class Transaction(db.Model):
 
     def __repr__(self):
         return f'<Transaction {self.id} - {self.status}>'
+    

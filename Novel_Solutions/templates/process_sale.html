@@ -4,6 +4,28 @@
 
 {% block content %}
 <h2>Process Sale</h2>
-<p>This page is for processing sales.</p>
+
+<div class="container-message">
+    <p>This page is for processing sales.</p>
+</div>
 <!-- Add your sale processing content here -->
+
+
+<ul>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+    {% endif %}
+
+    {% if user.role == 'cashier' %}
+    <li><a class="active" href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
+
+
 {% endblock %}

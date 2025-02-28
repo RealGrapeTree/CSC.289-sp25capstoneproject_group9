@@ -1,14 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Register</h1>
-{% with messages = get_flashed_messages() %}
+<h2>Register</h2>
+
+<div class="container-message">
+    {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
             <p>{{ message }}</p>
             {% endfor %}
         {% endif %}
     {% endwith %}
+</div>
+
 <a href="{{ url_for('Novel_login.login') }}">Login</a>
     {{form.csrf_token}}
 <form method="POST">
@@ -20,5 +24,22 @@
     {{form.password.label}} {{form.password}} 
     {{form.role.label}} {{form.role}}
     {{form.submit}}
-</form>    
+</form>
+
+<ul>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a class="active" href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+    {% endif %}
+
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
+
 {% endblock %}

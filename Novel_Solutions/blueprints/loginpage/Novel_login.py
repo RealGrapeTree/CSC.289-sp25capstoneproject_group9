@@ -10,7 +10,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from .User_forms import RegisterForm, LoginForm
 
 # Imports for the Models
-from models import User
+from models import User, Book
 
 # Create a Blueprint object 
 Novel_login = Blueprint('Novel_login', __name__, template_folder='templates')
@@ -26,9 +26,9 @@ def load_user(user_id):
 
 
 #basic home route can move to a home or iventory blueprint if needed
-@Novel_login.route('/', methods=['POST','GET'])
+@Novel_login.route('/')
 def home():
-    return render_template('home.html')
+    return login()
 
 # login page route
 @Novel_login.route('/login', methods=['POST','GET'])
@@ -97,7 +97,7 @@ def add_user():
         
         return redirect(url_for('Novel_login.dashboard'))
 
-    return render_template('add_user.html', form=form)
+    return render_template('add_user.html', form=form, user=current_user)
 
 
 # Delete User Route
@@ -119,10 +119,11 @@ def delete_user(username):
     return redirect(url_for('Novel_login.dashboard'))
 
 # Dashboard route
-@Novel_login.route('/dashboard')
+@Novel_login.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
     users = User.query.all() if current_user.is_authenticated and current_user.role == 'manager' else None
-    return render_template('dashboard.html', user=current_user, users=users)
+    books = Book.query.all()
+    return render_template('dashboard.html', user=current_user, users=users, books=books)
 
 

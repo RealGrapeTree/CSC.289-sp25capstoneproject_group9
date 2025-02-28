@@ -24,7 +24,7 @@
                 <td>{{ book.authors }}</td>
                 <td>${{ book.price }}</td>
                 <td>
-                    <button onclick="addToCart({{ book.id }})">Add to Cart</button>
+                    <button onclick="addToCart('{{ book.id }}')">Add to Cart</button>
                 </td>
             </tr>
             {% endfor %}
