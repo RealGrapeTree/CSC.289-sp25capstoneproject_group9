@@ -23,8 +23,8 @@
             <tr>
                 <td>{{ item.title }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>${{ item.price }}</td>
-                <td>${{ item.total }}</td>
+                <td>${{ "%.2f"|format(item.price|float) }}</td>
+                <td>${{ "%.2f"|format(item.total|float) }}</td>
                 <td>
                     <button onclick="removeFromCart('{{ item.id }}')">Remove</button>
                 </td>
