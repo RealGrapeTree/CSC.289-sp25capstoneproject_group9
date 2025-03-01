@@ -33,7 +33,9 @@ def process_sale():
 @Novel_POS.route("/checkout")
 def checkout():
     try:
-        amount = 5000  # Example: $50.00 (Stripe processes amounts in cents)
+        subtotal, tax_amount, total_amount = get_cart_total()
+
+        amount = int(total_amount * 100)
     
         # Create a PaymentIntent
         intent = stripe.PaymentIntent.create(
@@ -44,7 +46,10 @@ def checkout():
 
         return render_template("payment.html", 
                                stripe_publishable_key=stripe_publishable_key, 
-                               client_secret=intent.client_secret)
+                               client_secret=intent.client_secret, 
+                               subtotal=subtotal, 
+                               tax_amount=tax_amount, 
+                               total_amount=total_amount)
     except Exception as e:
         return jsonify(error=str(e)), 400
 

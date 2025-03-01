@@ -14,9 +14,9 @@
         <!-- 🛍️ Display Cart Summary -->
         <div class="cart-summary">
             <h3>🛍️ Cart Summary</h3>
-            <p><strong>Subtotal:</strong> ${{ subtotal }}</p>
-            <p><strong>Tax (7.25%):</strong> ${{ tax_amount }}</p>
-            <h3><strong>Total Amount:</strong> ${{ total_amount }}</h3>
+            <p><strong>Subtotal:</strong> ${{ "%.2f"|format(subtotal|float) }}</p>
+            <p><strong>Tax (7.25%):</strong> ${{ "%.2f"|format(tax_amount|float) }}</p>
+            <h3><strong>Total Amount:</strong> ${{ "%.2f"|format(total_amount|float) }}</h3>
         </div>
 
         <form id="payment-form">
