@@ -26,7 +26,7 @@ def load_user(user_id):
 
 
 #basic home route can move to a home or iventory blueprint if needed
-@Novel_login.route('/')
+@Novel_login.route('/', methods=['GET', 'POST'])
 def home():
     return login()
 

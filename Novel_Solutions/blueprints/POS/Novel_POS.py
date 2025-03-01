@@ -3,6 +3,7 @@ from flask import  render_template, Blueprint, redirect, url_for, request, flash
 from extensions import db, bcrypt, login_manager
 from flask_login import  UserMixin, login_user, logout_user, current_user, login_required
 from ..loginpage.Novel_login import Novel_login
+from ..cart.Novel_cart import Novel_cart, get_cart_total  # Import cart total function
 import stripe 
 import os
 

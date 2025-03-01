@@ -9,7 +9,7 @@ from blueprints.cart.Novel_cart import Novel_cart, get_cart_total  # Import cart
 from extensions import db, bcrypt, login_manager
 from models import User, Book
 import os
-import stripe
+
 
 # Load the environment variables from the .env file
 load_dotenv()
