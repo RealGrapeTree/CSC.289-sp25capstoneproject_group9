@@ -1,0 +1,13 @@
+<!-- request_refund.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Request Refund for Order #{{ order.id }}</h1>
+    <form method="POST">
+        <div class="form-group">
+            <label for="reason">Reason for Refund:</label>
+            <textarea id="reason" name="reason" class="form-control" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Refund Request</button>
+    </form>
+{% endblock %}
