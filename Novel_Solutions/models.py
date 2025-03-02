@@ -16,6 +16,7 @@ class User(db.Model, UserMixin):  # Inherit from UserMixin to get default implem
 
     def __repr__(self):
         return f'<User {self.username} - {self.role}>'
+
     
 # Define Book model using SQLAlchemy
 class Book(db.Model):
@@ -52,7 +53,6 @@ class Inventory(db.Model):
 
 # InventoryTransaction class logs all inventory-related transactions.
 # It helps maintain a history of stock changes for tracking and auditing.
-
 class InventoryTransaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
@@ -71,18 +71,41 @@ class InventoryTransaction(db.Model):
             "timestamp": self.timestamp
         }
 
+
 # Define Transaction model for storing payment records
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Integer, nullable=False)  # Amount in cents
     status = db.Column(db.String(50), nullable=False)  # 'pending', 'completed', 'failed'
     stripe_payment_id = db.Column(db.String(100), unique=True, nullable=False)
+    refunded = db.Column(db.Boolean, default=False)
+    user_id = db.Column(db.String(20), db.ForeignKey('user.username'), nullable=False)  # Add user_id column
 
-    def __init__(self, amount, status, stripe_payment_id):
+    user = db.relationship('User', backref=db.backref('transactions', lazy=True))  # Create relationship to User
+
+    def __init__(self, amount, status, stripe_payment_id, user_id):
         self.amount = amount
         self.status = status
         self.stripe_payment_id = stripe_payment_id
+        self.user_id = user_id
 
     def __repr__(self):
         return f'<Transaction {self.id} - {self.status}>'
+
     
+# RefundRequest Model for handling refund requests
+class RefundRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=False)  # Use transaction.id
+    user_id = db.Column(db.String(20), db.ForeignKey('user.username'), nullable=False)  # Use user.username
+    reason = db.Column(db.String(500), nullable=False)
+    status = db.Column(db.String(50), default='pending')  # 'pending', 'accepted', 'denied'
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+    processed_at = db.Column(db.DateTime, nullable=True)
+
+    # Relationships
+    transaction = db.relationship('Transaction', backref=db.backref('refund_requests', lazy=True))
+    user = db.relationship('User', backref=db.backref('refund_requests', lazy=True))
+
+    def __repr__(self):
+        return f'<RefundRequest {self.id} - {self.status}>'

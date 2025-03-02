@@ -1,0 +1,30 @@
+<!-- previous_orders.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Your Previous Orders</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>${{ order.amount / 100 }}</td>
+                <td>{{ order.status }}</td>
+                <td>
+                    {% if order.status == 'completed' and not order.refunded %}
+                        <a href="{{ url_for('Novel_POS.request_refund', order_id=order.id) }}" class="btn btn-warning">Request Refund</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

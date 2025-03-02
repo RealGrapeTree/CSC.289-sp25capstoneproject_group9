@@ -1,0 +1,33 @@
+<!-- manager_refund_requests.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Pending Refund Requests</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for refund in refund_requests %}
+            <tr>
+                <td>{{ refund.order_id }}</td>
+                <td>{{ refund.user.firstname }} {{ refund.user.lastname }}</td>
+                <td>{{ refund.reason }}</td>
+                <td>{{ refund.status }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('Novel_POS.manage_refund', refund_id=refund.id) }}">
+                        <button type="submit" name="action" value="accept" class="btn btn-success">Accept</button>
+                        <button type="submit" name="action" value="deny" class="btn btn-danger">Deny</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
