@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Previous Transactions</h2>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+{% if transactions %}
+    <table>
+        <caption><h3>Transaction List</h3></caption>
+        <tr>
+            <th>Transaction ID</th>
+            <th>Amount (USD)</th>
+            <th>Status</th>
+            <th>Payment ID</th>
+            <th>Timestamp</th>
+        </tr>
+        {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.id }}</td>
+                <td>${{ transaction.amount / 100 }}</td>  <!-- Convert from cents to dollars -->
+                <td>{{ transaction.status }}</td>
+                <td>{{ transaction.stripe_payment_id }}</td>
+                <td>{{ transaction.timestamp }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No transactions found.</p>
+{% endif %}
+
+<!-- Back to Dashboard -->
+<a href="{{ url_for('Novel_login.dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+
+{% endblock %}

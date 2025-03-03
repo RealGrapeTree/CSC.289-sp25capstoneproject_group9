@@ -1,21 +1,19 @@
-
-from flask import  render_template, Blueprint, redirect, url_for, request, flash, jsonify
+from flask import render_template, Blueprint, redirect, url_for, request, flash, jsonify
 from extensions import db, bcrypt, login_manager
-from flask_login import  UserMixin, login_user, logout_user, current_user, login_required
+from flask_login import UserMixin, login_user, logout_user, current_user, login_required
 from ..loginpage.Novel_login import Novel_login
 from ..cart.Novel_cart import Novel_cart, get_cart_total  # Import cart total function
-import stripe 
+import stripe
 import os
+from models import User, Book, Transaction  # Add this line to import the Transaction model
 
+# Create a Blueprint object
 Novel_POS = Blueprint('Novel_POS', __name__, template_folder='templates')
-
 
 # Configure Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 stripe_publishable_key = os.getenv("STRIPE_PUBLISHABLE_KEY")
 stripe_webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
-
-
 
 # Process Sale Route (Restricted to Cashiers)
 @Novel_POS.route('/process_sale')
@@ -25,9 +23,6 @@ def process_sale():
         flash('Unauthorized! Only cashiers can process sales.', 'danger')
         return redirect(url_for('Novel_login.dashboard'))
     return render_template('process_sale.html', user=current_user)
-
-
-
 
 # ✅ Route to render the checkout page (Now generates PaymentIntent)
 @Novel_POS.route("/checkout")
@@ -98,3 +93,16 @@ def stripe_webhook():
         print(f"❌ Payment failed. PaymentIntent ID: {intent['id']}")
 
     return jsonify({"status": "success"}), 200
+
+# Route to view previous transactions (Restricted to managers)
+@Novel_POS.route("/transactions")
+@login_required
+def view_transactions():
+    if current_user.role != 'manager':
+        flash('Unauthorized! Only managers can view transactions.', 'danger')
+        return redirect(url_for('Novel_login.dashboard'))
+    
+    # Fetch all transactions from the database
+    transactions = Transaction.query.all()
+
+    return render_template("view_transactions.html", transactions=transactions)
