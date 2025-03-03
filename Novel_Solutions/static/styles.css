@@ -1,14 +1,14 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
     background-color: #d0e6f2;
+    background-repeat: no-repeat, repeat;
+    background-size: auto;
     color: #020301;
     background-image: url('/static/images/login-background-image.jpg')
 }
 
-.container-background {
-    width: 1200px;
-    margin: 70px auto;
-    padding: 25px 40px;
+#container {
+    margin: auto;
     background-color: #d0e6f2;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
@@ -32,12 +32,17 @@ label {
     margin-right: 5px;
 }
 
-h1, h4 {
+h1,
+h4 {
     text-align: center;
     color: #016280
 }
 
-h2 {
+h2,
+#remove-button,
+#search-button,
+#clear-button,
+#add-book-link {
     text-align: center;
     color: #EBF8FF;
     background-color: #016280;
@@ -47,16 +52,16 @@ h2 {
 
 a {
     text-decoration: none;
-    color:#016280
+    color: #016280
 }
 
-a:hover{
+a:hover {
     text-decoration: underline;
 }
 
 ul {
     list-style-type: none;
-    background-color:  #a0c2d0;
+    background-color: #a0c2d0;
     border-radius: 5px;
     margin: 20px 0px 0px;
     padding: 0;
@@ -66,27 +71,29 @@ ul {
 li {
     float: left;
 }
-  
+
 li a {
     text-align: center;
     text-decoration: none;
     display: block;
     padding: 14px 16px;
 }
-  
+
 li a:hover:not(.active) {
     background-color: #b5d6e8;
 }
-  
+
 .active {
     background-color: #8cb6c8;
 }
 
-input[type=text], input[type=password], input[type=email] {
+input[type=text],
+input[type=password],
+input[type=email] {
     background-color: #9eddff;
     border: 2px solid #a0c2d0;
     border-radius: 25px;
-    padding:7px;
+    padding: 7px;
 }
 
 input[type=submit] {
@@ -139,7 +146,7 @@ th {
 }
 
 td {
-    background-color:#EBF8FF;
+    background-color: #EBF8FF;
     padding: 10px;
 }
 
