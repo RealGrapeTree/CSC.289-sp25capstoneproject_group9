@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Inventory</h2>
+
+<div class="container-message">
+    <h3> User Logged in:{{ user }}</h3>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+
+
+
+<form method="POST" action="{{ url_for('Novel_inventory.add_book') }}">
+    <input type="text" name="search_term" placeholder="Enter ISBN or SKU" required>
+    <input type="number" name="stock" placeholder="Enter stock" required>
+    <input type="number" name="price" placeholder="Enter price" required step="0.01">
+    <button type="submit">Add Book To Inventory</button>
+</form>
+
+
+{% if book %}
+<table>
+    <tr>
+        <th>Cover</th>
+        <th>ISBN</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Stock</th>
+        <th>Price</th>
+        <th>Publish Date</th>
+        <th>Publishers</th>
+        <th>Number of Pages</th>
+
+    </tr>
+    <tr>
+        <td> <img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150"/></td>
+        <td>{{book.isbn}}</td>
+        <td>{{book.title}}</td>
+        <td>{{book.authors}}</td>
+        <td>{{book.stock}}</td>
+        <td>${{book.price}}</td>
+        <td>{{book.publish_date}}</td>
+        <td>{{book.publishers}}</td>
+        <td>{{book.number_of_pages}}</td>
+        
+    
+    </tr>
+    
+    
+
+    
+</table> 
+{% endif %}
+
+
+
+
+<ul>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+    {% endif %}
+
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+
+    <li><a class="active" href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}">View Cart</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
+
+
+
+
+
+{% endblock %}
