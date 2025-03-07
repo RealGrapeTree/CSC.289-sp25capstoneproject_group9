@@ -74,15 +74,15 @@ class InventoryTransaction(db.Model):
 # Define Transaction model for storing payment records
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(20), db.ForeignKey('user.username'), nullable=False)  # Cashier/Manager
     amount = db.Column(db.Integer, nullable=False)  # Amount in cents
-    status = db.Column(db.String(50), nullable=False)  # 'pending', 'completed', 'failed'
+    status = db.Column(db.String(50), nullable=False)  # 'pending', 'completed', 'failed', 'refunded'
     stripe_payment_id = db.Column(db.String(100), unique=True, nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-    def __init__(self, amount, status, stripe_payment_id):
-        self.amount = amount
-        self.status = status
-        self.stripe_payment_id = stripe_payment_id
+    user = db.relationship('User', backref=db.backref('transactions', lazy=True))
 
     def __repr__(self):
         return f'<Transaction {self.id} - {self.status}>'
+
     
