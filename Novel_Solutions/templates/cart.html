@@ -34,9 +34,18 @@
             {% endfor %}
         </tbody>
     </table>
+    <p>Subtotal: $<span id="cart-subtotal">{{ subtotal }}</span></p>
+    <p>Tax: $<span id="cart-tax">{{ tax_amount }}</span></p>
     <p>Total: $<span id="cart-total">{{ total_price }}</span></p>
-
     <button onclick="clearCart()" id="clear-button">Clear Cart</button>
+
+    <!-- Apply Discount Functionality Section -->
+    <h2>Apply Discount</h2>
+    <input type="text" id="promo-code" placeholder="Enter promo code">
+    <button onclick="applyDiscount()">Apply</button>
+
+    <p>Discount Applied: <span id="discount-amount">{{ discount }}%</span></p>
+    <p>Total After Discount: $<span id="cart-total">{{ discount_amount }}</span></p>
 
     <!-- Proceed to Checkout Button -->
     <a href="{{ url_for('Novel_POS.checkout') }}" class="checkout-button">🛒 Proceed to Checkout</a>
@@ -61,6 +70,26 @@
                     alert(data.message);
                     location.reload();
                 });
+        }
+
+        function applyDiscount() {
+            let promoCode = document.getElementById("promo-code").value;
+
+            fetch("/apply_discount", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ promo_code: promoCode })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.discount > 0) {
+                        alert(data.message);
+                    } else {
+                        alert("Invalid promo code!");
+                    }
+                    location.reload(); // Refresh to apply discount
+                })
+                .catch(error => console.error("Error:", error));
         }
     </script>
 </body>
