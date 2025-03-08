@@ -25,6 +25,7 @@
             <th>Publish Date</th>
             <th>Publishers</th>
             <th>Number of Pages</th>
+            <th>Actions</th>  <!-- Added Actions column for Edit/Delete -->
         </tr>
     {% for book in books %}
         <tr>
@@ -37,6 +38,14 @@
             <td>{{book.publish_date}}</td>
             <td>{{book.publishers}}</td>
             <td>{{book.number_of_pages}}</td>
+            <td>  <!-- Actions column -->
+                <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}" class="update-button">✏️ update</a>  
+                <!-- Delete Form -->
+                <form method="POST" action="{{ url_for('Novel_inventory.delete_book', book_id=book.id) }}" style="display:inline;">
+                    <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this book?');">🗑️ Delete</button>
+                </form>
+            </td>
+
         </tr>
         
     {% endfor %}
@@ -67,5 +76,21 @@
         color: #0056b3;
         text-decoration: underline;
     }
+    /* Style for Edit and Delete buttons */
+    .update-button {
+        color: blue;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+
+    .delete-button {
+        color: red;
+        text-decoration: none;
+    }
+
+    .delete-button:hover {
+        font-weight: bold;
+    }
+
 </style>
 {% endblock %}
