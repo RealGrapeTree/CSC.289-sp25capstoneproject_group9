@@ -1,11 +1,18 @@
-
-
-# used for creating secret keys for flask
-
+import os
 import secrets
+from dotenv import load_dotenv
 
-# Generate a secure random string (hexadecimal)
-SECRET_KEY = secrets.token_hex(24)
+# Load environment variables from .env file
+load_dotenv()
 
-# print secret key for copying to .env
-print (SECRET_KEY)
+class Config:
+    SECRET_KEY = os.getenv("SECRET_KEY") or secrets.token_hex(24)
+    STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+    STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+    STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+# Debug: Print out values to check if they are loaded
+print(f"SECRET_KEY: {Config.SECRET_KEY}")
+print(f"STRIPE_SECRET_KEY: {Config.STRIPE_SECRET_KEY}")
+print(f"STRIPE_PUBLISHABLE_KEY: {Config.STRIPE_PUBLISHABLE_KEY}")
+print(f"STRIPE_WEBHOOK_SECRET: {Config.STRIPE_WEBHOOK_SECRET}")

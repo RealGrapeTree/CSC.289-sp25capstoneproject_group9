@@ -1,8 +1,12 @@
+import stripe
 from flask import Blueprint, request, jsonify
 from extensions import db
-from models import Inventory,InventoryTransaction
-
+from models import Inventory, InventoryTransaction
+from config import Config  # Ensure your config.py has STRIPE_SECRET_KEY
 from .helper import get_inventory_by_id, get_inventory_by_book_id, update_inventory_stock, log_transaction
+
+# Initialize Stripe API
+stripe.api_key = Config.STRIPE_SECRET_KEY  # Ensure this is set in config.py
 
 # Define Blueprint
 inventory_api = Blueprint("inventory_api", __name__, url_prefix="/api/inventory")
@@ -29,13 +33,11 @@ def create_inventory():
 
     return jsonify({"message": "Inventory record created or updated"}), 201
 
-
 # Get All Inventory Records
 @inventory_api.route("/", methods=["GET"])
 def get_inventory():
     inventory = Inventory.query.all()
     return jsonify([entry.to_dict() for entry in inventory]), 200
-
 
 @inventory_api.route("/<int:inventory_id>", methods=["GET"])
 def get_inventory_record(inventory_id):
@@ -45,8 +47,7 @@ def get_inventory_record(inventory_id):
 
     return jsonify(inventory_entry.to_dict()), 200
 
-
-# Update Inventory Record**
+# Update Inventory Record
 @inventory_api.route("/<int:inventory_id>", methods=["PUT"])
 def update_inventory(inventory_id):
     inventory_entry = get_inventory_by_id(inventory_id)
@@ -65,7 +66,6 @@ def update_inventory(inventory_id):
 
     return jsonify({"message": f"Inventory record updated for {change_type}."}), 200
 
-
 # Delete Inventory Record
 @inventory_api.route("/<int:inventory_id>", methods=["DELETE"])
 def delete_inventory(inventory_id):
@@ -76,7 +76,6 @@ def delete_inventory(inventory_id):
     db.session.delete(inventory_entry)
     db.session.commit()
     return jsonify({"message": "Inventory record deleted"}), 200
-
 
 # Process Sale (Connect to Sales Transaction)
 @inventory_api.route("/sale", methods=["POST"])
@@ -103,3 +102,25 @@ def process_sale():
 def get_inventory_transactions():
     transactions = InventoryTransaction.query.all()  # Query all transactions
     return jsonify([transaction.to_dict() for transaction in transactions]), 200
+
+# Fetch Transactions from Stripe
+@inventory_api.route("/stripe-transactions", methods=["GET"])
+def get_stripe_transactions():
+    try:
+        # Retrieve the latest transactions from Stripe
+        transactions = stripe.PaymentIntent.list(limit=10)  # Adjust limit as needed
+
+        formatted_transactions = []
+        for txn in transactions["data"]:
+            formatted_transactions.append({
+                "id": txn["id"],
+                "amount": txn["amount"],
+                "status": txn["status"],
+                "stripe_payment_id": txn["id"],
+                "timestamp": txn["created"]
+            })
+
+        return jsonify(formatted_transactions), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
