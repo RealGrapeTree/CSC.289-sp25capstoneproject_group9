@@ -32,45 +32,6 @@ class Book(db.Model):
     thumbnail_url = db.Column(db.String(255), nullable=True)
     cover = db.Column(db.String(255), nullable=True)
 
-
-# Inventory class represents the stock of books in the system.
-# It tracks changes in inventory due to restocking, sales, or damaged books.
-class Inventory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
-    stock = db.Column(db.Integer, default=0)  # Represents the current stock of books
-
-    book = db.relationship('Book', backref=db.backref('inventory', lazy=True))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "book_id": self.book_id,
-            "stock": self.stock
-        }
-
-
-# InventoryTransaction class logs all inventory-related transactions.
-# It helps maintain a history of stock changes for tracking and auditing.
-
-class InventoryTransaction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
-    change_type = db.Column(db.String(50), nullable=False)  # 'sale', 'restock', 'damaged'
-    quantity = db.Column(db.Integer, nullable=False)
-    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
-
-    book = db.relationship('Book', backref=db.backref('inventory_transactions', lazy=True))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "book_id": self.book_id,
-            "change_type": self.change_type,
-            "quantity": self.quantity,
-            "timestamp": self.timestamp
-        }
-
 # Define Transaction model for storing payment records
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
