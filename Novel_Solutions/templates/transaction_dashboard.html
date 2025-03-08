@@ -27,6 +27,7 @@
             </div>
         </div>
         
+        <!-- Transaction Table -->
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -39,38 +40,61 @@
                 </tr>
             </thead>
             <tbody id="transactionTableBody">
+                <!-- Data will be inserted here dynamically -->
             </tbody>
         </table>
+
+        <!-- Error Alert -->
+        <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+            Failed to fetch transactions. Please check the API.
+        </div>
     </div>
 
     <script>
+        // Fetch transactions from the backend
         function fetchTransactions() {
-            let user = $('#userFilter').val();
-            let start = $('#startDate').val();
-            let end = $('#endDate').val();
-            
-            let url = "/transactions";
-            if (user || start || end) {
-                url = `/transactions/filter?user=${user}&start=${start}&end=${end}`;
-            }
-            
+            let url = "/api/inventory/stripe-transactions";  // Fetch from API
+
             $.get(url, function(data) {
                 let tableBody = "";
-                data.forEach(transaction => {
-                    tableBody += `<tr>
-                        <td>${transaction.id}</td>
-                        <td>${transaction.user}</td>
-                        <td>$${(transaction.amount / 100).toFixed(2)}</td>
-                        <td>${transaction.status}</td>
-                        <td>${transaction.stripe_payment_id}</td>
-                        <td>${transaction.timestamp}</td>
-                    </tr>`;
-                });
-                $('#transactionTableBody').html(tableBody);
+                
+                // Ensure data is in expected format
+                if (Array.isArray(data)) {
+                    data.forEach(transaction => {
+                        let date = new Date(transaction.timestamp * 1000).toLocaleString();  // Convert UNIX timestamp
+
+                        tableBody += `<tr>
+                            <td>${transaction.id}</td>
+                            <td>N/A</td>  <!-- No user associated with Stripe transactions -->
+                            <td>$${(transaction.amount / 100).toFixed(2)}</td>
+                            <td>${transaction.status}</td>
+                            <td>${transaction.stripe_payment_id}</td>
+                            <td>${date}</td>
+                        </tr>`;
+                    });
+
+                    $('#transactionTableBody').html(tableBody);
+                    $('#errorAlert').addClass('d-none');  // Hide error alert on success
+                } else {
+                    showError("Unexpected data format.");
+                }
+            }).fail(function(xhr, status, error) {
+                console.log("Error: " + error);
+                console.log("Status: " + status);
+                console.log("Response: " + xhr.responseText);
+                showError("Failed to fetch transactions. Please check the API.");
             });
         }
-        
-        $(document).ready(() => fetchTransactions());
+
+        // Display error message
+        function showError(message) {
+            $('#errorAlert').removeClass('d-none');
+            $('#errorAlert').text(message);
+        }
+
+        $(document).ready(() => {
+            fetchTransactions();  // Automatically fetch transactions when the page loads
+        });
     </script>
 </body>
 </html>
