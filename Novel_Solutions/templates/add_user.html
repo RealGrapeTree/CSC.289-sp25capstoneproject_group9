@@ -1,43 +1,73 @@
 {% extends "base.html" %}
 
+<title>{% block title %}Register User{% endblock %}</title>
+
 {% block content %}
-<h2>Register</h2>
+<h2>Register User</h2>
 
 <div class="container-message">
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-            <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    Current User: {{ user.username }} [{{ user.role }}]<br>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 </div>
 
-<a href="{{ url_for('Novel_login.login') }}">Login</a>
-    {{form.csrf_token}}
-<form method="POST">
-    {{form.hidden_tag()}} 
-    {{form.email.label}} {{form.email}}
-    {{form.username.label}} {{form.username}} 
-    {{form.firstname.label}} {{form.firstname}} 
-    {{form.lastname.label}} {{form.lastname}} 
-    {{form.password.label}} {{form.password}} 
-    {{form.role.label}} {{form.role}}
-    {{form.submit}}
-</form>
 
-<ul>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+{{form.csrf_token}}
+<div class="container-form">
+    <form method="POST" class="container mt-4">
+        {{form.hidden_tag()}}
+        <!-- First Name & Last Name -->
+        <div class="row" id="form-row">
+            <div class="col">{{form.firstname.label}} {{form.firstname}}</div>
+            <div class="col">{{form.lastname.label}} {{form.lastname}}</div>
+        </div>
+
+        <!-- Username & Password -->
+        <div class="row" id="form-row">
+            <div class="col">{{form.username.label}} {{form.username}}</div>
+            <div class="col">{{form.password.label}} {{form.password}}</div>
+        </div>
+
+        <!-- Email & Role -->
+        <div class="row" id="form-row">
+            <div class="col">{{form.email.label}} {{form.email}}</div>
+            <div class="col">{{form.role.label}} {{form.role}}</div>
+        </div>
+        
+        <!-- Add User -->
+        <div>{{form.submit}}</div>
+    </form>
+</div>
+
+
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
 
     {% if user.role == 'manager' %}
-    <li><a class="active" href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+    <li><a class="active" href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
-
+    
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
     {% if user.role == 'cashier' %}
     <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
     {% endif %}
-
-    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>

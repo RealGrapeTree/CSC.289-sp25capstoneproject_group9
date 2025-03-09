@@ -25,7 +25,7 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
-#basic home route can move to a home or iventory blueprint if needed
+# basic home route, can move to a home or inventory blueprint if needed
 @Novel_login.route('/', methods=['GET', 'POST'])
 def home():
     return login()
@@ -53,7 +53,7 @@ def login():
                 return redirect(url_for('Novel_login.dashboard'))
         else:   
             # flash an error message and redirect to the login page
-            flash('Login unsuccessful. Please check username and password', 'danger')
+            flash('Login unsuccessful. Please check username and password.', 'danger')
             return redirect(url_for('Novel_login.login'))   
         
     return render_template('login.html', form=form)
@@ -64,7 +64,7 @@ def login():
 def logout():
     # logout the user
     logout_user()
-    flash('You have been logged out')
+    flash('You have been logged out.')
     # redirect to the login page
     return redirect(url_for('Novel_login.login'))
 

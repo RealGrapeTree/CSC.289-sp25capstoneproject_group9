@@ -1,69 +1,91 @@
 {% extends "base.html" %}
 
+<title>{% block title %}Search Inventory{% endblock %}</title>
+
 {% block content %}
 <h2>Search Inventory</h2>
 
 <div class="container-message">
-    <h3> User Logged in:{{ user }}</h3>
-    {% with messages = get_flashed_messages() %}
+    Current User: {{ user.username }} [{{ user.role }}]<br>
+
+{% with messages = get_flashed_messages() %}
     {% if messages %}
-    {% for message in messages %}
-    <p>{{ message }}</p>
-    {% endfor %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
     {% endif %}
-    {% endwith %}
+{% endwith %}
 </div>
 
-<form method="POST" action="{{ url_for('Novel_inventory.search') }}">
-    <input type="text" name="search_term" placeholder="Enter ISBN or SKU" required>
-    <button type="submit" id="search-button">Search</button>
-</form>
+<div class="container-action">
+    <form method="POST" action="{{ url_for('Novel_inventory.search') }}">
+        <input type="text" id="inventory-input" name="search_term" placeholder="Enter ISBN or SKU" required>
+        <button type="submit" id="action-button">Search</button>
+    </form>
+</div>
+
 
 {% if book %}
 <table>
-    <tr>
-        <td> <img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150" /></td>
-        <td>{{book.isbn}}</td>
-        <td>{{book.title}}</td>
-        <td>{{book.authors}}</td>
-        <td>{{book.stock}}</td>
-        <td>${{book.price}}</td>
-        <td>{{book.publish_date}}</td>
-        <td>{{book.publishers}}</td>
-        <td>{{book.number_of_pages}}</td>
-    </tr>
-
+    <caption><h3>Search Results</h3></caption>
+    <thead>
+        <tr>
+            <th class="col-1">Cover</th>
+            <th class="col-1">ISBN</th>
+            <th class="col-2">Title</th>
+            <th class="col-1">Author</th>
+            <th class="col-1">Stock</th>
+            <th class="col-1">Unit Price</th>
+            <th class="col-1">Published</th>
+            <th class="col-1">Publishers</th>
+            <th class="col-1">Pages</th>
+            <th class="col-2">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td> <img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150" /></td>
+            <td>{{book.isbn}}</td>
+            <td>{{book.title}}</td>
+            <td>{{book.authors}}</td>
+            <td>{{book.stock}}</td>
+            <td>${{ "%.2f"|format(book.price|float) }}</td>
+            <td>{{book.publish_date}}</td>
+            <td>{{book.publishers}}</td>
+            <td>{{book.number_of_pages}}</td>
+            <td><button onclick="addToCart('{{ book.id }}')" id="table-button">Add to Cart</button></td>
+        </tr>
+    </tbody>
 </table>
-
-<button onclick="addToCart('{{ book.id }}')">Add to Cart</button>
 {% endif %}
+
+
 <!-- Navigation Links -->
-<div class="nav-links">
-    <a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a>
-    <a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a>
-    <a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 My Cart</a>
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
 
-    <a href="{{ url_for('Novel_login.logout') }}">Logout</a>
-</div>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+    {% endif %}
+    
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a class="active" href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
-<style>
-    /* Style to align links horizontally */
-    .nav-links {
-        margin-top: 15px;
-    }
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
 
-    .nav-links a {
-        margin-right: 15px;
-        font-weight: bold;
-        text-decoration: none;
-        color: #007bff;
-    }
-
-    .nav-links a:hover {
-        color: #0056b3;
-        text-decoration: underline;
-    }
-</style>
 
 <script>
     function addToCart(bookId) {

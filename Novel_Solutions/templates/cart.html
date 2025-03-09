@@ -1,97 +1,142 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
+<title>{% block title %}Shopping Cart{% endblock %}</title>
 
-<body>
-    <h1>Your Cart</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="cart-items">
-            {% for item in cart_items %}
-            <tr>
-                <td>{{ item.title }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>${{ "%.2f"|format(item.price|float) }}</td>
-                <td>${{ "%.2f"|format(item.total|float) }}</td>
-                <td>
-                    <button onclick="removeFromCart('{{ item.id }}')" id="remove-button">Remove</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <p>Subtotal: $<span id="cart-subtotal">{{ subtotal }}</span></p>
-    <p>Tax: $<span id="cart-tax">{{ tax_amount }}</span></p>
-    <p>Total: $<span id="cart-total">{{ total_price }}</span></p>
-    <button onclick="clearCart()" id="clear-button">Clear Cart</button>
+{% block content %}
+<h2>Shopping Cart</h2>
 
-    <!-- Apply Discount Functionality Section -->
-    <h2>Apply Discount</h2>
-    <input type="text" id="promo-code" placeholder="Enter promo code">
-    <button onclick="applyDiscount()">Apply</button>
+<div class="container-message">
+    Current User: {{ user.username }} [{{ user.role }}]<br>
 
-    <p>Discount Applied: <span id="discount-amount">{{ discount }}%</span></p>
-    <p>Total After Discount: $<span id="cart-total">{{ discount_amount }}</span></p>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+</div>
 
-    <!-- Proceed to Checkout Button -->
-    <a href="{{ url_for('Novel_POS.checkout') }}" class="checkout-button">🛒 Proceed to Checkout</a>
 
-    <!-- Back to Dashboard Button -->
-    <a href="{{ url_for('Novel_login.dashboard') }}" class="back-button">⬅ Back to Dashboard</a>
+<table>
+    <caption><h3>Your Cart</h3></caption>
+    <thead>
+        <tr>
+            <th class="col-1">Cover</th>
+            <th class="col-4">Title</th>
+            <th class="col-2">Quantity</th>
+            <th class="col-2">Unit Price</th>
+            <th class="col-2">Total</th>
+            <th class="col-1">Actions</th>
+        </tr>
+    </thead>
+    <tbody id="cart-items">
+        {% for item in cart_items %}
+        <tr>
+            <td>{{ item.thumbnail_url }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>${{ "%.2f"|format(item.price|float) }}</td>
+            <td>${{ "%.2f"|format(item.total|float) }}</td>
+            <td><button onclick="removeFromCart('{{ item.id }}')" id="table-button">Remove</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-    <script>
-        function removeFromCart(bookId) {
-            fetch(`/remove_from_cart/${bookId}`, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
+<table>
+    <thead>
+        <tr>
+            <th class="col-3">Subtotal</th>
+            <th class="col-3">Tax</th>
+            <th class="col-3">Total</th>
+            <th class="col-3">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>${{ "%.2f"|format(subtotal|float) }}</td>
+            <td>${{ "%.2f"|format(tax_amount|float) }}</td>
+            <td>${{ "%.2f"|format(total_price|float) }}</td>
+            <td><button onclick="clearCart()" id="table-button">Clear Cart</button></td>
+        </tr>
+    </tbody>
+</table>
+
+
+<!-- Apply Discount Functionality Section -->
+<h2>Apply Discount</h2>
+<div class="container" style="margin:25px auto; text-align:center;">
+    <div class="row" id="form-row">
+        <div class="col">
+            <input type="text" id="promo-code" placeholder="Enter promo code">
+            <button onclick="applyDiscount()" id="action-button">Apply</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p>Discount Applied: {{ discount_percentage }}% off</p>
+            <p>Total After Discount: ${{ "%.2f"|format(total_price|float) }}</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+    
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    {% endif %}
+    
+    <li><a class="active" href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
+    <li><a href="{{ url_for('Novel_POS.checkout') }}" class="checkout-button">🛒 Proceed to Checkout</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
+
+
+<script>
+    function removeFromCart(bookId) {
+        fetch(`/remove_from_cart/${bookId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload(); // Refresh to update cart
+            });
+    }
+
+    function clearCart() {
+        fetch(`/clear_cart`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload();
+            });
+    }
+
+    function applyDiscount() {
+        let promoCode = document.getElementById("promo-code").value;
+
+        fetch("/apply_discount", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ promo_code: promoCode })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.discount > 0) {
                     alert(data.message);
-                    location.reload(); // Refresh to update cart
-                });
-        }
-
-        function clearCart() {
-            fetch(`/clear_cart`, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    location.reload();
-                });
-        }
-
-        function applyDiscount() {
-            let promoCode = document.getElementById("promo-code").value;
-
-            fetch("/apply_discount", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ promo_code: promoCode })
+                } else {
+                    alert("Invalid promo code!");
+                }
+                location.reload(); // Refresh to apply discount
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.discount > 0) {
-                        alert(data.message);
-                    } else {
-                        alert("Invalid promo code!");
-                    }
-                    location.reload(); // Refresh to apply discount
-                })
-                .catch(error => console.error("Error:", error));
-        }
-    </script>
-</body>
+            .catch(error => console.error("Error:", error));
+    }
+</script>
 
-</html>
+{% endblock %}

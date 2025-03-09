@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, session, request, jsonify
 from models import db, Book
+from flask_login import current_user
 
 # Create the Blueprint
 Novel_cart = Blueprint("Novel_cart", __name__)
@@ -31,6 +32,7 @@ def view_cart():
             subtotal += item_total
             cart_items.append(
                 {
+                    "cover": book.cover,
                     "id": book.id,
                     "title": book.title,
                     "price": book.price,
@@ -55,6 +57,7 @@ def view_cart():
         discount_amount=discount_amount,
         tax_amount=tax_amount,
         total_price=total_price,
+        user=current_user
     )
 
 
@@ -70,7 +73,7 @@ def add_to_cart(book_id):
         session["cart"][book_id_str] = 1
 
     session.modified = True
-    return jsonify({"message": "Book added to cart", "success": True})
+    return jsonify({"message": "Book added to cart.", "success": True})
 
 
 @Novel_cart.route("/remove_from_cart/<int:book_id>", methods=["POST"])
@@ -84,9 +87,9 @@ def remove_from_cart(book_id):
         if session["cart"][book_id_str] <= 0:
             del session["cart"][book_id_str]
         session.modified = True
-        return jsonify({"message": "Book removed from cart", "success": True})
+        return jsonify({"message": "Book removed from cart.", "success": True})
 
-    return jsonify({"message": "Item not found in cart", "success": False})
+    return jsonify({"message": "Item not found in cart.", "success": False})
 
 
 @Novel_cart.route("/clear_cart", methods=["POST"])
@@ -94,7 +97,7 @@ def clear_cart():
     """Clear the cart."""
     session.pop("cart", None)
     session.modified = True
-    return jsonify({"message": "Cart cleared", "success": True})
+    return jsonify({"message": "Cart cleared.", "success": True})
 
 
 def get_cart_total():
