@@ -13,8 +13,9 @@ flask-wtf = "*"
 wtforms = "*"
 requests = "*"
 stripe = "*"
+Jinja2 = ">=3.1.6"
+
 
 [dev-packages]
 
-[requires]
-python_version = "3.12"
+

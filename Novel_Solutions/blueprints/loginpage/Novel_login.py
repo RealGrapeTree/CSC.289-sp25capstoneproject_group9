@@ -1,6 +1,6 @@
 
 # Imports the required libraries
-from flask import  render_template, Blueprint, redirect, url_for, request, flash, current_app
+from flask import  render_template, Blueprint, redirect, url_for, request, flash,session
 from extensions import db, bcrypt, login_manager
 
 # Imports for Login
@@ -26,9 +26,13 @@ def load_user(user_id):
 
 
 #basic home route can move to a home or iventory blueprint if needed
-@Novel_login.route('/', methods=['GET', 'POST'])
+@Novel_login.route('/', methods=['GET'])
 def home():
-    return login()
+    if current_user.is_authenticated:
+        logout_user()
+        return redirect(url_for('Novel_login.dashboard'))
+    session.clear()
+    return redirect(url_for('Novel_login.login'))
 
 # login page route
 @Novel_login.route('/login', methods=['POST','GET'])
@@ -62,8 +66,10 @@ def login():
 @Novel_login.route('/logout', methods=['POST','GET'])
 @login_required
 def logout():
+    session.clear()
     # logout the user
     logout_user()
+    print(current_user.is_authenticated)
     flash('You have been logged out')
     # redirect to the login page
     return redirect(url_for('Novel_login.login'))
@@ -125,5 +131,4 @@ def dashboard():
     users = User.query.all() if current_user.is_authenticated and current_user.role == 'manager' else None
     books = Book.query.all()
     return render_template('dashboard.html', user=current_user, users=users, books=books)
-
 
