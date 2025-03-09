@@ -72,38 +72,6 @@ create_default_manager()
 
 
 
-def backup_database():
-    """Creates a backup of the SQLite database.
-
-    The backup is saved in the 'backups' directory with a filename in the format
-    'backup_<timestamp>.db', where <timestamp> is the current date and time in
-    the format '%Y%m%d%H%M%S'.
-    """
-    
-    backup_dir = 'instance'
-    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    backup_file = os.path.join(backup_dir, f'backup_{timestamp}.db')
-    shutil.copy('instance/database.db', backup_file) 
-    print(f"Database backup created: {backup_file}")
-
-
-def backup_schedule(interval = 3600): # 1 hour
-    # runs database backup at startup
-    """Runs the database backup at startup and then every <interval> seconds.
-
-    :param interval: The interval in seconds between backups. Defaults to 1 hour.
-    """
-    backup_database()
-
-    while True:
-        time.sleep(interval)
-        backup_database()
-    
-
-backup_thread =threading.Thread(target=backup_schedule, daemon=True)
-backup_thread.start()
-
-
 if __name__ == "__main__":
    
     app.run(debug=True)
