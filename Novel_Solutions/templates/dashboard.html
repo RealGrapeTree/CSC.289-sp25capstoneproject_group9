@@ -8,6 +8,7 @@
 <div class="container-message">
     Welcome, {{ user.username }}! [{{ user.role }}]<br>
 
+<!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
@@ -17,9 +18,9 @@
 {% endwith %}
 </div>
 
-
+<!-- Table of all users -->
 {% if user.role == 'manager' %}
-<table>
+<table id="users-table">
     <caption><h3>Manage Users</h3></caption>
     <thead>
         <tr>
@@ -36,7 +37,7 @@
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.role }}</td>
-                <td><form action="{{ url_for('Novel_login.delete_user', username=user.username) }}" method="POST" style="display:inline;">
+                <td><form action="{{ url_for('Novel_login.delete_user', username=user.username) }}" method="POST">
                     <button type="submit" onclick="return confirm('Are you sure?')" id="table-button">Delete</button>
                 </form></td>
             </tr>
@@ -52,7 +53,6 @@
     {% endfor %}
 </table>
 {% endif %}
-
 
 <!-- Navigation Links -->
 <ul class="nav-links">

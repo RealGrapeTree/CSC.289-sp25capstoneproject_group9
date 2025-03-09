@@ -1,10 +1,10 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
+    color: #020301;
     background-color: #d0e6f2;
     background-repeat: no-repeat, repeat;
     background-size: auto;
-    color: #020301;
-    background-image: url('/static/images/login-background-image.jpg')
+    background-image: url('/static/images/login-background-image.jpg');
 }
 
 #logo {
@@ -13,6 +13,7 @@ body {
 }
 
 
+/* Containers */
 #container {
     margin: auto;
     background-color: #d0e6f2;
@@ -25,11 +26,12 @@ body {
     padding: 15px;
     background-color: #EBF8FF;
     border-radius: 8px;
+    text-align: center;
 }
 
 .container-action,
 .container-form {
-    margin: 20px 0px;
+    margin: 30px auto;
     padding: 30px 0px;
     text-align: center;
 }
@@ -39,6 +41,7 @@ body {
 }
 
 
+/* Headers and links */
 h1,
 h4 {
     text-align: center;
@@ -53,7 +56,6 @@ h2 {
     padding: 15px;
 }
 
-
 a {
     text-decoration: none;
     color: #016280
@@ -63,7 +65,6 @@ a:hover {
     text-decoration: underline;
 }
 
-
 select {
     background-color: #EBF8FF;
     border: 2px solid #a0c2d0;
@@ -72,8 +73,14 @@ select {
 }
 
 
+/* Labels and inputs */
 label {
     margin-right: 5px;
+}
+
+#inventory-input,
+#promo-code {
+    margin-right: 15px;
 }
 
 input[type=text],
@@ -86,22 +93,21 @@ input[type=email] {
     padding: 10px;
 }
 
-#action-button,
 input[type=submit] {
     background-color: #6ab9da;
     color: #003343;
+    font-size: 20px;
     font-weight: bold;
     border: none;
     outline: none;
     border-radius: 15px;
     box-shadow: 0 9px #5BA3C2;
-    padding: 10px 25px;
-}
-
-input[type=submit] {
     margin-top: 25px;
+    padding: 15px 45px;
 }
 
+
+/* Buttons */
 #table-button {
     width: 100%;
     color: #EBF8FF;
@@ -122,6 +128,17 @@ input[type=submit] {
     transform: translateY(4px);  
 }
 
+#action-button {
+    background-color: #6ab9da;
+    color: #003343;
+    font-weight: bold;
+    border: none;
+    outline: none;
+    border-radius: 15px;
+    box-shadow: 0 9px #5BA3C2;
+    padding: 10px 25px;
+}
+
 #action-button:hover,
 input[type=submit]:hover {
     background-color: #68ADCA;
@@ -135,17 +152,8 @@ input[type=submit]:focus {
     transform: translateY(4px);
 }
 
-input[type=submit] {
-    font-size: 20px;
-    padding: 15px 45px;
-}
 
-#inventory-input,
-#promo-code {
-    margin-right: 15px;
-}
-
-
+/* Navigation */
 .nav-links {
     background-color: #a0c2d0;
     list-style-type: none;
@@ -175,6 +183,7 @@ input[type=submit] {
 }
 
 
+/* Tables */
 table {
     width: 95%;
     border-collapse: collapse;
@@ -201,6 +210,11 @@ td {
     background-color: #EBF8FF;
     padding: 10px;
     border: 1px solid #ddd;
+}
+
+#discount-table td {
+    text-align: center;
+    padding: 15px;
 }
 
 

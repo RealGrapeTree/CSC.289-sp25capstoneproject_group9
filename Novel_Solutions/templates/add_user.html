@@ -8,6 +8,7 @@
 <div class="container-message">
     Current User: {{ user.username }} [{{ user.role }}]<br>
 
+<!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
@@ -17,7 +18,7 @@
 {% endwith %}
 </div>
 
-
+<!-- Register new user form -->
 {{form.csrf_token}}
 <div class="container-form">
     <form method="POST" class="container mt-4">
@@ -44,7 +45,6 @@
         <div>{{form.submit}}</div>
     </form>
 </div>
-
 
 <!-- Navigation Links -->
 <ul class="nav-links">

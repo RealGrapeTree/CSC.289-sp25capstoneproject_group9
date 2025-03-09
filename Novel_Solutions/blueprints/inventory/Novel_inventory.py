@@ -108,7 +108,7 @@ def search():
             if book:
                 return render_template('search.html', book=book, user=current_user)
             if not book:
-                flash('Book not found In Inventory.', 'danger')
+                flash('Book not found in inventory.', 'danger')
                 return render_template('search.html', user=current_user)
     
   

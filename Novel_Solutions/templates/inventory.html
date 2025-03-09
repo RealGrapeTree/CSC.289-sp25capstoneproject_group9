@@ -8,6 +8,7 @@
 <div class="container-message">
     Current User: {{ user.username }} [{{ user.role }}]<br>
 
+<!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
@@ -17,9 +18,9 @@
 {% endwith %}
 </div>
 
-
+<!-- Inventory table -->
 {% if books %}
-<table>
+<table id="inventory-table">
     <caption><h3>Inventory List</h3></caption>
     <thead>
         <tr>
@@ -54,7 +55,6 @@
 </table>
 {% endif %}
 
-
 <!-- Navigation Links -->
 <ul class="nav-links">
     <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
@@ -82,6 +82,7 @@
 </ul>
 
 
+<!-- Scripts -->
 <script>
     function addToCart(bookId) {
         fetch(`/add_to_cart/${bookId}`, { method: 'POST' })

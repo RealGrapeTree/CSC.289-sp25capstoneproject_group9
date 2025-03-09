@@ -8,6 +8,7 @@
 <div class="container-message">
     Current User: {{ user.username }} [{{ user.role }}]<br>
 
+<!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
@@ -17,7 +18,7 @@
 {% endwith %}
 </div>
 
-
+<!-- Add book to inventory form -->
 <div class="container-action">
     <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}">
         <input type="text" id="inventory-input" name="search_term" placeholder="Enter ISBN or SKU" required>
@@ -27,9 +28,9 @@
     </form>
 </div>
 
-
+<!-- Added book table -->
 {% if book %}
-<table>
+<table id="added-book-table">
     <caption><h3>Added Book</h3></caption>
     <thead>
         <tr>
@@ -62,7 +63,6 @@
 </table> 
 {% endif %}
 
-
 <!-- Navigation Links -->
 <ul class="nav-links">
     <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
@@ -90,6 +90,7 @@
 </ul>
 
 
+<!-- Scripts -->
 <script>
     function addToCart(bookId) {
         fetch(`/add_to_cart/${bookId}`, { method: 'POST' })

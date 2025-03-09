@@ -32,9 +32,10 @@ def view_cart():
             subtotal += item_total
             cart_items.append(
                 {
-                    "cover": book.cover,
+                    "cover": book.thumbnail_url,
                     "id": book.id,
                     "title": book.title,
+                    "author": book.authors,
                     "price": book.price,
                     "quantity": quantity,
                     "total": item_total,

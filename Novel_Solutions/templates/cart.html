@@ -8,6 +8,7 @@
 <div class="container-message">
     Current User: {{ user.username }} [{{ user.role }}]<br>
 
+<!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
@@ -17,13 +18,14 @@
 {% endwith %}
 </div>
 
-
-<table>
+<!-- Cart table -->
+<table id="cart-table">
     <caption><h3>Your Cart</h3></caption>
     <thead>
         <tr>
             <th class="col-1">Cover</th>
-            <th class="col-4">Title</th>
+            <th class="col-2">Title</th>
+            <th class="col-2">Author</th>
             <th class="col-2">Quantity</th>
             <th class="col-2">Unit Price</th>
             <th class="col-2">Total</th>
@@ -33,8 +35,9 @@
     <tbody id="cart-items">
         {% for item in cart_items %}
         <tr>
-            <td>{{ item.thumbnail_url }}</td>
+            <td><img src="{{item.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150"/></td>
             <td>{{ item.title }}</td>
+            <td>{{ item.author }}</td>
             <td>{{ item.quantity }}</td>
             <td>${{ "%.2f"|format(item.price|float) }}</td>
             <td>${{ "%.2f"|format(item.total|float) }}</td>
@@ -44,11 +47,12 @@
     </tbody>
 </table>
 
-<table>
+<!-- Totals table -->
+<table id="total-table">
     <thead>
         <tr>
             <th class="col-3">Subtotal</th>
-            <th class="col-3">Tax</th>
+            <th class="col-3">Sales Tax (7.25%)</th>
             <th class="col-3">Total</th>
             <th class="col-3">Actions</th>
         </tr>
@@ -63,42 +67,59 @@
     </tbody>
 </table>
 
-
 <!-- Apply Discount Functionality Section -->
-<h2>Apply Discount</h2>
-<div class="container" style="margin:25px auto; text-align:center;">
-    <div class="row" id="form-row">
-        <div class="col">
-            <input type="text" id="promo-code" placeholder="Enter promo code">
-            <button onclick="applyDiscount()" id="action-button">Apply</button>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <p>Discount Applied: {{ discount_percentage }}% off</p>
-            <p>Total After Discount: ${{ "%.2f"|format(total_price|float) }}</p>
-        </div>
-    </div>
-</div>
-
+<table id="discount-table">
+    <caption><h3>Apply Discount</h3></caption>
+    <tbody>
+        <tr>
+            <td><div>
+                <input type="text" id="promo-code" placeholder="Enter promo code">
+                <button onclick="applyDiscount()" id="action-button">Apply</button>
+            </div></td>
+        </tr>
+        <tr>
+            <td><div>
+                Discount Applied: {{ discount_percentage }}% off
+                <br />
+                Total After Discount: ${{ "%.2f"|format(total_price|float) }}
+            </div></td>
+        </tr>
+        <tr>
+            <td><a href="{{ url_for('Novel_POS.checkout') }}" class="checkout-button">
+                <button id="table-button">🛒 Proceed to Checkout</button>
+            </a></td>
+        </tr>
+    </tbody>
+</table>
 
 <!-- Navigation Links -->
 <ul class="nav-links">
     <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+    {% endif %}
     
     <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
     
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Sales Reports</a></li>
+    {% endif %}
     <li><a class="active" href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
-    <li><a href="{{ url_for('Novel_POS.checkout') }}" class="checkout-button">🛒 Proceed to Checkout</a></li>
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
 
 
+<!-- Scripts -->
 <script>
     function removeFromCart(bookId) {
         fetch(`/remove_from_cart/${bookId}`, { method: 'POST' })
