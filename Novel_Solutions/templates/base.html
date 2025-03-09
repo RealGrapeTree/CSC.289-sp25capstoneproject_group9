@@ -15,18 +15,10 @@
 <body>
     <div id="container">
         <!-- Header -->
-        <div class="row" style="align-items:center; justify-content:space-between; margin-bottom:10px; padding:5px;">
-            <div class="col-4 col-md-2">
-                <img src="{{url_for('static', filename='images/logo.png')}}" id="logo">
-            </div>
-
-            <div class="col-4">
-                <h1>A Novel Solution</h1>
-            </div>
-            
-            <div class="col-4 col-md-2">
-                <h4>2025SP.CSC.289</h4>
-            </div>
+        <div class="flex-container" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding:10px;">
+            <img src="{{url_for('static', filename='images/logo.png')}}" id="logo">
+            <h1>A Novel Solution</h1>
+            <h4>2025SP.CSC.289</h4>
         </div>
 
         <!-- The content of the page will be inserted here using templating -->
