@@ -9,6 +9,7 @@ from blueprints.cart.Novel_cart import Novel_cart, get_cart_total  # Import cart
 from extensions import db, bcrypt, login_manager
 from models import User, Book
 import os
+import stripe
 
 
 # Load the environment variables from the .env file
@@ -34,6 +35,8 @@ bcrypt.init_app(app)
 # Configure the LoginManager
 login_manager.init_app(app)
 
+# Configure Stripe API with secret key
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
 # Register blueprints
 app.register_blueprint(Novel_login)
@@ -56,6 +59,28 @@ def create_default_manager():
 # Create the default admin account
 create_default_manager()
 
+# Route to fetch Stripe transactions
+@app.route('/api/inventory/stripe-transactions', methods=['GET'])
+def fetch_transactions():
+    try:
+        # Fetch recent transactions (charges) from Stripe
+        charges = stripe.Charge.list(limit=10)  # Adjust the limit as needed
+
+        # Format transactions for display
+        transactions = []
+        for charge in charges.auto_paging_iter():
+            transactions.append({
+                'id': charge.id,
+                'amount': charge.amount,
+                'status': charge.status,
+                'stripe_payment_id': charge.payment_intent,
+                'timestamp': charge.created  # UNIX timestamp
+            })
+        
+        return jsonify(transactions), 200  # Return as JSON response
+
+    except stripe.error.StripeError as e:
+        return jsonify({"error": str(e)}), 500  # Return error if Stripe API fails
 
 if __name__ == "__main__":
     app.run(debug=True)
