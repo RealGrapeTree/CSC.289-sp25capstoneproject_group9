@@ -30,10 +30,10 @@
             <th class="col-1">Author</th>
             <th class="col-1">Stock</th>
             <th class="col-1">Unit Price</th>
-            <th class="col-1">Published</th>
+            <th class="col-1">Publish Date</th>
             <th class="col-1">Publishers</th>
             <th class="col-1">Pages</th>
-            <th class="col-2">Actions</th>
+            <th class="col-2">Actions</th> <!-- Added Actions column for Edit/Delete -->
         </tr>
     </thead>
     {% for book in books %}
@@ -49,6 +49,14 @@
             <td>{{book.publishers}}</td>
             <td>{{book.number_of_pages}}</td>
             <td><button onclick="addToCart('{{ book.id }}')" id="table-button">Add to Cart</button></td>
+            
+            <td>  <!-- Actions column -->
+                <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}" class="update-button">✏️ update</a>  
+                <!-- Delete Form -->
+                <form method="POST" action="{{ url_for('Novel_inventory.delete_book', book_id=book.id) }}" style="display:inline;">
+                    <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this book?');">🗑️ Delete</button>
+                </form>
+            </td>
         </tr>
     </tbody>
     {% endfor %}
@@ -92,5 +100,21 @@
             });
     }
 </script>
+
+<!-- /* Style for Edit and Delete buttons */
+    .update-button {
+        color: blue;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+
+    .delete-button {
+        color: red;
+        text-decoration: none;
+    }
+
+    .delete-button:hover {
+        font-weight: bold;
+    }-->
 
 {% endblock %}

@@ -115,3 +115,41 @@ def search():
     return render_template('search.html', user=current_user)
 
 
+# Route to update book details
+@Novel_inventory.route('/update_book/<int:book_id>', methods=['GET', 'POST'])
+@login_required
+def update_book(book_id):
+    book = Book.query.get_or_404(book_id)
+
+    # Ensure only managers can edit books
+    if current_user.role != "manager":
+        flash("You do not have permission to update books.", "danger")
+        return redirect(url_for('Novel_inventory.inventory'))
+
+    if request.method == 'POST':
+        book.title = request.form['title']
+        book.stock = request.form['stock']
+        book.price = request.form['price']
+        
+        db.session.commit()
+        flash('Book details updated successfully!', 'success')
+        return redirect(url_for('Novel_inventory.inventory'))
+
+    return render_template('update_book.html', book=book, user=current_user.username)
+
+# Route to delete a book
+@Novel_inventory.route('/delete_book/<int:book_id>', methods=['POST'])
+@login_required
+def delete_book(book_id):
+    book = Book.query.get_or_404(book_id)
+
+    # Ensure only managers can delete books
+    if current_user.role != "manager":
+        flash("You do not have permission to delete books.", "danger")
+        return redirect(url_for('Novel_inventory.inventory'))
+
+    db.session.delete(book)
+    db.session.commit()
+    flash('Book deleted successfully!', 'success')
+    return redirect(url_for('Novel_inventory.inventory'))
+
