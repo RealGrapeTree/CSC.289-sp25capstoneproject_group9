@@ -5,13 +5,13 @@ name = "pypi"
 
 [packages]
 flask = "*"
+requests = "*"
 python-dotenv = "*"
 flask-sqlalchemy = "*"
 flask-bcrypt = "*"
 flask-login = "*"
 flask-wtf = "*"
 wtforms = "*"
-requests = "*"
 stripe = "*"
 
 [dev-packages]

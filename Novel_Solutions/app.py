@@ -47,7 +47,7 @@ def create_default_manager():
         db.create_all()
         if not User.query.filter_by(username="admin").first():
             hashed_password = bcrypt.generate_password_hash("admin123").decode('utf-8')
-            manager = User(username="admin", firstname="Admin", lastname="User", 
+            manager = User(username="admin", firstname="Admin", lastname="User",
                            email="admin@example.com", password=hashed_password, role="manager")
             db.session.add(manager)
             db.session.commit()
