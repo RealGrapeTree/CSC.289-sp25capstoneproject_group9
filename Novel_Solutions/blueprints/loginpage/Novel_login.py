@@ -28,9 +28,11 @@ def load_user(user_id):
 #basic home route can move to a home or iventory blueprint if needed
 @Novel_login.route('/', methods=['GET', 'POST'])
 def home():
-    return login()
+    logout_user()
+    return redirect(url_for('Novel_login.login'))
 
 # login page route
+
 @Novel_login.route('/login', methods=['POST','GET'])
 def login():
     
@@ -44,20 +46,18 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
 
         # check if the user exists and the password is correct
-        if user:
-            if bcrypt.check_password_hash(user.password, form.password.data):
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
                 # Log in the user after successful login
                 login_user(user)
                 # flash a success message and redirect to dashboard
                 flash('Login successful!', 'success')
                 return redirect(url_for('Novel_login.dashboard'))
-        else:   
-            # flash an error message and redirect to the login page
-            flash('Login unsuccessful. Please check username and password', 'danger')
-            return redirect(url_for('Novel_login.login'))   
         
+        flash('Login unsuccessful. Please check username and password', 'danger')
+        return redirect(url_for('Novel_login.login'))  
+   
+
     return render_template('login.html', form=form)
-    
 
 @Novel_login.route('/logout', methods=['POST','GET'])
 @login_required
