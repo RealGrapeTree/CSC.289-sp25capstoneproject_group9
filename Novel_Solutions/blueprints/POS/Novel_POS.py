@@ -1,7 +1,7 @@
-from flask import render_template, Blueprint, redirect, url_for, request, flash, jsonify
+from flask import render_template, Blueprint, redirect, url_for, request, flash, jsonify, session
 from extensions import db
 from flask_login import login_required, current_user
-from models import Transaction, User
+from models import Transaction, User, Book
 import stripe
 import os
 from datetime import datetime
@@ -30,6 +30,14 @@ def process_sale():
 @Novel_POS.route("/checkout")
 def checkout():
     try:
+        # Get the cart from the session
+        cart = session.get('cart', {})
+
+        # Validate stock before proceeding
+        is_valid, error_message = validate_stock_before_payment(cart)
+        if not is_valid:
+            flash(error_message, 'danger')
+            return redirect(url_for('Novel_cart.view_cart'))
         subtotal, tax_amount, total_amount = get_cart_total()
 
         amount = int(total_amount * 100)  # Convert to cents
@@ -51,6 +59,35 @@ def checkout():
         return jsonify(error=str(e)), 400
 
 
+def validate_stock_before_payment(cart):
+    """
+    Validate that there is enough stock for all items in the recent payment.
+    """
+    for book_id, quantity in cart.items():
+        book = Book.query.get(int(book_id))
+        if book and book.stock < quantity:
+            return False, f"Not enough stock for {book.title}. Only {book.stock} available."
+    return True, None
+
+def update_inventory_after_sale(cart):
+    """
+    Decrease the stock for each book in the cart after a successful sale.
+    """
+    try:
+        for book_id, quantity in cart.items():
+            book = Book.query.get(int(book_id))
+            if book:
+                book.stock -= quantity
+                if book.stock < 0:
+                    book.stock = 0  # Ensure stock doesn't go negative
+                db.session.add(book)
+        
+        db.session.commit()
+        print("✅ Inventory updated successfully!")
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ Error updating inventory: {e}")
+
 # ✅ Route to create a PaymentIntent (Used by payment.html)
 @Novel_POS.route("/create-payment-intent", methods=["POST"])
 def create_payment():
@@ -64,6 +101,15 @@ def create_payment():
             currency="usd",
             payment_method_types=["card"]
         )
+
+        # Update inventory after payment is successful
+        cart = session.get('cart', {})
+        update_inventory_after_sale(cart)  # Call the new function
+
+        # Clear the cart after payment
+        session['cart'] = {}
+        session.modified = True
+
 
         return jsonify({"clientSecret": intent.client_secret})
     
