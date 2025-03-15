@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+<title>{% block title %}Sales Reports{% endblock %}</title>
+
+{% block content %}
+<h2>Sales Reports</h2>
+
+<div class="container-message">
+    Current User: {{ user.username }} [{{ user.role }}]<br>
+
+<!-- System messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+</div>
+
+Sales Reports
+
+
+{% endblock %}
