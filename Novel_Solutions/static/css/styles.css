@@ -116,6 +116,7 @@ input[type=submit] {
     font-weight: bold;
     border: none;
     outline: none;
+    margin: 5px;
     padding: 15px;
     border-radius: 15px;
 }

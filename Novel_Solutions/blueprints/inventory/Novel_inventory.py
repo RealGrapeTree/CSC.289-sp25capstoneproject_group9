@@ -135,7 +135,7 @@ def update_book(book_id):
         flash('Book details updated successfully!', 'success')
         return redirect(url_for('Novel_inventory.inventory'))
 
-    return render_template('update_book.html', book=book, user=current_user.username)
+    return render_template('update_book.html', book=book, user=current_user)
 
 # Route to delete a book
 @Novel_inventory.route('/delete_book/<int:book_id>', methods=['POST'])
