@@ -4,7 +4,7 @@ from flask import flash
 # Imports for the Forms
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, EmailField, SelectField
-from wtforms.validators import InputRequired, Length, ValidationError
+from wtforms.validators import InputRequired, Length, ValidationError, EqualTo
 
 # Imports for the Models
 from models import User
@@ -41,3 +41,20 @@ class LoginForm(FlaskForm):
     username = StringField("Enter Username", validators=[InputRequired(), Length(min=4, max=20)])
     password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=80)])
     submit = SubmitField("Login")
+class ResetPasswordForm(FlaskForm):
+    
+    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=80)])
+    confirm_password = PasswordField("Confirm Password", 
+                                     validators=[InputRequired(), Length(min=8, max=80), 
+                                                 EqualTo('password', message="Passwords must match")])
+    submit = SubmitField("Reset Password")
+
+    
+
+    def validate_password(self, password):
+        if len(password.data) < 8:
+            raise ValidationError('Password must be at least 8 characters long.')
+
+
+    
+    
