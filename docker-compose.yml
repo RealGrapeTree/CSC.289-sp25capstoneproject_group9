@@ -4,11 +4,17 @@ services:
     image: novel_solutions:dev
     container_name: novel_solutions
     build:
-      context: ./Novel_Solutions 
+      context: ./Novel_Solutions
       dockerfile: Dockerfile
-    volumes:
-      - ./Novel_Solutions/instance:/app/instance
+    environment:
+      SQLALCHEMY_DATABASE_URI: mysql://root:rootpassword@novel_solutions_db:3306/yourdatabase
     ports:
       - "5000:5000"
-    
-  
+
+novel_solutions_db:
+  image: mysql:latest
+  environment:
+    MYSQL_ROOT_PASSWORD: rootpassword
+    MYSQL_DATABASE: yourdatabase
+  ports:
+    - "3306:3306"
