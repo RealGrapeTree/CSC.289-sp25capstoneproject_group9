@@ -37,10 +37,13 @@
         const card = elements.create("card", { style: { base: { fontSize: '16px' } } });
         card.mount("#card-element");
 
+        // Define total_amount in JavaScript using Jinja
+        const totalAmount = {{ total_amount }};  
+
         async function fetchClientSecret() {
             const response = await fetch("/create-payment-intent", {
                 method: "POST",
-                body: JSON.stringify({ amount: total_amount * 100 }),// Convert to cents for Stripe
+                body: JSON.stringify({ amount: totalAmount * 100 }), // Convert to cents for Stripe
                 headers: { "Content-Type": "application/json" }
             });
             const { clientSecret } = await response.json();
