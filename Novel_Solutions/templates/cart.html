@@ -42,10 +42,11 @@
     <!-- Apply Discount Functionality Section -->
     <h2>Apply Discount</h2>
     <input type="text" id="promo-code" placeholder="Enter promo code">
-    <button onclick="applyDiscount()">Apply</button>
+    <button onclick="applyDiscount()">Apply Discount</button>
+    <button onclick="removeDiscount()">Remove Discount</button>
 
-    <p>Discount Applied: <span id="discount-amount">{{ discount }}%</span></p>
-    <p>Total After Discount: $<span id="cart-total">{{ discount_amount }}</span></p>
+    <p>Discount Applied: <span id="discount-amount">{{ discount_percentage }}%</span></p>
+    <p>Total After Discount: $<span id="cart-total">{{ total_price }}</span></p>
 
     <!-- Proceed to Checkout Button -->
     <a href="{{ url_for('Novel_POS.checkout') }}" class="checkout-button">🛒 Proceed to Checkout</a>
@@ -88,6 +89,19 @@
                         alert("Invalid promo code!");
                     }
                     location.reload(); // Refresh to apply discount
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        function removeDiscount() {
+            fetch("/remove_discount", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    location.reload(); // Refresh page to update cart total
                 })
                 .catch(error => console.error("Error:", error));
         }

@@ -43,9 +43,8 @@ def view_cart():
     discount_amount = round((subtotal * discount_percentage) / 100, 2)
     discounted_subtotal = subtotal - discount_amount
 
-
-    tax_amount = round(subtotal * NC_TAX_RATE, 2)
-    total_price = round(subtotal + tax_amount, 2)
+    tax_amount = round(discounted_subtotal * NC_TAX_RATE, 2)
+    total_price = round(discounted_subtotal + tax_amount, 2)  # Total with tax
 
     return render_template(
         "cart.html",
@@ -111,7 +110,7 @@ def get_cart_total():
     # Retrieve discount percentage
     discount_percentage = session.get("discount", 0)
     discount_amount = round((subtotal * discount_percentage) / 100, 2)
-    discounted_subtotal = subtotal - discount_amount
+    discounted_subtotal = (subtotal - discount_amount, 2)
 
     tax_amount = round(discounted_subtotal * NC_TAX_RATE, 2)
     total_price = round(discounted_subtotal + tax_amount, 2)  # Total with tax
@@ -138,3 +137,15 @@ def apply_discount():
     else:
         print("Invalid promo code entered!")  # Debugging output
         return jsonify({"message": "Invalid promo code!", "discount": 0}), 400
+
+# Remove discount
+@Novel_cart.route("/remove_discount", methods=["POST"])
+def remove_discount():
+    """Remove any applied discount."""
+    if "discount" in session:
+        session.pop("discount")
+        session.modified = True
+        return jsonify({"message": "Discount removed!", "discount": 0})
+
+    return jsonify({"message": "No discount applied!", "discount": 0}), 400
+
