@@ -15,8 +15,10 @@ import pandas as pd
 Novel_sales_reports = Blueprint('Novel_sales_reports', __name__, template_folder='templates')
 
 
-# Function to export reports to CSV and PDF
-def export_reports():
+# Functions to export reports to CSV and PDF
+def export_reports_csv():
+    pass
+def export_reports_pdf():
     pass
 
 

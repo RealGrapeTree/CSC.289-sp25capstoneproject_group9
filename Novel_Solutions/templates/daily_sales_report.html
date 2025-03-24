@@ -22,12 +22,8 @@
 <table id="timestamp-table">
     <tbody>
         <tr>
-            <td>
-                Current Date: {{ current_date.strftime("%A, %B %d %Y") }}
-            </td>
-            <td>
-                Current Time: {{ current_date.strftime("%I:%M %p") }}
-            </td>
+            <td>Current Date: {{ current_date.strftime("%A, %B %d %Y") }}</td>
+            <td>Current Time: {{ current_date.strftime("%I:%M %p") }}</td>
         </tr>
     </tbody>
 </table>
@@ -48,9 +44,8 @@
         </tr>
     </thead>
     <tbody>
-        {% for item in daily_transactions %}
         <tr>
-            <td>{{ item }}</td>
+            <td>daily id</td>
             <td>timestamp</td>
             <td>isbn/sku</td>
             <td>quantity</td>
@@ -59,7 +54,6 @@
             <td>tax</td>
             <td>total</td>
         </tr>
-        {% endfor %}
     </tbody>
 </table>
 

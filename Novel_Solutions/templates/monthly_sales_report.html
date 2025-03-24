@@ -22,20 +22,12 @@
 <table id="timestamp-table">
     <tbody>
         <tr>
-            <td>
-                Current Date: {{ current_date.strftime("%A, %B %d %Y") }}
-            </td>
-            <td>
-                Current Time: {{ current_date.strftime("%I:%M %p") }}
-            </td>
+            <td>Current Date: {{ current_date.strftime("%A, %B %d %Y") }}</td>
+            <td>Current Time: {{ current_date.strftime("%I:%M %p") }}</td>
         </tr>
         <tr>
-            <td>
-                Month Start Date: {{ month_days[0] }}
-            </td>
-            <td>
-                Month End Date: {{ month_days[-1] }}
-            </td>
+            <td>Month Start Date: {{ month_days[0] }}</td>
+            <td>Month End Date: {{ month_days[-1] }}</td>
         </tr>
     </tbody>
 </table>
@@ -57,7 +49,7 @@
     </thead>
     <tbody>
         <tr>
-            <td>id</td>
+            <td>monthly id</td>
             <td>timestamp</td>
             <td>isbn/sku</td>
             <td>quantity</td>

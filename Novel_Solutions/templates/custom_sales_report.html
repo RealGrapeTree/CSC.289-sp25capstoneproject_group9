@@ -22,20 +22,12 @@
 <table id="timestamp-table">
     <tbody>
         <tr>
-            <td>
-                Current Date: {{ current_date.strftime("%A, %B %d %Y") }}
-            </td>
-            <td>
-                Current Time: {{ current_date.strftime("%I:%M %p") }}
-            </td>
+            <td>Current Date: {{ current_date.strftime("%A, %B %d %Y") }}</td>
+            <td>Current Time: {{ current_date.strftime("%I:%M %p") }}</td>
         </tr>
         <tr>
-            <td>
-                Custom Start Date: {{ custom_start_date.strftime("%A, %B %d %Y") }}
-            </td>
-            <td>
-                Custom End Date: {{ custom_end_date.strftime("%A, %B %d %Y") }}
-            </td>
+            <td>Custom Start Date: {{ custom_start_date.strftime("%A, %B %d %Y") }}</td>
+            <td>Custom End Date: {{ custom_end_date.strftime("%A, %B %d %Y") }}</td>
         </tr>
     </tbody>
 </table>
@@ -56,10 +48,9 @@
         </tr>
     </thead>
     <tbody>
-        {% for date in custom_range %}
         <tr>
-            <td>id</td>
-            <td>{{ date }}</td>
+            <td>custom id</td>
+            <td>timestamp</td>
             <td>isbn/sku</td>
             <td>quantity</td>
             <td>unit price</td>
@@ -67,7 +58,6 @@
             <td>tax</td>
             <td>total</td>
         </tr>
-        {% endfor %}
     </tbody>
 </table>
 
