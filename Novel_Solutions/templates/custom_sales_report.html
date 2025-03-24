@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Custom Sales Reports | NS{% endblock %}</title>
+<title>{% block title %}Custom Sales Report | NS{% endblock %}</title>
 
 {% block content %}
-<h2>Custom Sales Reports</h2>
+<h2>Custom Sales Report</h2>
 
 <div class="container-message">
     Current User: {{ user.username }} [{{ user.role }}]<br>
@@ -88,6 +88,14 @@
         </tr>
     </tbody>
 </table>
+
+<!-- Export buttons -->
+<div class="container-action">
+    <div class="row" id="export-row">
+        <div class="col"><button id="action-button">Export to CSV</button></div>
+        <div class="col"><button id="action-button">Export to PDF</button></div>
+    </div>
+ </div>
 
 
 <!-- Navigation Links -->

@@ -44,6 +44,11 @@ body {
     margin-bottom: 50px;
 }
 
+#export-row {
+    width: 30%;
+    margin: auto;
+}
+
 
 /* Headers and links */
 h1,

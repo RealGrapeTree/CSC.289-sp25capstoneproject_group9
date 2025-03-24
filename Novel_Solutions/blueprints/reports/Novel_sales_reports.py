@@ -1,8 +1,10 @@
 from flask import render_template, Blueprint, redirect, url_for, request, flash, jsonify, session
 from extensions import db
 from flask_login import login_required, current_user
-from ..POS.Novel_POS import stripe_webhook, get_transactions
-from models import Transaction, User
+from ..POS.Novel_POS import *
+from ..cart.Novel_cart import *
+from models import Transaction, User, Book
+import json
 
 import datetime as dt, calendar
 from datetime import timedelta
@@ -28,11 +30,14 @@ def sales_report():
 @Novel_sales_reports.route('/sales_report/daily', methods=["GET"])
 def daily_sales_report():
     # Get current date
-    current_date = dt.datetime(2025, 3, 14)
-
+    current_date = dt.datetime.now()
+    daily_transactions = []
     
-
-    return render_template('daily_sales_report.html', user=current_user, current_date=current_date)
+    return render_template(
+        'daily_sales_report.html',
+        user=current_user,
+        current_date=current_date
+        )
 
 # Weekly sales report route
 @Novel_sales_reports.route('/sales_report/weekly')
@@ -69,6 +74,7 @@ def custom_sales_report():
         # Convert user input dates into datetime
         custom_start_date, custom_end_date = dt.datetime.strptime(user_start, "%Y-%m-%d"), dt.datetime.strptime(user_end, "%Y-%m-%d")
         custom_range = pd.date_range(custom_start_date, custom_end_date).tolist()
+
 
 
     return render_template('custom_sales_report.html', current_date=current_date, custom_start_date=custom_start_date, custom_end_date=custom_end_date, custom_range=custom_range, user=current_user)

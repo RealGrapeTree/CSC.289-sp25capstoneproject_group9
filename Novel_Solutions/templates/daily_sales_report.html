@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Daily Sales Reports{% endblock %}</title>
+<title>{% block title %}Daily Sales Report | NS{% endblock %}</title>
 
 {% block content %}
-<h2>Daily Sales Reports</h2>
+<h2>Daily Sales Report</h2>
 
 <div class="container-message">
     Current User: {{ user.username }} [{{ user.role }}]<br>
@@ -48,8 +48,9 @@
         </tr>
     </thead>
     <tbody>
+        {% for item in daily_transactions %}
         <tr>
-            <td>id</td>
+            <td>{{ item }}</td>
             <td>timestamp</td>
             <td>isbn/sku</td>
             <td>quantity</td>
@@ -58,11 +59,12 @@
             <td>tax</td>
             <td>total</td>
         </tr>
+        {% endfor %}
     </tbody>
 </table>
 
 <!-- Daily totals table -->
-<table id="daily-total-table">
+<table id="daily-sales-table">
     <thead>
         <tr>
             <th class="col-4">Daily Sales Amount</th>
@@ -78,6 +80,14 @@
         </tr>
     </tbody>
 </table>
+
+<!-- Export buttons -->
+ <div class="container-action">
+    <div class="row" id="export-row">
+        <div class="col"><button id="action-button">Export to CSV</button></div>
+        <div class="col"><button id="action-button">Export to PDF</button></div>
+    </div>
+ </div>
 
 
 <!-- Navigation Links -->
