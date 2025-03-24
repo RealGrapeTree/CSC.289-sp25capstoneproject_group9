@@ -41,6 +41,8 @@ body {
 }
 
 #report-row {
+    width: 40%;
+    margin: auto;
     margin-bottom: 50px;
 }
 
@@ -137,7 +139,7 @@ input[type=submit] {
     font-weight: bold;
     border: none;
     outline: none;
-    margin: 5px;
+    margin: 5px 0px;
     padding: 15px;
     border-radius: 15px;
 }
@@ -230,11 +232,12 @@ th {
 
 td {
     background-color: #EBF8FF;
+    text-align: center;
     padding: 10px;
     border: 1px solid #ddd;
 }
 
-#discount-table,
+#discount-table td,
 #timestamp-table td {
     text-align: center;
     padding: 15px;

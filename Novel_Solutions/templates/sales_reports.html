@@ -21,16 +21,16 @@
 <!-- Sales report selection -->
 <div class="container-action">
     <h5>Choose Sales Report Type</h5>
-    <div id="report-row">
-        <a href="{{ url_for('Novel_sales_reports.daily_sales_report') }}">
-            <button id="action-button" style="margin-right:15px;">Daily Report</button>
-        </a>
-        <a href="{{ url_for('Novel_sales_reports.weekly_sales_report') }}">
-            <button id="action-button" style="margin-right:15px;">Weekly Report</button>
-        </a>
-        <a href="{{ url_for('Novel_sales_reports.monthly_sales_report') }}">
+    <div class="row" id="report-row">
+        <div class="col"><a href="{{ url_for('Novel_sales_reports.daily_sales_report') }}">
+            <button id="action-button">Daily Report</button>
+        </a></div>
+        <div class="col"><a href="{{ url_for('Novel_sales_reports.weekly_sales_report') }}">
+            <button id="action-button">Weekly Report</button>
+        </a></div>
+        <div class="col"><a href="{{ url_for('Novel_sales_reports.monthly_sales_report') }}">
             <button id="action-button">Monthly Report</button>
-        </a>
+        </a></div>
     </div>
     <form method="POST" action="{{ url_for('Novel_sales_reports.custom_sales_report') }}" class="container">
         <input type="date" id="date-input" name="custom_start_date" required>

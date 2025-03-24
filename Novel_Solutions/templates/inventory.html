@@ -19,7 +19,6 @@
 </div>
 
 <!-- Inventory table -->
-{% if books %}
 <table id="inventory-table">
     <caption><h3>Inventory List</h3></caption>
     <thead>
@@ -36,8 +35,9 @@
             <th class="col-2">Actions</th> <!-- Actions column for Add to Cart/Edit/Delete -->
         </tr>
     </thead>
-    {% for book in books %}
     <tbody>
+        {% if books %}
+        {% for book in books %}
         <tr>
             <td><img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150"/></td>
             <td>{{book.isbn}}</td>
@@ -58,10 +58,11 @@
                 </form>
             </td>
         </tr>
+        {% endfor %}
+        {% endif %}
     </tbody>
-    {% endfor %}
 </table>
-{% endif %}
+
 
 <!-- Navigation Links -->
 <ul class="nav-links">
