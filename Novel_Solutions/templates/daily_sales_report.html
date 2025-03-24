@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Sales Reports{% endblock %}</title>
+<title>{% block title %}Daily Sales Reports{% endblock %}</title>
 
 {% block content %}
-<h2>Sales Reports</h2>
+<h2>Daily Sales Reports</h2>
 
 <div class="container-message">
     Current User: {{ user.username }} [{{ user.role }}]<br>
@@ -18,6 +18,92 @@
 {% endwith %}
 </div>
 
-Daily report
+<!-- Daily timestamp table -->
+<table id="timestamp-table">
+    <tbody>
+        <tr>
+            <td>
+                Current Date: {{ current_date.strftime("%A, %B %d %Y") }}
+            </td>
+            <td>
+                Current Time: {{ current_date.strftime("%I:%M %p") }}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Daily sales report table -->
+<table id="daily-sales-table">
+    <caption><h3>Daily Sales</h3></caption>
+    <thead>
+        <tr>
+            <th class="col-2">Transaction ID</th>
+            <th class="col-2">Timestamp</th>
+            <th class="col-2">ISBN/SKU</th>
+            <th class="col-1">Quantity</th>
+            <th class="col-1">Unit Price</th>
+            <th class="col-1">Subtotal</th>
+            <th class="col-1">Tax</th>
+            <th class="col-2">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>id</td>
+            <td>timestamp</td>
+            <td>isbn/sku</td>
+            <td>quantity</td>
+            <td>unit price</td>
+            <td>subtotal</td>
+            <td>tax</td>
+            <td>total</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Daily totals table -->
+<table id="daily-total-table">
+    <thead>
+        <tr>
+            <th class="col-4">Daily Sales Amount</th>
+            <th class="col-4">Daily Sales Tax (7.25%)</th>
+            <th class="col-4">Daily Sales Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>sales amount</td>
+            <td>sales tax</td>
+            <td>sales total</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+    {% endif %}
+    
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+    {% if user.role == 'manager' %}
+    <li><a class="active" href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
 
 {% endblock %}

@@ -18,7 +18,52 @@
 {% endwith %}
 </div>
 
-Sales Reports
+<!-- Sales report selection -->
+<div class="container-action">
+    <h5>Choose Sales Report Type</h5>
+    <div id="report-row">
+        <a href="{{ url_for('Novel_sales_reports.daily_sales_report') }}">
+            <button id="action-button" style="margin-right:15px;">Daily Report</button>
+        </a>
+        <a href="{{ url_for('Novel_sales_reports.weekly_sales_report') }}">
+            <button id="action-button" style="margin-right:15px;">Weekly Report</button>
+        </a>
+        <a href="{{ url_for('Novel_sales_reports.monthly_sales_report') }}">
+            <button id="action-button">Monthly Report</button>
+        </a>
+    </div>
+    <form method="POST" action="{{ url_for('Novel_sales_reports.custom_sales_report') }}" class="container">
+        <input type="date" id="date-input" name="custom_start_date" required>
+        <input type="date" id="date-input" name="custom_end_date" required>
+        <button type="submit" id="action-button">Custom Report</button>
+    </form>
+</div>
 
+
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+    {% endif %}
+    
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+    {% if user.role == 'manager' %}
+    <li><a class="active" href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
 
 {% endblock %}

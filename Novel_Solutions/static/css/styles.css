@@ -40,6 +40,10 @@ body {
     margin: 15px;
 }
 
+#report-row {
+    margin-bottom: 50px;
+}
+
 
 /* Headers and links */
 h1,
@@ -54,6 +58,17 @@ h2 {
     color: #EBF8FF;
     background-color: #016280;
     padding: 15px;
+}
+
+h5 {
+    color: #003343;
+    background-color: #EBF8FF;
+    font-weight: bold;
+    border-radius: 10px;
+    margin: auto;
+    padding: 15px;
+    margin-bottom: 30px;
+    width: 40%;
 }
 
 a {
@@ -79,6 +94,7 @@ label {
 }
 
 #inventory-input,
+#date-input,
 #promo-code {
     margin-right: 15px;
 }
@@ -213,7 +229,8 @@ td {
     border: 1px solid #ddd;
 }
 
-#discount-table td {
+#discount-table,
+#timestamp-table td {
     text-align: center;
     padding: 15px;
 }

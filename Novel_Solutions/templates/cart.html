@@ -111,7 +111,7 @@
     <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
     {% endif %}
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('sales_report.generate_sales_report') }}">Sales Reports</a></li>
+    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
     <li><a class="active" href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
