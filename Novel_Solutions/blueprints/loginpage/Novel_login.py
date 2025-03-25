@@ -7,7 +7,7 @@ from extensions import db, bcrypt, login_manager
 from flask_login import login_user, logout_user, current_user, login_required
 
 # Imports for the Forms
-from .User_forms import RegisterForm, LoginForm
+from .User_forms import RegisterForm, LoginForm, ResetPasswordForm
 
 # Imports for the Models
 from models import User, Book
@@ -132,3 +132,36 @@ def dashboard():
     books = Book.query.all()
     return render_template('dashboard.html', user=current_user, users=users, books=books)
 
+@Novel_login.route('/reset_user', methods=['POST','GET'])
+@login_required
+def reset_user():
+    if current_user.role != 'manager':
+        flash('Unauthorized! Only managers can reset users.', 'danger')
+        return redirect(url_for('Novel_login.dashboard'))
+    return render_template('reset_user.html', user=current_user)        
+    
+
+
+
+@Novel_login.route('/reset_password/<string:username>', methods=['POST', 'GET'])
+@login_required
+def reset_password(username):
+    if current_user.role != 'manager':
+        flash('Unauthorized! Only managers can reset passwords.', 'danger')
+        return redirect(url_for('Novel_login.dashboard'))
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        flash('User not found!', 'danger')
+        return redirect(url_for('Novel_login.dashboard'))
+    
+    form = ResetPasswordForm()
+
+    if form.validate_on_submit():
+        if user:
+            user.password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            db.session.commit()
+            flash('Password reset successfully!', 'success')
+            return redirect(url_for('Novel_login.dashboard'))
+
+    return render_template('reset_password.html', form=form, username = username)

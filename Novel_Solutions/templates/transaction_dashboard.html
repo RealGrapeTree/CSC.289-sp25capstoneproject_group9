@@ -37,6 +37,7 @@
                     <th>Status</th>
                     <th>Stripe Payment ID</th>
                     <th>Timestamp</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody id="transactionTableBody">
@@ -57,11 +58,17 @@
 
             $.get(url, function(data) {
                 let tableBody = "";
-                
+
                 // Ensure data is in expected format
                 if (Array.isArray(data)) {
                     data.forEach(transaction => {
                         let date = new Date(transaction.timestamp * 1000).toLocaleString();  // Convert UNIX timestamp
+
+                        // Add a Refund button if the transaction is "succeeded"
+                        let refundButton = '';
+                        if (transaction.status === 'succeeded') {
+                            refundButton = `<button class="btn btn-danger" onclick="refundTransaction(${transaction.id})">Refund</button>`;
+                        }
 
                         tableBody += `<tr>
                             <td>${transaction.id}</td>
@@ -70,6 +77,7 @@
                             <td>${transaction.status}</td>
                             <td>${transaction.stripe_payment_id}</td>
                             <td>${date}</td>
+                            <td><button class="btn btn-danger" onclick="refundTransaction('${transaction.id}')">Refund</button></td>
                         </tr>`;
                     });
 
@@ -86,6 +94,8 @@
             });
         }
 
+
+
         // Display error message
         function showError(message) {
             $('#errorAlert').removeClass('d-none');
@@ -95,6 +105,27 @@
         $(document).ready(() => {
             fetchTransactions();  // Automatically fetch transactions when the page loads
         });
+
+        // Refund transaction via AJAX
+        function refundTransaction(transactionId) {
+            console.log("Refunding transaction with ID:", transactionId);
+            if (confirm("Are you sure you want to refund this transaction?")) {
+                $.ajax({
+                    url: `/refund/${transactionId}`,
+                    type: "POST",
+                    success: function(response) {
+                        console.log("Refund successful:", response);
+                        // Refresh the transactions table to show the updated status
+                        fetchTransactions();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error processing refund:", error);
+                        alert("Error processing refund: " + error);
+                    }
+                });
+            }
+        }
+
     </script>
 </body>
 </html>
