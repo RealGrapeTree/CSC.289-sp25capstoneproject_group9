@@ -29,7 +29,7 @@
 </table>
 
 <!-- Daily sales report table -->
-<table id="daily-sales-table">
+<table id="daily_sales_table">
     <caption><h3>Daily Sales</h3></caption>
     <thead>
         <tr>
@@ -78,7 +78,7 @@
 <!-- Export buttons -->
  <div class="container-action">
     <div class="row" id="export-row">
-        <div class="col"><button id="action-button">Export to CSV</button></div>
+        <div class="col"><button onclick="exportCSV('daily_sales_table')" id="action-button">Export to CSV</button></div>
         <div class="col"><button id="action-button">Export to PDF</button></div>
     </div>
  </div>
@@ -109,5 +109,18 @@
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
+
+
+<!-- Scripts -->
+<script>
+    function exportCSV(daily_sales_table) {
+        fetch(`/export_reports_csv/${daily_sales_table}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    }
+</script>
 
 {% endblock %}

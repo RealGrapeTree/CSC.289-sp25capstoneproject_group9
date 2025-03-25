@@ -51,6 +51,12 @@ body {
     margin: auto;
 }
 
+#reset-row {
+    width: 60%;
+    margin: auto;
+    margin-bottom: 15px;
+}
+
 
 /* Headers and links */
 h1,

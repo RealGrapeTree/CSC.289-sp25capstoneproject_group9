@@ -164,4 +164,4 @@ def reset_password(username):
             flash('Password reset successfully!', 'success')
             return redirect(url_for('Novel_login.dashboard'))
 
-    return render_template('reset_password.html', form=form, username = username)
+    return render_template('reset_password.html', form=form, username=username, user=current_user)

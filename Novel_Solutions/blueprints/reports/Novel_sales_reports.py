@@ -4,11 +4,12 @@ from flask_login import login_required, current_user
 from ..POS.Novel_POS import *
 from ..cart.Novel_cart import *
 from models import Transaction, User, Book
-import json
 
 import datetime as dt, calendar
 from datetime import timedelta
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
 
 # Create the Blueprint
@@ -16,8 +17,29 @@ Novel_sales_reports = Blueprint('Novel_sales_reports', __name__, template_folder
 
 
 # Functions to export reports to CSV and PDF
-def export_reports_csv():
-    pass
+@Novel_sales_reports.route("/export_sales_csv/<string:table_to_export>", methods=["POST"])
+def export_reports_csv(table_to_export):
+    csv_table = pd.read_html(table_to_export)
+    df = csv_table[0]
+    df.to_csv('daily_sales_report.csv')
+
+
+    url = request.url
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Find the specific table you want
+    target_table = soup.find('table', {'id': {table_to_export} })
+
+    # Use pandas to read the HTML of just that table
+    df = pd.read_html(str(target_table))[0]
+
+    # Export to CSV file
+    df.to_csv('daily_sales_report.csv')
+
+    return jsonify({"message": "Table exported to CSV file.", "success": True})
+
+
 def export_reports_pdf():
     pass
 
