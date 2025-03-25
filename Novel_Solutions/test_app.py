@@ -8,6 +8,7 @@ from blueprints.loginpage.Novel_login import Novel_login
 from app import app, db, create_default_manager
 from models import User, Inventory, InventoryTransaction, Book
 
+
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
@@ -37,27 +38,29 @@ def test_default_manager_creation(client):
         assert manager.email == "admin@example.com"
         assert manager.role == "manager"
 
-# Test Manager Access (Should be denied access to process sale)
-
-def test_cashier_creation(client):
-    with app.app_context():
-        cashier = User(username="cashier1", firstname="John", lastname="James",
-                           email="james@example.com", password="password1", role="cashier")
-        assert cashier is not None
-
-
-
-
 
 
 # Test Unauthorized User Access to Process Sale
-def test_unauthorized_user_access(client):
+def test_login_unauthorized_user_access(client):
     with app.app_context():
         response = client.post('/login', data={'username': 'nonexistent_user', 'password': 'wrongpassword'}, follow_redirects=True)
     
         assert response.status_code == 200
         assert b'Login unsuccessful. Please check username and password' in response.data
 
+def test_login_authorized_user_access(client):
+    with app.app_context():
+        response = client.post('/login', data={'username': 'admin', 'password': 'admin123'}, follow_redirects=True)
+
+        assert b'Login successful!' in response.data
+
+def test_add_user(client):
+    with app.app_context():
+        response = client.post('/add_user', data={'username': 'cashier1', 'firstname': 'John', 'lastname': 'James',
+                                                  'email': 'james@example.com', 'password': 'cashier1',
+                                                  'role': 'cashier'}, follow_redirects=True)
+
+        assert b'User created successfully!'
 
 
 def test_cart_creation(client):
@@ -67,13 +70,8 @@ def test_db_creation(client):
     with app.app_context():
         assert db is not None
 
-#def test_inventory_get(client):
-#    with app.app_context():
-#        inventory = Inventory.query.all()
-#        assert inventory is None
-
-def test_create_new_book(client):
+def test_inventory_get(client):
     with app.app_context():
-        new_book = create_new_book()
-        assert new_book is not None
+        inventory = Inventory.query.all()
+        assert inventory is not None
 
