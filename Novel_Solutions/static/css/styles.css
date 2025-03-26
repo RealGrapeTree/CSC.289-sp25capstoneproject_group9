@@ -14,6 +14,14 @@ body {
 
 
 /* Containers */
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 5px;
+}
+
 #container {
     margin: auto;
     background-color: #d0e6f2;
