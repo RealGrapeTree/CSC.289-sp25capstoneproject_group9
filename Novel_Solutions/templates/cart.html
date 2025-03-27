@@ -46,7 +46,7 @@
     <button onclick="removeDiscount()">Remove Discount</button>
 
     <p>Discount Applied: <span id="discount-amount">{{ discount_percentage }}%</span></p>
-    <p>Total After Discount: $<span id="cart-total">{{ total_price }}</span></p>
+    <p>Total After Discount: $<span id="cart-total">{{ discounted_total_price }}</span></p>
 
     <!-- Proceed to Checkout Button -->
     <a href="{{ url_for('Novel_POS.checkout') }}" class="checkout-button">🛒 Proceed to Checkout</a>

@@ -44,7 +44,8 @@ def view_cart():
     discounted_subtotal = subtotal - discount_amount
 
     tax_amount = round(discounted_subtotal * NC_TAX_RATE, 2)
-    total_price = round(discounted_subtotal + tax_amount, 2)  # Total with tax
+    total_price = round(subtotal + tax_amount, 2)
+    discounted_total_price = round(discounted_subtotal + tax_amount, 2)  # Total with tax
 
     return render_template(
         "cart.html",
@@ -54,6 +55,7 @@ def view_cart():
         discount_amount=discount_amount,
         tax_amount=tax_amount,
         total_price=total_price,
+        discounted_total_price=discounted_total_price,
     )
 
 
@@ -109,12 +111,12 @@ def get_cart_total():
 
     # Retrieve discount percentage
     discount_percentage = session.get("discount", 0)
-    discount_amount = round((subtotal * discount_percentage) / 100, 2)
+    discount_amount = round(subtotal * discount_percentage) / 100, 2
     discounted_subtotal = (subtotal - discount_amount, 2)
 
     tax_amount = round(discounted_subtotal * NC_TAX_RATE, 2)
-    total_price = round(discounted_subtotal + tax_amount, 2)  # Total with tax
-    return subtotal, discount_amount, tax_amount, total_price
+    discounted_total_price = round(discounted_subtotal + tax_amount, 2)  # Total with tax
+    return subtotal, discount_amount, tax_amount, discounted_total_price
 
 # Apply discount via promo code
 @Novel_cart.route("/apply_discount", methods=["POST"])
