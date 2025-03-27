@@ -148,7 +148,7 @@ def stripe_webhook():
             user_id=user_id,
             amount=amount_received,
             status="completed",
-            stripe_payment_id=stripe_payment_id,
+            stripe_payment_id=stripe_payment_id,  # Store PaymentIntent ID
             timestamp=datetime.utcnow()
         )
         db.session.add(transaction)
@@ -165,7 +165,7 @@ def stripe_webhook():
             user_id="unknown",
             amount=intent["amount"],
             status="failed",
-            stripe_payment_id=stripe_payment_id,
+            stripe_payment_id=stripe_payment_id,  # Store PaymentIntent ID
             timestamp=datetime.utcnow()
         )
         db.session.add(transaction)
@@ -205,16 +205,23 @@ def get_transactions():
 def view_transactions():
     return render_template("transaction_dashboard.html")
 
-@Novel_POS.route("/refund/<int:transaction_id>", methods=["POST"])
+
+# ✅ Route to Refund a Transaction (Managers & Cashiers Only)
+@Novel_POS.route("/refund/<transaction_id>", methods=["POST"])
 @login_required
 def refund(transaction_id):
     if current_user.role not in ["manager", "cashier"]:
         flash('Unauthorized! Only cashiers or managers can issue refunds.', 'danger')
         return redirect(url_for('Novel_POS.view_transactions'))
     
-    # Find the transaction in the database
-    transaction = Transaction.query.get_or_404(transaction_id)
-    
+    # Find the transaction in the database by transaction_id (which could be a Checkout Session ID or PaymentIntent ID)
+    transaction = Transaction.query.filter((Transaction.stripe_payment_id == transaction_id) | (Transaction.id == transaction_id)).first()
+
+    # Check if transaction exists
+    if not transaction:
+        flash(f"Transaction with ID {transaction_id} not found.", 'danger')
+        return redirect(url_for('Novel_POS.view_transactions'))
+
     # Check if the transaction is already refunded
     if transaction.status == "refunded":
         flash('This transaction has already been refunded.', 'danger')
@@ -226,9 +233,16 @@ def refund(transaction_id):
         return redirect(url_for('Novel_POS.view_transactions'))
     
     try:
-        # Refund the payment through Stripe
+        payment_intent_id = transaction.stripe_payment_id  # This should be the PaymentIntent ID (pi_...)
+        
+        # If the ID is a Checkout Session ID (ch_...), we need to retrieve the associated PaymentIntent ID
+        if payment_intent_id.startswith("ch_"):
+            checkout_session = stripe.checkout.Session.retrieve(payment_intent_id)
+            payment_intent_id = checkout_session.payment_intent  # Get the associated PaymentIntent ID
+        
+        # Refund the payment through Stripe using the correct PaymentIntent ID
         refund = stripe.refunds.create(
-            payment_intent=transaction.stripe_payment_id  # Use the PaymentIntent ID
+            payment_intent=payment_intent_id  # Use the PaymentIntent ID (pi_...)
         )
         
         # Update transaction status to refunded in the database
