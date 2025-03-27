@@ -204,3 +204,41 @@ def get_transactions():
 @login_required
 def view_transactions():
     return render_template("transaction_dashboard.html")
+
+@Novel_POS.route("/refund/<int:transaction_id>", methods=["POST"])
+@login_required
+def refund(transaction_id):
+    if current_user.role not in ["manager", "cashier"]:
+        flash('Unauthorized! Only cashiers or managers can issue refunds.', 'danger')
+        return redirect(url_for('Novel_POS.view_transactions'))
+    
+    # Find the transaction in the database
+    transaction = Transaction.query.get_or_404(transaction_id)
+    
+    # Check if the transaction is already refunded
+    if transaction.status == "refunded":
+        flash('This transaction has already been refunded.', 'danger')
+        return redirect(url_for('Novel_POS.view_transactions'))
+
+    # Check if the transaction is completed
+    if transaction.status != "completed":
+        flash('Only completed transactions can be refunded.', 'danger')
+        return redirect(url_for('Novel_POS.view_transactions'))
+    
+    try:
+        # Refund the payment through Stripe
+        refund = stripe.refunds.create(
+            payment_intent=transaction.stripe_payment_id  # Use the PaymentIntent ID
+        )
+        
+        # Update transaction status to refunded in the database
+        transaction.status = "refunded"
+        db.session.commit()
+
+        flash('Refund processed successfully!', 'success')
+    except stripe.error.StripeError as e:
+        flash(f'Error processing refund: {str(e)}', 'danger')
+    except Exception as e:
+        flash(f'Unexpected error: {str(e)}', 'danger')
+    
+    return redirect(url_for('Novel_POS.view_transactions'))
