@@ -42,8 +42,8 @@
     <!-- Apply Discount Functionality Section -->
     <h2>Apply Discount</h2>
     <input type="text" id="promo-code" placeholder="Enter promo code">
-    <button onclick="applyDiscount()">Apply Discount</button>
-    <button onclick="removeDiscount()">Remove Discount</button>
+    <button onclick="applyDiscount()" id="discount-button">Apply Discount</button>
+    <button onclick="removeDiscount()" id="remove-discount-button">Remove Discount</button>
 
     <p>Discount Applied: <span id="discount-amount">{{ discount_percentage }}%</span></p>
     <p>Total After Discount: $<span id="cart-total">{{ discounted_total_price }}</span></p>

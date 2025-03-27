@@ -42,6 +42,8 @@ h2,
 #remove-button,
 #search-button,
 #clear-button,
+#discount-button,
+#remove-discount-button,
 #add-book-link {
     text-align: center;
     color: #EBF8FF;
