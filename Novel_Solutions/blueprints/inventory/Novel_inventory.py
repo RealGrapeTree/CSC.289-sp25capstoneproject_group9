@@ -8,7 +8,9 @@ Novel_inventory = Blueprint('Novel_inventory', __name__, template_folder='templa
 
 # Function to insert book data into the database using SQLAlchemy
 def insert_book_into_db(isbn, title, authors, number_of_pages, publishers, publish_date, thumbnail_url, cover, stock=10, price=19.99):
-    new_book = Book(isbn=isbn, title=title, authors=authors, sku=None, stock=stock, price=price , number_of_pages=number_of_pages, publishers=publishers, publish_date=publish_date, thumbnail_url=thumbnail_url, cover=cover)
+    new_book = Book(isbn=isbn, title=title, authors=authors, sku=None, stock=stock, price=price,
+                    number_of_pages=number_of_pages, publishers=publishers, publish_date=publish_date,
+                    thumbnail_url=thumbnail_url, cover=cover)
     db.session.add(new_book)
     db.session.commit()
     return new_book
