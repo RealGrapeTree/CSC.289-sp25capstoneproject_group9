@@ -2,6 +2,7 @@ from flask import render_template, Blueprint, request, jsonify
 from extensions import db
 from flask_login import current_user
 from models import Transaction
+from ..cart.Novel_cart import NC_TAX_RATE
 
 import datetime as dt
 from datetime import timedelta, datetime, date
@@ -38,31 +39,43 @@ def sales_report():
 # Daily sales report route
 @Novel_sales_reports.route('/sales_report/daily', methods=["GET"])
 def daily_sales_report():
+    subtotal = 0
+    daily_transactions = []
+
     # Get current date
     current_date = datetime.today()
 
     # Query all transactions for the day
     transactions = db.session.query(Transaction).filter(Transaction.timestamp == current_date)
-    daily_transactions = [
-        {
-            "id": t.id,
-            "amount": t.amount / 100,  # Convert from cents to dollars
-            "timestamp": t.timestamp
-        }
-        for t in transactions
-    ]
+    for t in transactions:
+        subtotal += transactions.amount
+        daily_transactions.append(
+            {
+                "id": t.id,
+                "amount": t.amount / 100,  # Convert from cents to dollars
+                "timestamp": t.timestamp
+            }
+        )
+
+    tax_amount = round(subtotal * NC_TAX_RATE, 2)
+    total_price = round(subtotal + tax_amount, 2)
 
     return render_template('daily_sales_report.html',
-        user=current_user,
-        current_date=current_date,
-        transactions=transactions,
-        daily_transactions=daily_transactions
-        )
+                           user=current_user,
+                           current_date=current_date,
+                           transactions=transactions,
+                           daily_transactions=daily_transactions,
+                           subtotal=subtotal,
+                           tax_amount=tax_amount,
+                           total_price=total_price)
 
 
 # Weekly sales report route
 @Novel_sales_reports.route('/sales_report/weekly')
 def weekly_sales_report():
+    subtotal = 0
+    weekly_transactions = []
+
     # Get current date
     current_date = datetime.today()
     # Get first and last dates of the week
@@ -72,14 +85,18 @@ def weekly_sales_report():
     # Query all transactions for the week
     transactions = db.session.query(Transaction).filter(Transaction.timestamp >= week_start,\
                                                          Transaction.timestamp <= week_end)
-    weekly_transactions = [
-        {
-            "id": t.id,
-            "amount": t.amount / 100,  # Convert from cents to dollars
-            "timestamp": t.timestamp
-        }
-        for t in transactions
-    ]
+    for t in transactions:
+        subtotal += transactions.amount
+        weekly_transactions.append(
+            {
+                "id": t.id,
+                "amount": t.amount / 100,  # Convert from cents to dollars
+                "timestamp": t.timestamp
+            }
+        )
+
+    tax_amount = round(subtotal * NC_TAX_RATE, 2)
+    total_price = round(subtotal + tax_amount, 2)
 
     return render_template('weekly_sales_report.html', 
                            user=current_user, 
@@ -87,12 +104,18 @@ def weekly_sales_report():
                            week_start=week_start, 
                            week_end=week_end,
                            transactions=transactions,
-                           weekly_transactions=weekly_transactions)
+                           weekly_transactions=weekly_transactions,
+                           subtotal=subtotal,
+                            tax_amount=tax_amount,
+                            total_price=total_price)
 
 
 # Monthly sales report route
 @Novel_sales_reports.route('/sales_report/monthly')
 def monthly_sales_report():
+    monthly_transactions = []
+    subtotal = 0
+
     # Get current date
     current_date = datetime.today()
     # Get first of month
@@ -110,14 +133,18 @@ def monthly_sales_report():
     # Query all transactions for the month
     transactions = db.session.query(Transaction).filter(Transaction.timestamp >= month_first_timestamp,\
                                                          Transaction.timestamp <= month_last_timestamp)
-    monthly_transactions = [
-        {
-            "id": t.id,
-            "amount": t.amount / 100,  # Convert from cents to dollars
-            "timestamp": t.timestamp
-        }
-        for t in transactions
-    ]
+    for t in transactions:
+        subtotal += transactions.amount
+        monthly_transactions.append(
+            {
+                "id": t.id,
+                "amount": t.amount / 100,  # Convert from cents to dollars
+                "timestamp": t.timestamp
+            }
+        )
+
+    tax_amount = round(subtotal * NC_TAX_RATE, 2)
+    total_price = round(subtotal + tax_amount, 2)
 
     return render_template('monthly_sales_report.html', 
                            user=current_user, 
@@ -125,12 +152,18 @@ def monthly_sales_report():
                            first_of_month=first_of_month,
                            month_last_datetime=month_last_datetime,
                            transactions=transactions,
-                           monthly_transactions=monthly_transactions)
+                           monthly_transactions=monthly_transactions,
+                           subtotal=subtotal,
+                           tax_amount=tax_amount,
+                           total_price=total_price)
     
 
 # Custom sales report route
 @Novel_sales_reports.route('/sales_report/custom', methods=['GET', 'POST'])
 def custom_sales_report():
+    custom_transactions = []
+    subtotal = 0
+
     # Get current date
     current_date = datetime.today()
 
@@ -143,14 +176,18 @@ def custom_sales_report():
     # Query all transactions for the custom timeframe
     transactions = db.session.query(Transaction).filter(Transaction.timestamp >= custom_start_date,\
                                                          Transaction.timestamp <= custom_end_date)
-    custom_transactions = [
-        {
-            "id": t.id,
-            "amount": t.amount / 100,  # Convert from cents to dollars
-            "timestamp": t.timestamp
-        }
-        for t in transactions
-    ]
+    for t in transactions:
+        subtotal += transactions.amount
+        custom_transactions.append(
+            {
+                "id": t.id,
+                "amount": t.amount / 100,  # Convert from cents to dollars
+                "timestamp": t.timestamp
+            }
+        )
+
+    tax_amount = round(subtotal * NC_TAX_RATE, 2)
+    total_price = round(subtotal + tax_amount, 2)
 
     return render_template('custom_sales_report.html', 
                            user=current_user,
@@ -158,4 +195,7 @@ def custom_sales_report():
                            custom_start_date=custom_start_date, 
                            custom_end_date=custom_end_date,
                            transactions=transactions,
-                           custom_transactions=custom_transactions)
+                           custom_transactions=custom_transactions,
+                           subtotal=subtotal,
+                           tax_amount=tax_amount,
+                           total_price=total_price)

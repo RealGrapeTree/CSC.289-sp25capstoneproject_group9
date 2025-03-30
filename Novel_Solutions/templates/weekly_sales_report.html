@@ -37,8 +37,8 @@
     <caption><h3>Weekly Sales</h3></caption>
     <thead>
         <tr>
-            <th class="col-2">Transaction ID</th>
             <th class="col-2">Timestamp</th>
+            <th class="col-2">Transaction ID</th>
             <th class="col-2">ISBN/SKU</th>
             <th class="col-1">Quantity</th>
             <th class="col-1">Unit Price</th>
@@ -50,11 +50,14 @@
     <tbody>
         {% for transaction in weekly_transactions %}
         <tr>
-            <td>{{ transaction.id }}</td>
             <td>{{ transaction.timestamp }}</td>
+            <td>{{ transaction.id }}</td>
+
+            <!-- If more than one book per transaction, show each ISBN/SKU, quantity, unit price -->
             <td>isbn/sku</td>
             <td>quantity</td>
             <td>unit price</td>
+            
             <td>subtotal</td>
             <td>tax</td>
             <td>{{ transaction.amount }}</td>
@@ -74,9 +77,9 @@
     </thead>
     <tbody>
         <tr>
-            <td>sales amount</td>
-            <td>sales tax</td>
-            <td>sales total</td>
+            <td>${{ "%.2f"|format(subtotal|float) }}</td>
+            <td>${{ "%.2f"|format(tax_amount|float) }}</td>
+            <td>${{ "%.2f"|format(total_price|float) }}</td>
         </tr>
     </tbody>
 </table>
