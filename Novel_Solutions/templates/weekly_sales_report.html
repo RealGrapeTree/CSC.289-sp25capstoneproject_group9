@@ -33,7 +33,7 @@
 </table>
 
 <!-- Weekly sales report table -->
-<table id="weekly-sales-table">
+<table id="weekly_sales_table">
     <caption><h3>Weekly Sales</h3></caption>
     <thead>
         <tr>
@@ -48,21 +48,23 @@
         </tr>
     </thead>
     <tbody>
+        {% for transaction in weekly_transactions %}
         <tr>
-            <td>weekly id</td>
-            <td>timestamp</td>
+            <td>{{ transaction.id }}</td>
+            <td>{{ transaction.timestamp }}</td>
             <td>isbn/sku</td>
             <td>quantity</td>
             <td>unit price</td>
             <td>subtotal</td>
             <td>tax</td>
-            <td>total</td>
+            <td>{{ transaction.amount }}</td>
         </tr>
+        {% endfor %}
     </tbody>
 </table>
 
-<!-- Weekly totals table -->
-<table id="weekly-total-table">
+<!-- Weekly totals section -->
+<table id="weekly_sales_table">
     <thead>
         <tr>
             <th class="col-4">Weekly Sales Amount</th>
@@ -82,7 +84,7 @@
 <!-- Export buttons -->
 <div class="container-action">
     <div class="row" id="export-row">
-        <div class="col"><button id="action-button">Export to CSV</button></div>
+        <div class="col"><button onclick="exportCSV('weekly_sales_table')" id="action-button">Export to CSV</button></div>
         <div class="col"><button id="action-button">Export to PDF</button></div>
     </div>
  </div>
@@ -113,5 +115,27 @@
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
+
+
+<!-- Scripts -->
+<script>
+    function exportCSV(weekly_sales_table) {
+        fetch(`/export_reports_csv/${weekly_sales_table}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    }
+
+    function exportPDF(weekly_sales_table) {
+        fetch(`/export_reports_pdf/${weekly_sales_table}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    }
+</script>
 
 {% endblock %}

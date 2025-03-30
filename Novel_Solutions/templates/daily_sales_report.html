@@ -44,21 +44,23 @@
         </tr>
     </thead>
     <tbody>
+        {% for transaction in daily_transactions %}
         <tr>
-            <td>daily id</td>
-            <td>timestamp</td>
+            <td>{{ transaction.id }}</td>
+            <td>{{ transaction.timestamp }}</td>
             <td>isbn/sku</td>
             <td>quantity</td>
             <td>unit price</td>
             <td>subtotal</td>
             <td>tax</td>
-            <td>total</td>
+            <td>{{ transaction.amount }}</td>
         </tr>
+        {% endfor %}
     </tbody>
 </table>
 
-<!-- Daily totals table -->
-<table id="daily-totals-table">
+<!-- Daily totals section -->
+<table id="daily_sales_table">
     <thead>
         <tr>
             <th class="col-4">Daily Sales Amount</th>
@@ -115,6 +117,15 @@
 <script>
     function exportCSV(daily_sales_table) {
         fetch(`/export_reports_csv/${daily_sales_table}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    }
+
+    function exportPDF(daily_sales_table) {
+        fetch(`/export_reports_pdf/${daily_sales_table}`, { method: 'POST' })
         .then(response => response.json())
         .then(data => {
             alert(data.message);

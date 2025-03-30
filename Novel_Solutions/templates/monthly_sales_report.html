@@ -26,14 +26,14 @@
             <td>Current Time: {{ current_date.strftime("%I:%M %p") }}</td>
         </tr>
         <tr>
-            <td>Month Start Date: {{ month_days[0] }}</td>
-            <td>Month End Date: {{ month_days[-1] }}</td>
+            <td>Month Start Date: {{ first_of_month.strftime("%A, %B %d %Y") }}</td>
+            <td>Month End Date: {{ month_last_datetime.strftime("%A, %B %d %Y") }}</td>
         </tr>
     </tbody>
 </table>
 
 <!-- Monthly sales report table -->
-<table id="monthly-sales-table">
+<table id="monthly_sales_table">
     <caption><h3>Monthly Sales</h3></caption>
     <thead>
         <tr>
@@ -48,21 +48,23 @@
         </tr>
     </thead>
     <tbody>
+        {% for transaction in monthly_transactions %}
         <tr>
-            <td>monthly id</td>
-            <td>timestamp</td>
+            <td>{{ transaction.id }}</td>
+            <td>{{ transaction.timestamp }}</td>
             <td>isbn/sku</td>
             <td>quantity</td>
             <td>unit price</td>
             <td>subtotal</td>
             <td>tax</td>
-            <td>total</td>
+            <td>{{ transaction.amount }}</td>
         </tr>
+        {% endfor %}
     </tbody>
 </table>
 
-<!-- Monthly totals table -->
-<table id="monthly-total-table">
+<!-- Monthly totals section -->
+<table id="monthly_sales_table">
     <thead>
         <tr>
             <th class="col-4">Monthly Sales Amount</th>
@@ -82,7 +84,7 @@
 <!-- Export buttons -->
 <div class="container-action">
     <div class="row" id="export-row">
-        <div class="col"><button id="action-button">Export to CSV</button></div>
+        <div class="col"><button onclick="exportCSV('monthly_sales_table')" id="action-button">Export to CSV</button></div>
         <div class="col"><button id="action-button">Export to PDF</button></div>
     </div>
  </div>
@@ -113,5 +115,27 @@
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
+
+
+<!-- Scripts -->
+<script>
+    function exportCSV(monthly_sales_table) {
+        fetch(`/export_reports_csv/${monthly_sales_table}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    }
+
+    function exportPDF(monthly_sales_table) {
+        fetch(`/export_reports_pdf/${monthly_sales_table}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    }
+</script>
 
 {% endblock %}
