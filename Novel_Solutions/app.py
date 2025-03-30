@@ -6,6 +6,7 @@ from blueprints.loginpage.Novel_login import Novel_login, logout, current_user
 from blueprints.POS.Novel_POS import Novel_POS
 from blueprints.inventory.Novel_inventory import Novel_inventory
 from blueprints.cart.Novel_cart import Novel_cart, get_cart_total  # Import cart total function
+from blueprints.reports.Novel_sales_reports import Novel_sales_reports
 from extensions import db, bcrypt, login_manager
 from models import User, Book
 import shutil
@@ -53,6 +54,7 @@ app.register_blueprint(Novel_login)
 app.register_blueprint(Novel_POS)
 app.register_blueprint(Novel_inventory)
 app.register_blueprint(Novel_cart)
+app.register_blueprint(Novel_sales_reports)
 
 
 
