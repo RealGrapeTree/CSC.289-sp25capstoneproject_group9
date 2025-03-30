@@ -33,6 +33,7 @@ jobs:
     - name: Docker - Build / Push 
       uses: docker/build-push-action@v6
       with:
+        context: ./Novel_Solutions
         file: ./Novel_Solutions/Dockerfile
         push: false
         tags: wip
