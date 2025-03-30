@@ -17,4 +17,4 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - run: echo 'ls -a'
+    - run: ls -a
