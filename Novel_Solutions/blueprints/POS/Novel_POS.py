@@ -38,7 +38,13 @@ def checkout():
         if not is_valid:
             flash(error_message, 'danger')
             return redirect(url_for('Novel_cart.view_cart'))
-        subtotal, tax_amount, total_amount = get_cart_total()
+        
+        # Capture all values returned from get_cart_total
+        totals = get_cart_total()  # This can return any number of values
+
+        # Assuming the first three values are still subtotal, tax_amount, and total_amount
+        subtotal, tax_amount, total_amount = totals[:3]  # Only take the first 3 values
+        extra_values = totals[3:]  # Store any extra values (e.g., discounts, fees)
 
         amount = int(total_amount * 100)  # Convert to cents
     
@@ -54,7 +60,8 @@ def checkout():
                                client_secret=intent.client_secret, 
                                subtotal=subtotal, 
                                tax_amount=tax_amount, 
-                               total_amount=total_amount)
+                               total_amount=total_amount,
+                               extra_values=extra_values)  # Pass extra values to the template
     except Exception as e:
         return jsonify(error=str(e)), 400
 
@@ -87,6 +94,7 @@ def update_inventory_after_sale(cart):
     except Exception as e:
         db.session.rollback()
         print(f"❌ Error updating inventory: {e}")
+
 
 # ✅ Route to create a PaymentIntent (Used by payment.html)
 @Novel_POS.route("/create-payment-intent", methods=["POST"])
