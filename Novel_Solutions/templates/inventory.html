@@ -13,6 +13,37 @@
         {% endif %}
     {% endwith %}   
 </div>
+
+<!-- Pagination Top Controls -->
+<div class="pagination-controls">
+    <div class="go-to-page">
+        <form method="GET" action="">
+            <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+            <input type="number" name="page" min="1" max="{{ pagination.pages }}" 
+                   value="{{ pagination.page }}" class="page-input">
+            <button type="submit" class="go-button">Go</button>
+        </form>
+    </div>
+    <div class="page-links">
+        {% if pagination.has_prev %}
+            <a href="?page={{ pagination.prev_num }}" class="page-link">« Previous</a>
+        {% endif %}
+        {% for page_num in pagination.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == pagination.page %}
+                    <strong class="current-page">{{ page_num }}</strong>
+                {% else %}
+                    <a href="?page={{ page_num }}" class="page-link">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+            <a href="?page={{ pagination.next_num }}" class="page-link">Next »</a>
+        {% endif %}
+    </div>
+</div>
  {% if books %}
     <form method="POST" action="{{ url_for('Novel_inventory.search') }}">
         <input type="text" name="search_term" placeholder="Enter ISBN or SKU" required>
@@ -57,6 +88,38 @@
     {% endif %}
     </table>
 
+<!-- Repeat Pagination Controls at Bottom -->
+<div class="pagination-controls">
+    <div class="go-to-page">
+        <form method="GET" action="">
+            <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+            <input type="number" name="page" min="1" max="{{ pagination.pages }}" 
+                   value="{{ pagination.page }}" class="page-input">
+            <button type="submit" class="go-button">Go</button>
+        </form>
+    </div>
+    <div class="page-links">
+        {% if pagination.has_prev %}
+            <a href="?page={{ pagination.prev_num }}" class="page-link">« Previous</a>
+        {% endif %}
+        {% for page_num in pagination.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == pagination.page %}
+                    <strong class="current-page">{{ page_num }}</strong>
+                {% else %}
+                    <a href="?page={{ page_num }}" class="page-link">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+            <a href="?page={{ pagination.next_num }}" class="page-link">Next »</a>
+        {% endif %}
+    </div>
+</div>
+
+
 <!-- Navigation Links -->
 <div class="nav-links">
     <a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a>
@@ -95,6 +158,69 @@
 
     .delete-button:hover {
         font-weight: bold;
+    }  
+        /* ===== Pagination Styles ===== */
+        .pagination-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 15px 0;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+    }
+    .go-to-page {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .go-to-page span {
+        font-weight: bold;
+    }
+    .page-input {
+        width: 45px;
+        padding: 4px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+    }
+    .go-button {
+        padding: 4px 12px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .go-button:hover {
+        background-color: #45a049;
+    }
+    .page-links {
+        display: flex;
+        gap: 5px;
+    }
+    .page-link {
+        padding: 4px 8px;
+        text-decoration: none;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        font-size: 14px;
+    }
+    .page-link:hover {
+        background-color: #ddd;
+    }
+    .current-page {
+        padding: 4px 8px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 3px;
+        font-size: 14px;
+    }
+    .ellipsis {
+        padding: 4px;
+        color: #666;
     }
 
 </style>
