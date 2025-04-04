@@ -90,10 +90,20 @@ def add_book():
 @login_required
 def inventory():
     if current_user.is_authenticated:
-        books = Book.query.all()
-        return render_template('inventory.html', books=books, user=current_user.username)
+        page = request.args.get('page', 1, type=int)
+        per_page = 10  # Number of items per page
+        
+        # Get paginated books
+        books_pagination = Book.query.paginate(page=page, per_page=per_page, error_out=False)
+        books = books_pagination.items
+        
+        return render_template('inventory.html', 
+                             books=books, 
+                             pagination=books_pagination,
+                             user=current_user.username)
     else:
         return redirect(url_for('Novel_login.login'))
+        
     
 @Novel_inventory.route('/search', methods=['GET', 'POST'])
 @login_required
