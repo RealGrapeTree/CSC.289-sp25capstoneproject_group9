@@ -127,8 +127,13 @@ def apply_discount():
     promo_code = request.json.get("promo_code")
     discounts = {
         "SAVE10": 10,  # 10% discount
+        "save10": 10,  # 10% discount
+        "BOOKS25": 25,  # 25% discount
+        "books25": 25,  # 25% discount
         "FREESHIP": 5,  # 5% discount
+        "freeShip": 5,  # 5% discount
         "NOVEL50": 50,  # 50% discount
+        "novel50": 50,  # 50% discount
     }
 
     if promo_code and promo_code in discounts:
@@ -142,3 +147,13 @@ def apply_discount():
     else:
         print("Invalid promo code entered!")  # Debugging output
         return jsonify({"message": "Invalid promo code!", "discount": 0}), 400
+
+@Novel_cart.route("/remove_discount", methods=["POST"])
+def remove_discount():
+    """Remove any applied discount."""
+    if "discount" in session:
+        session.pop("discount")
+        session.modified = True
+        return jsonify({"message": "Discount removed!", "discount": 0})
+
+    return jsonify({"message": "No discount applied!", "discount": 0}), 400
