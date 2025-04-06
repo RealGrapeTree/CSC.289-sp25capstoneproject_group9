@@ -47,8 +47,8 @@ def view_cart():
     discounted_subtotal = subtotal - discount_amount
 
 
-    tax_amount = round(subtotal * NC_TAX_RATE, 2)
-    total_price = round(subtotal + tax_amount, 2)
+    tax_amount = round(discounted_subtotal * NC_TAX_RATE, 2)
+    total_price = round(discounted_subtotal + tax_amount, 2)
 
     return render_template(
         "cart.html",
