@@ -50,12 +50,12 @@
             <td>{{ transaction.id }}</td>
             
             <!-- If more than one book per transaction, show each ISBN/SKU, quantity, unit price -->
-            <td>isbn/sku</td>
-            <td>quantity</td>
-            <td>unit price</td>
+            <td>{{transaction.isbn}}</td>
+            <td>{{transaction.quantity}}</td>
+            <td>{{transaction.unit_price}}</td>
             
-            <td>subtotal</td>
-            <td>tax</td>
+            <td>{{ transaction.subtotal }}</td>
+            <td>{{ transaction.tax }}</td>
             <td>{{ transaction.amount }}</td>
         </tr>
         {% endfor %}

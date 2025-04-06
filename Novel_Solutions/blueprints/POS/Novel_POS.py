@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint, redirect, url_for, request, flash, jsonify, session
 from extensions import db
 from flask_login import login_required, current_user
-from models import Transaction, User, Book
+from models import Transaction, User, Book, TransactionItem
 import stripe
 import os
 from datetime import datetime
@@ -14,6 +14,47 @@ Novel_POS = Blueprint('Novel_POS', __name__, template_folder='templates')
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 stripe_publishable_key = os.getenv("STRIPE_PUBLISHABLE_KEY")
 stripe_webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+
+def save_transaction_to_db(user_id, amount, status, stripe_payment_id, cart):
+    print("Saving transaction to DB...")
+    transaction = Transaction(
+        user_id=user_id,
+        amount=amount,
+        status=status,
+        stripe_payment_id=stripe_payment_id,
+        timestamp=datetime.now()
+    )
+    db.session.add(transaction)
+    db.session.commit()
+    
+    # Save each cart item in the TransactionItem table
+    for book_id, quantity in cart.items():
+        print(f"Processing book ID: {book_id} with quantity: {quantity}")
+        
+        book = Book.query.get(int(book_id))
+        
+        if book is None:
+            print(f"❌ Book not found for ID: {book_id}")
+            continue  # Skip this book if not found
+        
+        print(f"Processing book: {book.title} (ISBN: {book.isbn}) with quantity: {quantity}")
+        
+        transaction_item = TransactionItem(
+            transaction_id=transaction.id,
+            book_id=book.id,
+            quantity=quantity,
+            unit_price=int(book.price * 100),  # Store unit price in cents
+            isbn=book.isbn,
+            book_title=book.title  # Store the title for reference
+        )
+        db.session.add(transaction_item)
+
+    db.session.commit()
+    print("Transaction saved successfully!")
+
+
+
 
 
 # Process Sale Route (Restricted to Cashiers)
@@ -114,16 +155,8 @@ def create_payment():
         cart = session.get('cart', {})
         update_inventory_after_sale(cart)  # Call the new function
 
-        # Save successful transaction to database
-        transaction = Transaction(
-            user_id=current_user.username,
-            amount=amount,  # in cents
-            status="completed",
-            stripe_payment_id=intent.id,
-            timestamp=datetime.now()
-        )
-        db.session.add(transaction)
-        db.session.commit()
+       # Save transaction to the database
+        save_transaction_to_db(current_user.username, amount, "completed", intent.id, cart)
 
         # Clear the cart after payment
         session['cart'] = {}
@@ -252,3 +285,6 @@ def refund(transaction_id):
         flash(f'Unexpected error: {str(e)}', 'danger')
     
     return redirect(url_for('Novel_POS.view_transactions'))
+
+
+  
