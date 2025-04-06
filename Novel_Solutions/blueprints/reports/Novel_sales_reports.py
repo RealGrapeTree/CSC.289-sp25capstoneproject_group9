@@ -45,17 +45,26 @@ def daily_sales_report():
     # Get current date
     current_date = datetime.today()
 
-    # Query all transactions for the day
-    transactions = db.session.query(Transaction).filter(Transaction.timestamp == current_date)
+    # Get start and end of the day
+    start_of_day = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_day = current_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    transactions = db.session.query(Transaction).filter(
+        Transaction.timestamp >= start_of_day,
+        Transaction.timestamp <= end_of_day
+    ).all()  
+
+    subtotal = 0
+    daily_transactions = []
+
     for t in transactions:
-        subtotal += transactions.amount
-        daily_transactions.append(
-            {
-                "id": t.id,
-                "amount": t.amount / 100,  # Convert from cents to dollars
-                "timestamp": t.timestamp
-            }
-        )
+        subtotal += t.amount
+        daily_transactions.append({
+            "id": t.id,
+            "amount": t.amount / 100,
+            "timestamp": t.timestamp
+        })
+
 
     tax_amount = round(subtotal * NC_TAX_RATE, 2)
     total_price = round(subtotal + tax_amount, 2)

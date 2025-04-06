@@ -114,6 +114,17 @@ def create_payment():
         cart = session.get('cart', {})
         update_inventory_after_sale(cart)  # Call the new function
 
+        # Save successful transaction to database
+        transaction = Transaction(
+            user_id=current_user.username,
+            amount=amount,  # in cents
+            status="completed",
+            stripe_payment_id=intent.id,
+            timestamp=datetime.now()
+        )
+        db.session.add(transaction)
+        db.session.commit()
+
         # Clear the cart after payment
         session['cart'] = {}
         session.modified = True
@@ -151,18 +162,9 @@ def stripe_webhook():
         
         user_id = current_user.username if current_user.is_authenticated else "unknown"
 
-        # Save successful transaction to database
-        transaction = Transaction(
-            user_id=user_id,
-            amount=amount_received,
-            status="completed",
-            stripe_payment_id=stripe_payment_id,
-            timestamp=datetime.utcnow()
-        )
-        db.session.add(transaction)
-        db.session.commit()
+        
 
-        print(f"💰 Payment succeeded! PaymentIntent ID: {intent['id']} - Saved to DB")
+        print(f"💰 Payment succeeded! PaymentIntent ID: {intent['id']}")
 
     elif event["type"] == "payment_intent.payment_failed":
         intent = event["data"]["object"]

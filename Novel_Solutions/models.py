@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from extensions import db, bcrypt, login_manager
+from datetime import datetime
 
 # Create a User model that works with Flask-Login
 class User(db.Model, UserMixin):  # Inherit from UserMixin to get default implementation of required methods
@@ -33,13 +34,15 @@ class Book(db.Model):
     cover = db.Column(db.String(255), nullable=True)
 
 # Define Transaction model for storing payment records
+
+
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(20), db.ForeignKey('user.username'), nullable=False)  # Cashier/Manager
     amount = db.Column(db.Integer, nullable=False)  # Amount in cents
     status = db.Column(db.String(50), nullable=False)  # 'pending', 'completed', 'failed', 'refunded'
     stripe_payment_id = db.Column(db.String(100), unique=True, nullable=False)
-    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+    timestamp = db.Column(db.DateTime, default=datetime.now, index=True)  # Use utcnow + index for better filtering
 
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
 
