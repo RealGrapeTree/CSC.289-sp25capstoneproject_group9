@@ -55,18 +55,6 @@ def save_transaction_to_db(user_id, amount, status, stripe_payment_id, cart):
 
 
 
-
-
-# Process Sale Route (Restricted to Cashiers)
-@Novel_POS.route('/process_sale')
-@login_required
-def process_sale():
-    if current_user.role != 'cashier':
-        flash('Unauthorized! Only cashiers can process sales.', 'danger')
-        return redirect(url_for('Novel_login.dashboard'))
-    return render_template('process_sale.html', user=current_user)
-
-
 # ✅ Route to render the checkout page (Generates PaymentIntent)
 @Novel_POS.route("/checkout")
 def checkout():
