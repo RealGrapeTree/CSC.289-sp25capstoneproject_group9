@@ -149,12 +149,12 @@
     }
 
     function applyDiscount() {
-        let promoCode = document.getElementById("promo-code").value;
+        let promoCodeInput = document.getElementById("promo-code").value;
 
         fetch("/apply_discount", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ promo_code: promoCode })
+            body: JSON.stringify({ promo_code: promoCodeInput })
         })
             .then(response => response.json())
             .then(data => {
