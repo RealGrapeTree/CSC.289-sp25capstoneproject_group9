@@ -47,9 +47,10 @@ def view_cart():
     discounted_subtotal = subtotal - discount_amount
 
 
-    tax_amount = round(subtotal * NC_TAX_RATE, 2)
-    total_price = round(subtotal + tax_amount, 2)
+    tax_amount = round(discounted_subtotal * NC_TAX_RATE, 2)
+    total_price = round(discounted_subtotal + tax_amount, 2)
 
+    promo_code = session.get("promo_code", None)
     return render_template(
         "cart.html",
         cart_items=cart_items,
@@ -58,7 +59,8 @@ def view_cart():
         discount_amount=discount_amount,
         tax_amount=tax_amount,
         total_price=total_price,
-        user=current_user
+        user=current_user,
+        promo_code=promo_code,
     )
 
 
@@ -124,21 +126,65 @@ def get_cart_total():
 # Apply discount via promo code
 @Novel_cart.route("/apply_discount", methods=["POST"])
 def apply_discount():
-    promo_code = request.json.get("promo_code")
+    data = request.get_json()
+    promo_code = data.get("promo_code", "").strip().upper()  # Normalize input
     discounts = {
         "SAVE10": 10,  # 10% discount
+        "BOOKS25": 25,  # 25% discount
         "FREESHIP": 5,  # 5% discount
         "NOVEL50": 50,  # 50% discount
+        "FLASH20": 20,  # 20% discount
+        "WELCOME15": 15,  # 15% discount
     }
 
-    if promo_code and promo_code in discounts:
+    current_code = session.get("promo_code")
+    current_discount = session.get("discount", 0)
+
+    # Prevent applying the same code again
+    if current_code == promo_code:
+        return jsonify({
+            "message": "That discount has already been applied. Please remove it before applying a new one.",
+            "discount": current_discount
+        }), 400
+
+    # Prevent stacking multiple discounts
+    if current_discount > 0:
+        return jsonify({
+            "message": f"A {current_discount}% discount is already applied. Please remove it before applying a new one.",
+            "discount": current_discount
+        }), 400
+
+    # Apply valid discount
+    if promo_code in discounts:
         session["discount"] = discounts[promo_code]
-        return jsonify(
-            {
-                "message": f"{discounts[promo_code]}% discount applied!",
-                "discount": discounts[promo_code],
-            }
-        )
+        session["promo_code"] = promo_code
+        return jsonify({
+            "message": f"{discounts[promo_code]}% discount applied!",
+            "discount": discounts[promo_code]
+        })
+
+    # Handle invalid code
+    return jsonify({
+        "message": "Invalid promo code!",
+        "discount": 0
+    }), 400
+
+@Novel_cart.route("/remove_discount", methods=["POST"])
+def remove_discount():
+    """Remove any applied discount."""
+    discount_removed = False
+
+    if "discount" in session:
+        session.pop("discount")
+        discount_removed = True
+
+    if "promo_code" in session:
+        session.pop("promo_code")
+        discount_removed = True
+
+    session.modified = True
+
+    if discount_removed:
+        return jsonify({"message": "Discount removed!", "discount": 0})
     else:
-        print("Invalid promo code entered!")  # Debugging output
-        return jsonify({"message": "Invalid promo code!", "discount": 0}), 400
+        return jsonify({"message": "No discount applied!", "discount": 0}), 400
