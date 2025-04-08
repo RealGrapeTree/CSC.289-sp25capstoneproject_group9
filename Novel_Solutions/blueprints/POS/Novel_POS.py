@@ -7,7 +7,6 @@ import os
 from datetime import datetime
 from ..cart.Novel_cart import get_cart_total
 
-
 Novel_POS = Blueprint('Novel_POS', __name__, template_folder='templates')
 
 # Configure Stripe
@@ -88,6 +87,33 @@ def update_inventory_after_sale(cart):
         db.session.rollback()
         print(f"❌ Error updating inventory: {e}")
 
+
+# ✅ Route to select payment method (Cash or Credit Card)
+@Novel_POS.route("/select-payment", methods=["GET"])
+def select_payment():
+    try:
+        # Get the cart total for displaying the price to the user
+        cart = session.get('cart', {})
+        subtotal, tax_amount, total_amount = get_cart_total()
+        
+        return render_template("select_payment.html", total_amount=total_amount)
+    except Exception as e:
+        return jsonify(error=str(e)), 400
+
+
+# ✅ Route for Cash checkout (simple page for cash payment)
+@Novel_POS.route("/cash_checkout", methods=["GET"])
+def cash_checkout():
+    try:
+        # Get the cart total for displaying the price to the user
+        cart = session.get('cart', {})
+        subtotal, tax_amount, total_amount = get_cart_total()
+        
+        return render_template('cash_checkout.html', total_amount=total_amount)
+    except Exception as e:
+        return jsonify(error=str(e)), 400
+
+
 # ✅ Route to create a PaymentIntent (Used by payment.html)
 @Novel_POS.route("/create-payment-intent", methods=["POST"])
 def create_payment():
@@ -109,7 +135,6 @@ def create_payment():
         # Clear the cart after payment
         session['cart'] = {}
         session.modified = True
-
 
         return jsonify({"clientSecret": intent.client_secret})
     
@@ -205,6 +230,8 @@ def get_transactions():
 def view_transactions():
     return render_template("transaction_dashboard.html")
 
+
+# Route for Refunds (Only for Managers and Cashiers)
 @Novel_POS.route("/refund/<int:transaction_id>", methods=["POST"])
 @login_required
 def refund(transaction_id):

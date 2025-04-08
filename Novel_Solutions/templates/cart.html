@@ -36,7 +36,10 @@
 
     <button onclick="clearCart()">Clear Cart</button>
 
-    <!-- Proceed to Checkout Button -->
+    <!-- Link to select the payment method -->
+    <a href="{{ url_for('Novel_POS.select_payment') }}" class="payment-method-button">Choose Payment Method</a>
+
+    <!-- After selecting payment, you can then go to Checkout -->
     <a href="{{ url_for('Novel_POS.checkout') }}" class="checkout-button">🛒 Proceed to Checkout</a>
 
     <!-- Back to Dashboard Button -->

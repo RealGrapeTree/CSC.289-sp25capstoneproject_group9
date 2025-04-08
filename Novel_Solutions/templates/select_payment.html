@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Payment Method</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Select Payment Method</h1>
+    
+    <!-- Options for Cash or Credit Card -->
+    <div class="payment-options">
+        <a href="{{ url_for('Novel_POS.cash_checkout') }}" class="button">💵 Pay with Cash</a>
+        <a href="{{ url_for('Novel_POS.checkout') }}" class="button">💳 Pay with Credit Card</a>
+    </div>
+
+    <a href="{{ url_for('Novel_cart.view_cart') }}" class="back-button">⬅ Back to Cart</a>
+</body>
+</html>

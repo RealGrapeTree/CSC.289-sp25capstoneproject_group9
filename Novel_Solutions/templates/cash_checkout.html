@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Payment</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>💵 Cash Payment</h1>
+    <p>Thank you for your purchase. Please pay the total amount in cash at the counter.</p>
+    
+    <p><strong>Total:</strong> ${{ "%.2f"|format(total_amount|float) }}</p>
+    
+    <!-- Back to Cart Button -->
+    <a href="{{ url_for('Novel_cart.view_cart') }}" class="back-button">⬅ Back to Cart</a>
+</body>
+</html>
