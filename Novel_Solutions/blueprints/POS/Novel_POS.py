@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint, redirect, url_for, request, flash, jsonify, session
 from extensions import db
 from flask_login import login_required, current_user
-from models import Transaction, User, Book
+from models import Transaction, User, Book, TransactionItem
 import stripe
 import os
 from datetime import datetime
@@ -16,14 +16,43 @@ stripe_publishable_key = os.getenv("STRIPE_PUBLISHABLE_KEY")
 stripe_webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
 
 
-# Process Sale Route (Restricted to Cashiers)
-@Novel_POS.route('/process_sale')
-@login_required
-def process_sale():
-    if current_user.role != 'cashier':
-        flash('Unauthorized! Only cashiers can process sales.', 'danger')
-        return redirect(url_for('Novel_login.dashboard'))
-    return render_template('process_sale.html', user=current_user)
+def save_transaction_to_db(user_id, amount, status, stripe_payment_id, cart):
+    print("Saving transaction to DB...")
+    transaction = Transaction(
+        user_id=user_id,
+        amount=amount,
+        status=status,
+        stripe_payment_id=stripe_payment_id,
+        timestamp=datetime.now()
+    )
+    db.session.add(transaction)
+    db.session.commit()
+    
+    # Save each cart item in the TransactionItem table
+    for book_id, quantity in cart.items():
+        print(f"Processing book ID: {book_id} with quantity: {quantity}")
+        
+        book = Book.query.get(int(book_id))
+        
+        if book is None:
+            print(f"❌ Book not found for ID: {book_id}")
+            continue  # Skip this book if not found
+        
+        print(f"Processing book: {book.title} (ISBN: {book.isbn}) with quantity: {quantity}")
+        
+        transaction_item = TransactionItem(
+            transaction_id=transaction.id,
+            book_id=book.id,
+            quantity=quantity,
+            unit_price=int(book.price * 100),  # Store unit price in cents
+            isbn=book.isbn,
+            book_title=book.title  # Store the title for reference
+        )
+        db.session.add(transaction_item)
+
+    db.session.commit()
+    print("Transaction saved successfully!")
+
 
 
 # ✅ Route to render the checkout page (Generates PaymentIntent)
@@ -38,7 +67,13 @@ def checkout():
         if not is_valid:
             flash(error_message, 'danger')
             return redirect(url_for('Novel_cart.view_cart'))
-        subtotal, tax_amount, total_amount = get_cart_total()
+        
+        # Capture all values returned from get_cart_total
+        totals = get_cart_total()  # This can return any number of values
+
+        # Assuming the first three values are still subtotal, tax_amount, and total_amount
+        subtotal, tax_amount, total_amount = totals[:3]  # Only take the first 3 values
+        extra_values = totals[3:]  # Store any extra values (e.g., discounts, fees)
 
         amount = int(total_amount * 100)  # Convert to cents
     
@@ -54,7 +89,8 @@ def checkout():
                                client_secret=intent.client_secret, 
                                subtotal=subtotal, 
                                tax_amount=tax_amount, 
-                               total_amount=total_amount)
+                               total_amount=total_amount,
+                               extra_values=extra_values)  # Pass extra values to the template
     except Exception as e:
         return jsonify(error=str(e)), 400
 
@@ -88,6 +124,7 @@ def update_inventory_after_sale(cart):
         db.session.rollback()
         print(f"❌ Error updating inventory: {e}")
 
+
 # ✅ Route to create a PaymentIntent (Used by payment.html)
 @Novel_POS.route("/create-payment-intent", methods=["POST"])
 def create_payment():
@@ -105,6 +142,9 @@ def create_payment():
         # Update inventory after payment is successful
         cart = session.get('cart', {})
         update_inventory_after_sale(cart)  # Call the new function
+
+       # Save transaction to the database
+        save_transaction_to_db(current_user.username, amount, "completed", intent.id, cart)
 
         # Clear the cart after payment
         session['cart'] = {}
@@ -143,18 +183,9 @@ def stripe_webhook():
         
         user_id = current_user.username if current_user.is_authenticated else "unknown"
 
-        # Save successful transaction to database
-        transaction = Transaction(
-            user_id=user_id,
-            amount=amount_received,
-            status="completed",
-            stripe_payment_id=stripe_payment_id,
-            timestamp=datetime.utcnow()
-        )
-        db.session.add(transaction)
-        db.session.commit()
+        
 
-        print(f"💰 Payment succeeded! PaymentIntent ID: {intent['id']} - Saved to DB")
+        print(f"💰 Payment succeeded! PaymentIntent ID: {intent['id']}")
 
     elif event["type"] == "payment_intent.payment_failed":
         intent = event["data"]["object"]
@@ -242,3 +273,6 @@ def refund(transaction_id):
         flash(f'Unexpected error: {str(e)}', 'danger')
     
     return redirect(url_for('Novel_POS.view_transactions'))
+
+
+  

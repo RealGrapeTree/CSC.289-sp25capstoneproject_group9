@@ -1,86 +1,88 @@
 {% extends "base.html" %}
 
+<title>{% block title %}Dashboard | NS{% endblock %}</title>
+
 {% block content %}
 <h2>Dashboard</h2>
 
 <div class="container-message">
-    <p>Welcome, {{ user.username }}! (Role: {{ user.role }})</p>
+    Welcome, {{ user.username }}! [{{ user.role }}]<br>
 
+<!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
-        <p>{{ message }}</p>
+            {{ message }}
         {% endfor %}
     {% endif %}
 {% endwith %}
+</div>
 
+<!-- Table of all users -->
 {% if user.role == 'manager' %}
-    <table>
-        <caption><h3>Manage Users</h3></caption>
+<table id="users-table">
+    <caption><h3>Manage Users</h3></caption>
+    <thead>
         <tr>
-            <th>Username</th>
-            <th>Role</th>
-            <th>Modify</th>
+            <th class="col-4">Username</th>
+            <th class="col-4">Email</th>
+            <th class="col-2">Role</th>
+            <th class="col-2">Actions</th>
         </tr>
-        {% for user in users %}
-            {% if user.username != 'admin' %}
+    </thead>
+    {% for user in users %}
+        {% if user.username != 'admin' %}
+        <tbody>
             <tr>
                 <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
                 <td>{{ user.role }}</td>
-                <td><form action="{{ url_for('Novel_login.delete_user', username=user.username) }}" method="POST" style="display:inline;">
-                        <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
-                    </form></td>
-                <td><form action="{{ url_for('Novel_login.reset_password', username=user.username) }}" method="POST" style="display:inline;">
-                        <button type="submit">Reset User Password</button>
-                    </form></td>    
+                <td>
+                    <form action="{{ url_for('Novel_login.delete_user', username=user.username) }}" method="POST">
+                        <button type="submit"  id="table-button" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                    <form action="{{ url_for('Novel_login.reset_password', username=user.username) }}" method="POST">
+                        <button type="submit"  id="table-button">Reset User Password</button>
+                    </form>
+                </td>    
             </tr>
             {% else %}
             <tr>
                 <td>{{ user.username }}</td>
+                <td></td>
                 <td>{{ user.role }}</td>
-                <td>N/A - User is Admin</td>
+                <td></td>
             </tr>
-            {% endif %}
-        {% endfor %}
-    </table>
+        </tbody>
+        {% endif %}
+    {% endfor %}
+</table>
 {% endif %}
 
-<ul>
-    <li><a class="active" href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li style="float:left;"><a class="active" href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
 
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
-
+    
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
     {% if user.role == 'cashier' %}
     <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
     {% endif %}
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
-<!-- Navigation Links -->
-<div class="nav-links">
-    <a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a>
-    <a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a>
-    <a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 My Cart</a>
-
-    <a href="{{ url_for('Novel_login.logout') }}">Logout</a>
-    
-</div>
-
-<style>
-    /* Style to align links horizontally */
-    .nav-links {
-        margin-top: 15px;
-    }
-    .nav-links a {
-        margin-right: 15px;
-        font-weight: bold;
-        text-decoration: none;
-        color: #007bff;
-    }
-    .nav-links a:hover {
-        color: #0056b3;
-        text-decoration: underline;
-    }
-</style>
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
 
 {% endblock %}

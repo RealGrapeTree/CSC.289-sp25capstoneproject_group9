@@ -3,28 +3,36 @@
 {% block content %}
 <h2>Login</h2>
 
-<div class="container-message">
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-            <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-</div>
+<!-- System messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="container-message">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
 
-    {{form.csrf_token}}
+
+<!-- Login form -->
+{{form.csrf_token}}
 <div class="container-form">
-    <form method="POST">
-        {{form.hidden_tag()}} 
-        {{form.username.label}} {{form.username}}
-        {{form.password.label}} {{form.password}}
-        <div style="margin-top:25px;">{{form.submit}}</div>
+    <form class="container" method="POST">
+        {{form.hidden_tag()}}
+        <div class="row" id="form-row">
+            <div class="col">{{form.username.label}} {{form.username}}</div>
+        </div>
+        <div class="row" id="form-row">
+            <div class="col">{{form.password.label}} {{form.password}}</div>
+        </div>
+
+        <div>{{form.submit}}</div>
     </form>
 </div>
 
-<ul>
-    <li><a href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+<ul class="nav-links">
+    <li></li>
 </ul>
 
 {% endblock %}
