@@ -47,9 +47,6 @@ def check_books():
 
 
 
-
-
-# Route to search for a book by ISBN or SKU
 @Novel_inventory.route('/add_book', methods=['GET', 'POST'])
 @login_required
 def add_book():
@@ -59,6 +56,45 @@ def add_book():
 
         # Get the search term from the form
         if request.method == 'POST':
+
+            # Check if this is a manual add request
+            if 'manual_add' in request.form:
+                # Handle manual book addition
+                if current_user.role != "manager":
+                    flash('Only managers can add books manually.', 'danger')
+                    return redirect(url_for('Novel_inventory.add_book'))
+                
+                # Create form_data from the submitted form
+                form_data = {
+                    'isbn': request.form.get('isbn'),
+                    'title': request.form.get('title'),
+                    'authors': request.form.get('authors'),
+                    'number_of_pages': request.form.get('number_of_pages'),
+                    'publishers': request.form.get('publishers'),
+                    'publish_date': request.form.get('publish_date'),
+                    'thumbnail_url': request.form.get('thumbnail_url', ''),
+                    'cover': request.form.get('cover', ''),
+                    'stock': request.form.get('stock', 10),
+                    'price': request.form.get('price', 19.99)
+                }
+                
+                if not form_data['title'] or not form_data['authors']:
+                    flash('Title and Authors are required fields.', 'danger')
+                    return render_template('add_book.html',
+                                       not_found=True,
+                                       form_data=form_data,
+                                       user=current_user.username)
+                
+                try:
+                    new_book = insert_book_into_db(**form_data)
+                    flash('Book added to inventory.', 'success')
+                    return render_template('add_book.html', book=new_book, user=current_user.username)
+                except Exception as e:
+                    flash(f'Error adding book: {str(e)}', 'danger')
+                    return render_template('add_book.html',
+                                         not_found=True,
+                                         form_data=form_data,
+                                         user=current_user.username)
             search_term = request.form['search_term']
             stock = request.form['stock']
             price = request.form['price']
@@ -75,13 +111,37 @@ def add_book():
                 isbn, title, authors, number_of_pages, publishers, publish_date, thumbnail_url, cover = get_book_data(search_term)
                 
                 # if book was found insert into database
-                if isbn:
+                # Require isbn, title, and authors to avoid inserting placeholder data
+                if isbn and title and authors:
                     flash('Book added to inventory.', 'success')
                     new_book = insert_book_into_db(isbn, title, authors, number_of_pages, publishers, publish_date, thumbnail_url, cover, stock, price)
 
                     return render_template('add_book.html', book=new_book , user=current_user.username)
+                
                 else:
-                    flash('Book not found.', 'danger')
+
+                    # Book not found - prepare form data
+                    form_data = {
+                        'isbn': search_term,
+                        'stock': stock,
+                        'price': price,
+                        'title': title if title else '',
+                        'authors': authors if authors else '',
+                        'number_of_pages': number_of_pages if number_of_pages else '',
+                        'publishers': publishers if publishers else '',
+                        'publish_date': publish_date if publish_date else '',
+                        'thumbnail_url': thumbnail_url if thumbnail_url else '',
+                        'cover': cover if cover else ''
+                    }
+                    # Book not found in Open Library - show manual entry form for managers
+                    if current_user.role == "manager":
+                        flash('Book not found. Please enter details manually.', 'info')
+                        return render_template('add_book.html', 
+                                             not_found=True,
+                                             form_data=form_data,
+                                             user=current_user.username)
+                    else:
+                        flash('Book not found.', 'danger')
 
         return render_template('add_book.html', user=current_user.username)
     
@@ -104,7 +164,8 @@ def inventory():
     else:
         return redirect(url_for('Novel_login.login'))
         
-    
+
+# Route to search for a book by ISBN or SKU
 @Novel_inventory.route('/search', methods=['GET', 'POST'])
 @login_required
 def search():

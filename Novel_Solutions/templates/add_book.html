@@ -14,9 +14,6 @@
     {% endwith %}
 </div>
 
-
-
-
 <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}">
     <input type="text" name="search_term" placeholder="Enter ISBN or SKU" required>
     <input type="number" name="stock" placeholder="Enter stock" required>
@@ -25,7 +22,71 @@
 </form>
 
 
+<!-- Manual Entry Form -->
+{% if not_found and current_user.is_authenticated and current_user.role == 'manager' %}
+    <h3>Book Not Found - Please Enter Details Manually</h3>
+    <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}">
+        <input type="hidden" name="manual_add" value="true">
+        
+        <div class="form-group">
+            <label>ISBN:</label>
+            <input type="text" name="isbn" value="{{ form_data.isbn }}" placeholder="ISBN">
+        </div>
+        
+        <div class="form-group">
+            <label>Title*:</label>
+            <input type="text" name="title" value="{{ form_data.title }}" placeholder="Book title" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Authors*:</label>
+            <input type="text" name="authors" value="{{ form_data.authors }}" placeholder="Author names, comma separated" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Number of Pages:</label>
+            <input type="number" name="number_of_pages" value="{{ form_data.number_of_pages }}" placeholder="Page count">
+        </div>
+        
+        <div class="form-group">
+            <label>Publishers:</label>
+            <input type="text" name="publishers" value="{{ form_data.publishers }}" placeholder="Publisher names">
+        </div>
+        
+        <div class="form-group">
+            <label>Publish Date:</label>
+            <input type="text" name="publish_date" value="{{ form_data.publish_date }}" placeholder="Publication date">
+        </div>
+        
+        <div class="form-group">
+            <label>Thumbnail URL:</label>
+            <input type="text" name="thumbnail_url" value="{{ form_data.thumbnail_url }}" placeholder="Small cover image URL">
+        </div>
+        
+        <div class="form-group">
+            <label>Cover Image URL:</label>
+            <input type="text" name="cover" value="{{ form_data.cover }}" placeholder="Large cover image URL">
+        </div>
+        
+        <div class="form-group">
+            <label>Stock*:</label>
+            <input type="number" name="stock" value="{{ form_data.stock }}" min="0" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Price*:</label>
+            <input type="number" name="price" value="{{ form_data.price }}" min="0" step="0.01" required>
+        </div>
+        
+        <button type="submit">Add Book Manually</button>
+    </form>
+{% endif %}
 {% if book %}
+<div class="success-message">
+    <h3>Book Successfully Added!</h3>
+    <p>Details for {{ book.title }}</p>
+</div>
+
 <table>
     <tr>
         <th>Cover</th>
@@ -53,14 +114,8 @@
     
     </tr>
     
-    
-
-    
 </table> 
 {% endif %}
-
-
-
 
 <ul>
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
@@ -78,8 +133,6 @@
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
-
-
 
 
 
