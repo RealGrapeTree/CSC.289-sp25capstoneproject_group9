@@ -67,7 +67,7 @@ def add_book():
             # Check if the book exists within database
             if book:
                 # Render the inventory.html template with the book data
-                return render_template('add_book.html', book=book, user=current_user.username)
+                return render_template('add_book.html', book=book, user=current_user)
             
             # Fetch book data from Open Library API if not found within database
             else:
@@ -79,11 +79,11 @@ def add_book():
                     flash('Book added to inventory.', 'success')
                     new_book = insert_book_into_db(isbn, title, authors, number_of_pages, publishers, publish_date, thumbnail_url, cover, stock, price)
 
-                    return render_template('add_book.html', book=new_book , user=current_user.username)
+                    return render_template('add_book.html', book=new_book , user=current_user)
                 else:
                     flash('Book not found.', 'danger')
 
-        return render_template('add_book.html', user=current_user.username)
+        return render_template('add_book.html', user=current_user)
     
 
 @Novel_inventory.route('/inventory', methods=['GET'])
@@ -116,13 +116,13 @@ def search():
             search_term = request.form['search_term']
             book = Book.query.filter((Book.isbn == search_term) | (Book.sku == search_term)).first()
             if book:
-                return render_template('search.html', book=book, user=current_user.username)
+                return render_template('search.html', book=book, user=current_user)
             if not book:
-                flash('Book not found In Inventory.', 'danger')
-                return render_template('search.html', user=current_user.username)
+                flash('Book not found in inventory.', 'danger')
+                return render_template('search.html', user=current_user)
     
   
-    return render_template('search.html', user=current_user.username)
+    return render_template('search.html', user=current_user)
 
 
 # Route to update book details

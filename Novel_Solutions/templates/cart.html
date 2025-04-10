@@ -1,68 +1,163 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <h1>Your Cart</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="cart-items">
-            {% for item in cart_items %}
-            <tr>
-                <td>{{ item.title }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>${{ "%.2f"|format(item.price|float) }}</td>
-                <td>${{ "%.2f"|format(item.total|float) }}</td>
-                <td>
-                    <button onclick="removeFromCart('{{ item.id }}')">Remove</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <p>Total: $<span id="cart-total">{{ total_price }}</span></p>
+{% extends "base.html" %}
 
-    <button onclick="clearCart()">Clear Cart</button>
+<title>{% block title %}Shopping Cart | NS{% endblock %}</title>
 
-    <!-- Link to select the payment method -->
-    <a href="{{ url_for('Novel_POS.select_payment') }}" class="payment-method-button">🛒 Proceed to Checkout</a>
+{% block content %}
+<h2>Shopping Cart</h2>
+
+<div class="container-message">
+    Current User: {{ user.username }} [{{ user.role }}]<br>
+
+<!-- System messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+</div>
+
+<!-- Cart table -->
+<table id="cart-table">
+    <caption><h3>Your Cart</h3></caption>
+    <thead>
+        <tr>
+            <th class="col-1">Cover</th>
+            <th class="col-2">Title</th>
+            <th class="col-2">Author(s)</th>
+            <th class="col-1">Quantity</th>
+            <th class="col-2">Unit Price</th>
+            <th class="col-2">Total</th>
+            <th class="col-2">Actions</th>
+        </tr>
+    </thead>
+    <tbody id="cart-items">
+        {% for item in cart_items %}
+        <tr>
+            <td><img src="{{item.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150"/></td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.author }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>${{ "%.2f"|format(item.price|float) }}</td>
+            <td>${{ "%.2f"|format(item.total|float) }}</td>
+            <td><button onclick="removeFromCart('{{ item.id }}')" id="table-button">Remove</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Totals table -->
+<table id="total-table">
+    <thead>
+        <tr>
+            <th class="col-3">Subtotal</th>
+            <th class="col-3">Sales Tax (7.25%)</th>
+            <th class="col-3">Total</th>
+            <th class="col-3">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>${{ "%.2f"|format(subtotal|float) }}</td>
+            <td>${{ "%.2f"|format(tax_amount|float) }}</td>
+            <td>${{ "%.2f"|format(total_price|float) }}</td>
+            <td><button onclick="clearCart()" id="table-button">Clear Cart</button></td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Apply Discount Functionality Section -->
+<table id="discount-table">
+    <caption><h3>Apply Discount</h3></caption>
+    <tbody>
+        <tr>
+            <td><div>
+                <input type="text" id="promo-code" placeholder="Enter promo code">
+                <button onclick="applyDiscount()" id="action-button">Apply</button>
+            </div></td>
+        </tr>
+        <tr>
+            <td><div>
+                Discount Applied: {{ discount_percentage }}% off
+                <br />
+                Total After Discount: ${{ "%.2f"|format(total_price|float) }}
+            </div></td>
+        </tr>
+        <tr>
+            <td><a href="{{ url_for('Novel_POS.checkout') }}" class="checkout-button">
+                <button id="table-button">🛒 Proceed to Checkout</button>
+            </a></td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+    {% endif %}
+    
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a class="active" href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
 
 
-
-  
-    <!-- Back to Dashboard Button -->
-    <a href="{{ url_for('Novel_login.dashboard') }}" class="back-button">⬅ Back to Dashboard</a>
-
-    <script>
-        function removeFromCart(bookId) {
-            fetch(`/remove_from_cart/${bookId}`, { method: 'POST' })
+<!-- Scripts -->
+<script>
+    function removeFromCart(bookId) {
+        fetch(`/remove_from_cart/${bookId}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
                 location.reload(); // Refresh to update cart
             });
-        }
+    }
 
-        function clearCart() {
-            fetch(`/clear_cart`, { method: 'POST' })
+    function clearCart() {
+        fetch(`/clear_cart`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
                 location.reload();
             });
-        }
-    </script>
-</body>
-</html>
+    }
+
+    function applyDiscount() {
+        let promoCode = document.getElementById("promo-code").value;
+
+        fetch("/apply_discount", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ promo_code: promoCode })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.discount > 0) {
+                    alert(data.message);
+                } else {
+                    alert("Invalid promo code!");
+                }
+                location.reload(); // Refresh to apply discount
+            })
+            .catch(error => console.error("Error:", error));
+    }
+</script>
+
+{% endblock %}
