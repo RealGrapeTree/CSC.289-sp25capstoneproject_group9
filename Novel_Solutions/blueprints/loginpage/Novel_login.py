@@ -25,7 +25,7 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
-#basic home route can move to a home or iventory blueprint if needed
+# Basic home route, can move to a home or inventory blueprint if needed
 @Novel_login.route('/', methods=['GET'])
 def home():
     if current_user.is_authenticated:
@@ -57,7 +57,7 @@ def login():
                 return redirect(url_for('Novel_login.dashboard'))
         else:   
             # flash an error message and redirect to the login page
-            flash('Login unsuccessful. Please check username and password', 'danger')
+            flash('Login unsuccessful. Please check username and password.', 'danger')
             return redirect(url_for('Novel_login.login'))   
         
     return render_template('login.html', form=form)
@@ -70,7 +70,7 @@ def logout():
     # logout the user
     logout_user()
     print(current_user.is_authenticated)
-    flash('You have been logged out')
+    flash('You have been logged out.')
     # redirect to the login page
     return redirect(url_for('Novel_login.login'))
 
@@ -164,4 +164,4 @@ def reset_password(username):
             flash('Password reset successfully!', 'success')
             return redirect(url_for('Novel_login.dashboard'))
 
-    return render_template('reset_password.html', form=form, username = username)
+    return render_template('reset_password.html', form=form, username=username, user=current_user)

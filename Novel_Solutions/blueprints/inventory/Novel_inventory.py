@@ -67,7 +67,7 @@ def add_book():
             # Check if the book exists within database
             if book:
                 # Render the inventory.html template with the book data
-                return render_template('add_book.html', book=book, user=current_user.username)
+                return render_template('add_book.html', book=book, user=current_user)
             
             # Fetch book data from Open Library API if not found within database
             else:
@@ -79,21 +79,31 @@ def add_book():
                     flash('Book added to inventory.', 'success')
                     new_book = insert_book_into_db(isbn, title, authors, number_of_pages, publishers, publish_date, thumbnail_url, cover, stock, price)
 
-                    return render_template('add_book.html', book=new_book , user=current_user.username)
+                    return render_template('add_book.html', book=new_book , user=current_user)
                 else:
                     flash('Book not found.', 'danger')
 
-        return render_template('add_book.html', user=current_user.username)
+        return render_template('add_book.html', user=current_user)
     
 
 @Novel_inventory.route('/inventory', methods=['GET'])
 @login_required
 def inventory():
     if current_user.is_authenticated:
-        books = Book.query.all()
-        return render_template('inventory.html', books=books, user=current_user.username)
+        page = request.args.get('page', 1, type=int)
+        per_page = 10  # Number of items per page
+        
+        # Get paginated books
+        books_pagination = Book.query.paginate(page=page, per_page=per_page, error_out=False)
+        books = books_pagination.items
+        
+        return render_template('inventory.html', 
+                             books=books, 
+                             pagination=books_pagination,
+                             user=current_user.username)
     else:
         return redirect(url_for('Novel_login.login'))
+        
     
 @Novel_inventory.route('/search', methods=['GET', 'POST'])
 @login_required
@@ -106,13 +116,13 @@ def search():
             search_term = request.form['search_term']
             book = Book.query.filter((Book.isbn == search_term) | (Book.sku == search_term)).first()
             if book:
-                return render_template('search.html', book=book, user=current_user.username)
+                return render_template('search.html', book=book, user=current_user)
             if not book:
-                flash('Book not found In Inventory.', 'danger')
-                return render_template('search.html', user=current_user.username)
+                flash('Book not found in inventory.', 'danger')
+                return render_template('search.html', user=current_user)
     
   
-    return render_template('search.html', user=current_user.username)
+    return render_template('search.html', user=current_user)
 
 
 # Route to update book details
@@ -121,21 +131,50 @@ def search():
 def update_book(book_id):
     book = Book.query.get_or_404(book_id)
 
-    # Ensure only managers can edit books
     if current_user.role != "manager":
         flash("You do not have permission to update books.", "danger")
         return redirect(url_for('Novel_inventory.inventory'))
 
     if request.method == 'POST':
         book.title = request.form['title']
-        book.stock = request.form['stock']
-        book.price = request.form['price']
+        has_error = False
+
+        # Validate stock
+        try:
+            stock = int(request.form['stock'])
+            if stock < 0:
+                flash("Stock cannot be negative", "stock_error")
+                has_error = True
+            else:
+                book.stock = stock
+        except ValueError:
+            flash("Stock must be a whole number", "stock_error")
+            has_error = True
+
+        # Validate price
+        try:
+            price = round(float(request.form['price']), 2)
+            if price < 0:
+                flash("Price cannot be negative", "price_error")
+                has_error = True
+            else:
+                book.price = "{:.2f}".format(price)
+        except ValueError:
+            flash("Price must be a number (e.g. 12.99)", "price_error")
+            has_error = True
+
+        if has_error:
+            return render_template('update_book.html', book=book, 
+                                 form_data=request.form, 
+                                 user=current_user.username)
         
         db.session.commit()
-        flash('Book details updated successfully!', 'success')
+        flash(f'Success! "{book.title}" has been updated.', 'success')  # <-- Specific success message
         return redirect(url_for('Novel_inventory.inventory'))
 
-    return render_template('update_book.html', book=book, user=current_user.username)
+    return render_template('update_book.html', book=book, 
+                         form_data=None, 
+                         user=current_user.username)
 
 # Route to delete a book
 @Novel_inventory.route('/delete_book/<int:book_id>', methods=['POST'])

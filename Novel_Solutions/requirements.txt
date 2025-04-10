@@ -8,4 +8,5 @@ flask-wtf
 wtforms
 stripe
 pytest
+pandas
 
