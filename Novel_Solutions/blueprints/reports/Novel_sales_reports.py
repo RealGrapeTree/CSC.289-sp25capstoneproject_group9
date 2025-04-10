@@ -54,17 +54,22 @@ def daily_sales_report():
         Transaction.timestamp <= end_of_day
     ).all()  
 
-    subtotal = sum(t.amount for t in transactions)
-    tax_amount = round(subtotal * NC_TAX_RATE, 2)
-    total_price = round(subtotal + tax_amount, 2)
+    for t in transactions:
+        for item in t.items:
+            line_total = item.unit_price * item.quantity  # Still in cents
+            subtotal += line_total
 
+        # Convert subtotal to dollars
+        subtotal_dollars = subtotal / 100
+        tax_amount = round(subtotal_dollars * NC_TAX_RATE, 2)
+        total_price = round(subtotal_dollars + tax_amount, 2)
     return render_template('daily_sales_report.html',
                            user=current_user,
                            current_date=current_date,
                            transactions=transactions,
-                           subtotal=subtotal / 100,  # Convert from cents to dollars
-                           tax_amount=tax_amount / 100, 
-                           total_price=total_price / 100,
+                           subtotal=subtotal_dollars,
+                           tax_amount=tax_amount,
+                           total_price=total_price,
                            NC_TAX_RATE=NC_TAX_RATE) 
 
 
@@ -86,11 +91,14 @@ def weekly_sales_report():
     ).all()  
 
     for t in transactions:
-        subtotal += t.amount 
+        for item in t.items:
+            line_total = item.unit_price * item.quantity  # Still in cents
+            subtotal += line_total
 
-    # Calculate tax and total price
-    tax_amount = round(subtotal * NC_TAX_RATE, 2)
-    total_price = round(subtotal + tax_amount, 2)
+    # Convert subtotal to dollars
+    subtotal_dollars = subtotal / 100
+    tax_amount = round(subtotal_dollars * NC_TAX_RATE, 2)
+    total_price = round(subtotal_dollars + tax_amount, 2)
 
     return render_template('weekly_sales_report.html',
                            user=current_user,
@@ -98,9 +106,9 @@ def weekly_sales_report():
                            week_start=week_start,
                            week_end=week_end,
                            transactions=transactions,
-                           subtotal=subtotal / 100,  
-                           tax_amount=tax_amount / 100,  
-                           total_price=total_price / 100,
+                           subtotal=subtotal_dollars, 
+                           tax_amount=tax_amount,
+                           total_price=total_price,
                            NC_TAX_RATE=NC_TAX_RATE) 
 
 
@@ -130,10 +138,14 @@ def monthly_sales_report():
     ).all()
 
     for t in transactions:
-        subtotal += t.amount
+        for item in t.items:
+            line_total = item.unit_price * item.quantity  # Still in cents
+            subtotal += line_total
 
-    tax_amount = round(subtotal * NC_TAX_RATE, 2)
-    total_price = round(subtotal + tax_amount, 2)
+    # Convert subtotal to dollars
+    subtotal_dollars = subtotal / 100
+    tax_amount = round(subtotal_dollars * NC_TAX_RATE, 2)
+    total_price = round(subtotal_dollars + tax_amount, 2)
 
     return render_template('monthly_sales_report.html', 
                            user=current_user, 
@@ -141,9 +153,9 @@ def monthly_sales_report():
                            first_of_month=first_of_month,
                            last_of_month=last_of_month,  
                            transactions=transactions,
-                           subtotal=subtotal / 100,  # Convert cents to dollars
-                           tax_amount=tax_amount / 100,
-                           total_price=total_price / 100,
+                           subtotal=subtotal_dollars, 
+                           tax_amount=tax_amount ,
+                           total_price=total_price,
                            NC_TAX_RATE=NC_TAX_RATE)
 
     
@@ -167,11 +179,14 @@ def custom_sales_report():
     transactions = db.session.query(Transaction).filter(Transaction.timestamp >= custom_start_date,\
                                                          Transaction.timestamp <= custom_end_date)
     for t in transactions:
-        subtotal += t.amount
-       
+        for item in t.items:
+            line_total = item.unit_price * item.quantity  # Still in cents
+            subtotal += line_total
 
-    tax_amount = round(subtotal * NC_TAX_RATE, 2)
-    total_price = round(subtotal + tax_amount, 2)
+    # Convert subtotal to dollars
+    subtotal_dollars = subtotal / 100
+    tax_amount = round(subtotal_dollars * NC_TAX_RATE, 2)
+    total_price = round(subtotal_dollars + tax_amount, 2)
 
     return render_template('custom_sales_report.html', 
                            user=current_user,
@@ -179,7 +194,7 @@ def custom_sales_report():
                            custom_start_date=custom_start_date, 
                            custom_end_date=custom_end_date,
                            transactions=transactions,
-                           subtotal=subtotal,
+                           subtotal=subtotal_dollars,
                            tax_amount=tax_amount,
                            total_price=total_price,
                            NC_TAX_RATE=NC_TAX_RATE)
