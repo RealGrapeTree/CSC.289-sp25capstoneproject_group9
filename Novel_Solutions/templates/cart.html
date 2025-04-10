@@ -107,9 +107,7 @@
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
     
-    {% if user.role == 'cashier' %}
-    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
-    {% endif %}
+  
     {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
