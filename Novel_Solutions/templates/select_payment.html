@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Payment Method</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
+
+{% extends "base.html" %}
+    {% block title %}Select Payment | NS{% endblock %}
+{% block content %}
 <body>
     <h1>Select Payment Method</h1>
     
@@ -18,3 +14,4 @@
     <a href="{{ url_for('Novel_cart.view_cart') }}" class="back-button">⬅ Back to Cart</a>
 </body>
 </html>
+{% endblock %}
