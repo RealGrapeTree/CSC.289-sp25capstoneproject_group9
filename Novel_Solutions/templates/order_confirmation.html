@@ -38,6 +38,26 @@
         .back-button:hover {
             background-color: #0056b3;
         }
+        .receipt-options {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+        }
+        .receipt-options input {
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 16px;
+            width: 250px;
+        }
+        .receipt-options button {
+            padding: 10px 15px;
+            margin: 10px 5px 0;
+            font-size: 16px;
+        }
+        #receipt-msg {
+            margin-top: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -45,7 +65,46 @@
         <h2>🎉 Thank you for your purchase!</h2>
         <p>Your order has been successfully processed.</p>
         <p>A confirmation email will be sent shortly.</p>
+
+        <!-- 🧾 Receipt Options -->
+        <div class="receipt-options">
+            <h3>🧾 Would you like a receipt?</h3>
+            <input type="email" id="receipt-email" placeholder="Enter email"><br>
+            <input type="tel" id="receipt-phone" placeholder="Enter phone (e.g. +15551234567)"><br>
+            <button onclick="sendEmailReceipt()">📧 Send Email</button>
+            <button onclick="sendSMSReceipt()">📱 Send SMS</button>
+            <div id="receipt-msg"></div>
+        </div>
+
         <a href="{{ url_for('Novel_login.dashboard') }}" class="back-button">⬅ Back to Dashboard</a>
     </div>
+
+    <script>
+        function sendEmailReceipt() {
+            const email = document.getElementById("receipt-email").value;
+            fetch("/send-receipt/email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("receipt-msg").innerText = data.message;
+            });
+        }
+
+        function sendSMSReceipt() {
+            const phone = document.getElementById("receipt-phone").value;
+            fetch("/send-receipt/sms", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone: phone })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("receipt-msg").innerText = data.message;
+            });
+        }
+    </script>
 </body>
 </html>

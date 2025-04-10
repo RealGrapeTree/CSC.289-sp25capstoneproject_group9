@@ -5,14 +5,120 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cash Payment</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .calculator {
+            margin-top: 20px;
+        }
+        .calculator input {
+            padding: 8px;
+            font-size: 16px;
+        }
+        .calculator button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .receipt-options {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+        }
+        .receipt-options input {
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 16px;
+            width: 250px;
+        }
+        .receipt-options button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        #receipt-msg {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <h1>💵 Cash Payment</h1>
-    <p>Thank you for your purchase. Please pay the total amount in cash at the counter.</p>
-    
-    <p><strong>Total:</strong> ${{ "%.2f"|format(total_amount|float) }}</p>
-    
+    <p>Please accept cash and enter the amount tendered below.</p>
+
+    <p><strong>Total Due:</strong> ${{ "%.2f"|format(total_amount|float) }}</p>
+
+    <div class="calculator">
+        <label for="cashInput">Cash Tendered:</label>
+        <input type="number" id="cashInput" step="0.01" min="0">
+        <button onclick="calculateChange()">Calculate Change</button>
+
+        <div id="changeResult" class="result"></div>
+    </div>
+
+    <!-- 🧾 Receipt Delivery Options -->
+    <div class="receipt-options">
+        <h2>🧾 Send Receipt</h2>
+
+        <label>Email:</label><br>
+        <input type="email" id="receipt-email" placeholder="Enter email"><br>
+
+        <label>Phone:</label><br>
+        <input type="tel" id="receipt-phone" placeholder="Enter phone (e.g. +15551234567)"><br><br>
+
+        <button onclick="sendEmailReceipt()">📧 Send Email</button>
+        <button onclick="sendSMSReceipt()">📱 Send SMS</button>
+
+        <div id="receipt-msg"></div>
+    </div>
+
     <!-- Back to Cart Button -->
     <a href="{{ url_for('Novel_cart.view_cart') }}" class="back-button">⬅ Back to Cart</a>
+
+    <script>
+        const totalAmount = {{ total_amount | float }};
+
+        function calculateChange() {
+            const cash = parseFloat(document.getElementById("cashInput").value);
+            const resultDiv = document.getElementById("changeResult");
+
+            if (isNaN(cash) || cash < totalAmount) {
+                resultDiv.innerHTML = "❌ Not enough cash tendered.";
+                resultDiv.style.color = "red";
+            } else {
+                const change = (cash - totalAmount).toFixed(2);
+                resultDiv.innerHTML = `✅ Change due: $${change}`;
+                resultDiv.style.color = "green";
+            }
+        }
+
+        function sendEmailReceipt() {
+            const email = document.getElementById("receipt-email").value;
+            fetch("/send-receipt/email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("receipt-msg").innerText = data.message;
+            });
+        }
+
+        function sendSMSReceipt() {
+            const phone = document.getElementById("receipt-phone").value;
+            fetch("/send-receipt/sms", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone: phone })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("receipt-msg").innerText = data.message;
+            });
+        }
+    </script>
 </body>
 </html>

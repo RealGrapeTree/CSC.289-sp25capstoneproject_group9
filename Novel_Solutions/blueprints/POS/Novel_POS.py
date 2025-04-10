@@ -29,58 +29,49 @@ def process_sale():
 @Novel_POS.route("/checkout")
 def checkout():
     try:
-        # Get the cart from the session
         cart = session.get('cart', {})
-
-        # Validate stock before proceeding
         is_valid, error_message = validate_stock_before_payment(cart)
         if not is_valid:
             flash(error_message, 'danger')
             return redirect(url_for('Novel_cart.view_cart'))
-        subtotal, tax_amount, total_amount = get_cart_total()
 
-        amount = int(total_amount * 100)  # Convert to cents
-    
-        # Create a PaymentIntent
+        subtotal, tax_amount, total_amount = get_cart_total()
+        amount = int(total_amount * 100)
+
         intent = stripe.PaymentIntent.create(
             amount=amount,
             currency="usd",
             payment_method_types=["card"]
         )
 
-        return render_template("payment.html", 
-                               stripe_publishable_key=stripe_publishable_key, 
-                               client_secret=intent.client_secret, 
-                               subtotal=subtotal, 
-                               tax_amount=tax_amount, 
+        return render_template("payment.html",
+                               stripe_publishable_key=stripe_publishable_key,
+                               client_secret=intent.client_secret,
+                               subtotal=subtotal,
+                               tax_amount=tax_amount,
                                total_amount=total_amount)
     except Exception as e:
         return jsonify(error=str(e)), 400
 
 
 def validate_stock_before_payment(cart):
-    """
-    Validate that there is enough stock for all items in the recent payment.
-    """
     for book_id, quantity in cart.items():
         book = Book.query.get(int(book_id))
         if book and book.stock < quantity:
             return False, f"Not enough stock for {book.title}. Only {book.stock} available."
     return True, None
 
+
 def update_inventory_after_sale(cart):
-    """
-    Decrease the stock for each book in the cart after a successful sale.
-    """
     try:
         for book_id, quantity in cart.items():
             book = Book.query.get(int(book_id))
             if book:
                 book.stock -= quantity
                 if book.stock < 0:
-                    book.stock = 0  # Ensure stock doesn't go negative
+                    book.stock = 0
                 db.session.add(book)
-        
+
         db.session.commit()
         print("✅ Inventory updated successfully!")
     except Exception as e:
@@ -88,67 +79,58 @@ def update_inventory_after_sale(cart):
         print(f"❌ Error updating inventory: {e}")
 
 
-# ✅ Route to select payment method (Cash or Credit Card)
+# ✅ Route to select payment method
 @Novel_POS.route("/select-payment", methods=["GET"])
 def select_payment():
     try:
-        # Get the cart total for displaying the price to the user
         cart = session.get('cart', {})
         subtotal, tax_amount, total_amount = get_cart_total()
-        
         return render_template("select_payment.html", total_amount=total_amount)
     except Exception as e:
         return jsonify(error=str(e)), 400
 
 
-# ✅ Route for Cash checkout (simple page for cash payment)
+# ✅ Route for Cash checkout
 @Novel_POS.route("/cash_checkout", methods=["GET"])
 def cash_checkout():
     try:
-        # Get the cart total for displaying the price to the user
         cart = session.get('cart', {})
         subtotal, tax_amount, total_amount = get_cart_total()
-        
         return render_template('cash_checkout.html', total_amount=total_amount)
     except Exception as e:
         return jsonify(error=str(e)), 400
 
 
-# ✅ Route to create a PaymentIntent (Used by payment.html)
+# ✅ Route to create a PaymentIntent
 @Novel_POS.route("/create-payment-intent", methods=["POST"])
 def create_payment():
     try:
         data = request.json
-        amount = data.get("amount")  # Amount in cents
+        amount = data.get("amount")
 
-        # Create a PaymentIntent
         intent = stripe.PaymentIntent.create(
             amount=amount,
             currency="usd",
             payment_method_types=["card"]
         )
 
-        # Update inventory after payment is successful
         cart = session.get('cart', {})
-        update_inventory_after_sale(cart)  # Call the new function
-
-        # Clear the cart after payment
+        update_inventory_after_sale(cart)
         session['cart'] = {}
         session.modified = True
 
         return jsonify({"clientSecret": intent.client_secret})
-    
     except Exception as e:
         return jsonify(error=str(e)), 400
 
 
-# ✅ Order Confirmation Page Route
+# ✅ Order Confirmation Page
 @Novel_POS.route("/order-confirmation")
 def order_confirmation():
     return render_template("order_confirmation.html")
 
 
-# ✅ Stripe Webhook for Payment Updates (Saves Transactions)
+# ✅ Stripe Webhook
 @Novel_POS.route("/webhook", methods=["POST"])
 def stripe_webhook():
     payload = request.get_data(as_text=True)
@@ -165,10 +147,8 @@ def stripe_webhook():
         intent = event["data"]["object"]
         amount_received = intent["amount_received"]
         stripe_payment_id = intent["id"]
-        
         user_id = current_user.username if current_user.is_authenticated else "unknown"
 
-        # Save successful transaction to database
         transaction = Transaction(
             user_id=user_id,
             amount=amount_received,
@@ -178,14 +158,12 @@ def stripe_webhook():
         )
         db.session.add(transaction)
         db.session.commit()
-
         print(f"💰 Payment succeeded! PaymentIntent ID: {intent['id']} - Saved to DB")
 
     elif event["type"] == "payment_intent.payment_failed":
         intent = event["data"]["object"]
         stripe_payment_id = intent["id"]
 
-        # Save failed transaction
         transaction = Transaction(
             user_id="unknown",
             amount=intent["amount"],
@@ -195,70 +173,63 @@ def stripe_webhook():
         )
         db.session.add(transaction)
         db.session.commit()
-
         print(f"❌ Payment failed. PaymentIntent ID: {intent['id']} - Logged in DB")
 
     return jsonify({"status": "success"}), 200
 
 
-# ✅ API to Fetch All Transactions (Managers & Cashiers)
+# ✅ View All Transactions API
 @Novel_POS.route("/transactions", methods=["GET"])
 @login_required
 def get_transactions():
     if current_user.role not in ["manager", "cashier"]:
-        return jsonify({"error": "Unauthorized"}), 403  # Restrict access
-    
+        return jsonify({"error": "Unauthorized"}), 403
+
     transactions = Transaction.query.order_by(Transaction.timestamp.desc()).all()
     transaction_list = [
         {
             "id": t.id,
             "user": t.user_id,
-            "amount": t.amount / 100,  # Convert from cents to dollars
+            "amount": t.amount / 100,
             "status": t.status,
             "stripe_payment_id": t.stripe_payment_id,
             "timestamp": t.timestamp.strftime("%Y-%m-%d %H:%M:%S")
         }
         for t in transactions
     ]
-    
+
     return jsonify(transaction_list), 200
 
 
-# ✅ API to View Transactions Page
+# ✅ View Transactions Page
 @Novel_POS.route("/transactions/view")
 @login_required
 def view_transactions():
     return render_template("transaction_dashboard.html")
 
 
-# Route for Refunds (Only for Managers and Cashiers)
+# ✅ Refund Route
 @Novel_POS.route("/refund/<int:transaction_id>", methods=["POST"])
 @login_required
 def refund(transaction_id):
     if current_user.role not in ["manager", "cashier"]:
         flash('Unauthorized! Only cashiers or managers can issue refunds.', 'danger')
         return redirect(url_for('Novel_POS.view_transactions'))
-    
-    # Find the transaction in the database
+
     transaction = Transaction.query.get_or_404(transaction_id)
-    
-    # Check if the transaction is already refunded
+
     if transaction.status == "refunded":
         flash('This transaction has already been refunded.', 'danger')
         return redirect(url_for('Novel_POS.view_transactions'))
 
-    # Check if the transaction is completed
     if transaction.status != "completed":
         flash('Only completed transactions can be refunded.', 'danger')
         return redirect(url_for('Novel_POS.view_transactions'))
-    
+
     try:
-        # Refund the payment through Stripe
         refund = stripe.refunds.create(
-            payment_intent=transaction.stripe_payment_id  # Use the PaymentIntent ID
+            payment_intent=transaction.stripe_payment_id
         )
-        
-        # Update transaction status to refunded in the database
         transaction.status = "refunded"
         db.session.commit()
 
@@ -267,5 +238,37 @@ def refund(transaction_id):
         flash(f'Error processing refund: {str(e)}', 'danger')
     except Exception as e:
         flash(f'Unexpected error: {str(e)}', 'danger')
-    
+
     return redirect(url_for('Novel_POS.view_transactions'))
+
+
+# ✅ Email Receipt Route
+@Novel_POS.route('/send-receipt/email', methods=["POST"])
+def send_email_receipt():
+    data = request.get_json()
+    email = data.get("email")
+
+    if not email:
+        return jsonify({"message": "❌ Please provide a valid email."}), 400
+
+    try:
+        print(f"📧 Sending receipt to {email}...")  # Replace with Flask-Mail later
+        return jsonify({"message": f"✅ Receipt sent to {email}!"}), 200
+    except Exception as e:
+        return jsonify({"message": f"❌ Error sending email: {str(e)}"}), 500
+
+
+# ✅ SMS Receipt Route
+@Novel_POS.route('/send-receipt/sms', methods=["POST"])
+def send_sms_receipt():
+    data = request.get_json()
+    phone = data.get("phone")
+
+    if not phone:
+        return jsonify({"message": "❌ Please provide a valid phone number."}), 400
+
+    try:
+        print(f"📱 Sending SMS receipt to {phone}...")  # Replace with Twilio later
+        return jsonify({"message": f"✅ Receipt sent via SMS to {phone}!"}), 200
+    except Exception as e:
+        return jsonify({"message": f"❌ Error sending SMS: {str(e)}"}), 500
