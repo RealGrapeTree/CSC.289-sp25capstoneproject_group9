@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+<title>{% block title %}Update Book | NS{% endblock %}</title>
+
 {% block content %}
 <div class="container">
     <!-- Flash Messages Container -->
@@ -210,4 +212,75 @@
         margin-left: 10px;
     }
 </style>
+<h2>Update Book</h2>
+
+<div class="container-message">
+    Current User: {{ user.username }} [{{ user.role }}]<br>
+
+<!-- System messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+</div>
+
+<!-- Update Book Form -->
+<div class="container-form">
+    <form method="POST">
+        <div class="row" id="form-row">
+            <!-- Title -->
+            <div class="col">
+                <label>Title:</label>
+                <input type="text" id="inventory-input" name="title" value="{{ book.title }}" required>
+            </div>
+            <!-- Author -->
+            <div class="col">
+                <label>Author(s):</label>
+                <input type="text" id="inventory-input" name="authors" value="{{ book.authors }}" required>
+            </div>
+            <!-- Stock -->
+            <div class="col">
+                <label>Stock:</label>
+                <input type="number" id="inventory-input" name="stock" value="{{ book.stock }}" required>
+            </div>
+            <!-- Price -->
+            <div class="col">
+                <label>Unit Price:</label>
+                <input type="text" id="inventory-input" name="price" value="{{ book.price }}" required>
+            </div>
+        </div>
+        <!-- Update Book -->
+        <div><button type="submit" id="action-button" style="margin-top:15px;">Update Book</button></div>
+    </form>
+</div>
+
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+    {% endif %}
+    
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a class="active" href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
+
 {% endblock %}

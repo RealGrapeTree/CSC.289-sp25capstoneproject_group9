@@ -83,18 +83,18 @@ def add_book():
                     return render_template('add_book.html',
                                        not_found=True,
                                        form_data=form_data,
-                                       user=current_user.username)
+                                       user=current_user)
                 
                 try:
                     new_book = insert_book_into_db(**form_data)
                     flash('Book added to inventory.', 'success')
-                    return render_template('add_book.html', book=new_book, user=current_user.username)
+                    return render_template('add_book.html', book=new_book, user=current_user)
                 except Exception as e:
                     flash(f'Error adding book: {str(e)}', 'danger')
                     return render_template('add_book.html',
                                          not_found=True,
                                          form_data=form_data,
-                                         user=current_user.username)
+                                         user=current_user)
             search_term = request.form['search_term']
             stock = request.form['stock']
             price = request.form['price']
@@ -103,7 +103,7 @@ def add_book():
             # Check if the book exists within database
             if book:
                 # Render the inventory.html template with the book data
-                return render_template('add_book.html', book=book, user=current_user.username)
+                return render_template('add_book.html', book=book, user=current_user)
             
             # Fetch book data from Open Library API if not found within database
             else:
@@ -116,8 +116,12 @@ def add_book():
                     flash('Book added to inventory.', 'success')
                     new_book = insert_book_into_db(isbn, title, authors, number_of_pages, publishers, publish_date, thumbnail_url, cover, stock, price)
 
-                    return render_template('add_book.html', book=new_book , user=current_user.username)
+
+                    return render_template('add_book.html', book=new_book , user=current_user)
                 
+
+                    return render_template('add_book.html', book=new_book , user=current_user)
+
                 else:
 
                     # Book not found - prepare form data
@@ -139,11 +143,11 @@ def add_book():
                         return render_template('add_book.html', 
                                              not_found=True,
                                              form_data=form_data,
-                                             user=current_user.username)
+                                             user=current_user)
                     else:
                         flash('Book not found.', 'danger')
 
-        return render_template('add_book.html', user=current_user.username)
+        return render_template('add_book.html', user=current_user)
     
 
 @Novel_inventory.route('/inventory', methods=['GET'])
@@ -177,13 +181,13 @@ def search():
             search_term = request.form['search_term']
             book = Book.query.filter((Book.isbn == search_term) | (Book.sku == search_term)).first()
             if book:
-                return render_template('search.html', book=book, user=current_user.username)
+                return render_template('search.html', book=book, user=current_user)
             if not book:
-                flash('Book not found In Inventory.', 'danger')
-                return render_template('search.html', user=current_user.username)
+                flash('Book not found in inventory.', 'danger')
+                return render_template('search.html', user=current_user)
     
   
-    return render_template('search.html', user=current_user.username)
+    return render_template('search.html', user=current_user)
 
 
 # Route to update book details

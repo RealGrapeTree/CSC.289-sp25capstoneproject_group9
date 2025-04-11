@@ -1,26 +1,32 @@
 {% extends "base.html" %}
 
+<title>{% block title %}Add Book | NS{% endblock %}</title>
+
 {% block content %}
-<h2>Inventory - Add New Books</h2>
+<h2>Add Book to Inventory</h2>
 
 <div class="container-message">
-    <h3> User Logged in:{{ user }}</h3>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-            <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    Current User: {{ user.username }} [{{ user.role }}]<br>
+
+<!-- System messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 </div>
 
-<form method="POST" action="{{ url_for('Novel_inventory.add_book') }}">
-    <input type="text" name="search_term" placeholder="Enter ISBN or SKU" required>
-    <input type="number" name="stock" placeholder="Enter stock" required>
-    <input type="number" name="price" placeholder="Enter price" required step="0.01">
-    <button type="submit">Add Book To Inventory</button>
-</form>
-
+<!-- Add book to inventory form -->
+<div class="container-action">
+    <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}">
+        <input type="text" id="inventory-input" name="search_term" placeholder="Enter ISBN or SKU" required>
+        <input type="number" id="inventory-input" name="stock" placeholder="Enter stock" required>
+        <input type="number" id="inventory-input" name="price" placeholder="Enter unit price" required step="0.01">
+        <button type="submit" id="action-button">Add Book</button>
+    </form>
+</div>
 
 <!-- Manual Entry Form -->
 {% if not_found and current_user.is_authenticated and current_user.role == 'manager' %}
@@ -81,59 +87,82 @@
         <button type="submit">Add Book Manually</button>
     </form>
 {% endif %}
+
+<!-- Added book table -->
 {% if book %}
 <div class="success-message">
     <h3>Book Successfully Added!</h3>
     <p>Details for {{ book.title }}</p>
 </div>
-
-<table>
-    <tr>
-        <th>Cover</th>
-        <th>ISBN</th>
-        <th>Title</th>
-        <th>Author</th>
-        <th>Stock</th>
-        <th>Price</th>
-        <th>Publish Date</th>
-        <th>Publishers</th>
-        <th>Number of Pages</th>
-
-    </tr>
-    <tr>
-        <td> <img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150"/></td>
-        <td>{{book.isbn}}</td>
-        <td>{{book.title}}</td>
-        <td>{{book.authors}}</td>
-        <td>{{book.stock}}</td>
-        <td>${{book.price}}</td>
-        <td>{{book.publish_date}}</td>
-        <td>{{book.publishers}}</td>
-        <td>{{book.number_of_pages}}</td>
-        
-    
-    </tr>
-    
+<table id="added-book-table">
+    <caption><h3>Added Book</h3></caption>
+    <thead>
+        <tr>
+            <th class="col-1">Cover</th>
+            <th class="col-1">ISBN</th>
+            <th class="col-2">Title</th>
+            <th class="col-1">Author(s)</th>
+            <th class="col-1">Stock</th>
+            <th class="col-1">Unit Price</th>
+            <th class="col-1">Publish Date</th>
+            <th class="col-1">Publishers</th>
+            <th class="col-1">Pages</th>
+            <th class="col-2">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td> <img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150" /></td>
+            <td>{{book.isbn}}</td>
+            <td>{{book.title}}</td>
+            <td>{{book.authors}}</td>
+            <td>{{book.stock}}</td>
+            <td>${{ "%.2f"|format(book.price|float) }}</td>
+            <td>{{book.publish_date}}</td>
+            <td>{{book.publishers}}</td>
+            <td>{{book.number_of_pages}}</td>
+            <td><button onclick="addToCart('{{ book.id }}')" id="table-button">🛒 Add to Cart</button></td>
+        </tr>
+    </tbody>
 </table> 
 {% endif %}
 
-<ul>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
 
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_login.add_user') }}">Add New User</a></li>
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
-
+    
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a class="active" href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
     {% if user.role == 'cashier' %}
     <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
     {% endif %}
-
-    <li><a class="active" href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
-    <li><a href="{{ url_for('Novel_cart.view_cart') }}">View Cart</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
 
 
+<!-- Scripts -->
+<script>
+    function addToCart(bookId) {
+        fetch(`/add_to_cart/${bookId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+    }
+</script>
 
 {% endblock %}
