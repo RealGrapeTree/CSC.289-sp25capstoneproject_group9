@@ -35,7 +35,8 @@
         <tr>
             <th class="col-2">Timestamp</th>
             <th class="col-2">Transaction ID</th>
-            <th class="col-2">ISBN/SKU</th>
+            <th class="col-2">ISBN</th>
+            <th class="col-1">Title</th>
             <th class="col-1">Quantity</th>
             <th class="col-1">Unit Price</th>
             <th class="col-1">Subtotal</th>
@@ -44,23 +45,25 @@
         </tr>
     </thead>
     <tbody>
-        {% for transaction in daily_transactions %}
-        <tr>
-            <td>{{ transaction.timestamp }}</td>
-            <td>{{ transaction.id }}</td>
-            
-            <!-- If more than one book per transaction, show each ISBN/SKU, quantity, unit price -->
-            <td>isbn/sku</td>
-            <td>quantity</td>
-            <td>unit price</td>
-            
-            <td>subtotal</td>
-            <td>tax</td>
-            <td>{{ transaction.amount }}</td>
-        </tr>
+        {% for transaction in transactions %}
+            {% for item in transaction.items %}
+                <tr>
+                    <td>{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ transaction.id }}</td>
+                    <td>{{ item.isbn }}</td>
+                    <td>{{ item.book_title }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ '%.2f' % (item.unit_price / 100) }}</td>
+                    <td>${{ '%.2f' % ((item.unit_price * item.quantity) / 100) }}</td>
+                    <td>${{ '%.2f' % (((item.unit_price * item.quantity) * NC_TAX_RATE) / 100) }}</td>
+                    <td>${{ '%.2f' % (((item.unit_price * item.quantity) * (1 + NC_TAX_RATE)) / 100) }}</td>
+                </tr>
+            {% endfor %}
         {% endfor %}
+
     </tbody>
 </table>
+
 
 <!-- Daily totals section -->
 <table id="daily_sales_table">
@@ -73,12 +76,13 @@
     </thead>
     <tbody>
         <tr>
-            <td>${{ "%.2f"|format(subtotal|float) }}</td>
-            <td>${{ "%.2f"|format(tax_amount|float) }}</td>
-            <td>${{ "%.2f"|format(total_price|float) }}</td>
+            <td>${{ "%.2f"|format(subtotal) }}</td>
+            <td>${{ "%.2f"|format(tax_amount) }}</td>
+            <td>${{ "%.2f"|format(total_price) }}</td>
         </tr>
     </tbody>
 </table>
+
 
 <!-- Export buttons -->
  <div class="container-action">
