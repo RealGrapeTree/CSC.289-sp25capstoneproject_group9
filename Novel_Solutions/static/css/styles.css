@@ -163,10 +163,11 @@ input[type=submit] {
 }
 
 #table-button:focus {
-    transform: translateY(4px);  
+    transform: translateY(4px);
 }
 
-#action-button {
+#action-button,
+#remove-discount-button {
     background-color: #6ab9da;
     color: #003343;
     font-weight: bold;
@@ -178,12 +179,14 @@ input[type=submit] {
 }
 
 #action-button:hover,
+#remove-discount-button:hover,
 input[type=submit]:hover {
     background-color: #68ADCA;
     box-shadow: 0 9px #4291B3;
 }
 
 #action-button:focus,
+#remove-discount-button:focus,
 input[type=submit]:focus {
     background-color: #68ADCA;
     box-shadow: 0 5px #4291B3;
@@ -259,6 +262,7 @@ td {
 
 
 @media only screen and (max-width: 620px) {
+
     /* For mobile phones: */
     .menu,
     .main,
