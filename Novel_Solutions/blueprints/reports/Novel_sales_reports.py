@@ -114,7 +114,7 @@ def export_reports_csv(reportType):
         "Item": sales_label,
         "Quantity": "",
         "Unit Price": "",
-        "Line Total": round(subtotal_dollars, 2)  # Use the calculated subtotal
+        "Total": round(subtotal_dollars, 2)  # Use the calculated subtotal
     })
     data.append({
         "Transaction ID": "TOTAL",
@@ -122,7 +122,7 @@ def export_reports_csv(reportType):
         "Item": tax_label,
         "Quantity": "",
         "Unit Price": "",
-        "Line Total": round(tax_amount, 2)  # Use the calculated tax amount
+        "Total": round(tax_amount, 2)  # Use the calculated tax amount
     })
     data.append({
         "Transaction ID": "TOTAL",
@@ -130,7 +130,7 @@ def export_reports_csv(reportType):
         "Item": total_label,
         "Quantity": "",
         "Unit Price": "",
-        "Line Total": round(total_price, 2)  # Use the calculated total price
+        "Total": round(total_price, 2)  # Use the calculated total price
     })
 
     # Convert data to DataFrame
