@@ -6,6 +6,7 @@ import stripe
 import os
 from datetime import datetime
 from ..cart.Novel_cart import get_cart_total
+import random
 
 Novel_POS = Blueprint('Novel_POS', __name__, template_folder='templates')
 
@@ -127,6 +128,7 @@ def cash_checkout():
     try:
         cart = session.get('cart', {})
         subtotal, tax_amount, total_amount = get_cart_total()[:3] 
+        save_transaction_to_db(current_user.username, total_amount, "Cash Payment", f"Cash Payment {random.randint(0, 999999)}", cart)
         return render_template('cash_checkout.html', total_amount=total_amount)
     except Exception as e:
         return jsonify(error=str(e)), 400

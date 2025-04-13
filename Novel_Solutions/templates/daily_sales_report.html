@@ -87,8 +87,7 @@
 <!-- Export buttons -->
  <div class="container-action">
     <div class="row" id="export-row">
-        <div class="col"><button onclick="exportCSV('daily_sales_table')" id="action-button">Export to CSV</button></div>
-        <div class="col"><button id="action-button">Export to PDF</button></div>
+        <div class="col"><button onclick="exportCSV('daily')">Export Daily Sales</button></div>
     </div>
  </div>
 
@@ -122,15 +121,9 @@
 
 <!-- Scripts -->
 <script>
-    function exportCSV(daily_sales_table) {
-        fetch(`/export_reports_csv/${daily_sales_table}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            location.reload();
-        });
+    function exportCSV(reportType) {
+        window.location.href = `/export_sales_csv/${reportType}`;
     }
-
     function exportPDF(daily_sales_table) {
         fetch(`/export_reports_pdf/${daily_sales_table}`, { method: 'POST' })
         .then(response => response.json())

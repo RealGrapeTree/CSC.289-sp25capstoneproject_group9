@@ -89,8 +89,8 @@
 <!-- Export buttons -->
 <div class="container-action">
     <div class="row" id="export-row">
-        <div class="col"><button onclick="exportCSV('custom_sales_table')" id="action-button">Export to CSV</button></div>
-        <div class="col"><button id="action-button">Export to PDF</button></div>
+        <div class="col"><button onclick="exportCustomCSV('{{ custom_start_date }}', '{{ custom_end_date }}')">Export Custom Sales CSV</button></div>
+        
     </div>
  </div>
 
@@ -123,15 +123,13 @@
 
 
 <!-- Scripts -->
-<script>
-    function exportCSV(custom_sales_table) {
-        fetch(`/export_reports_csv/${custom_sales_table}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            location.reload();
-        });
+    <script>
+        function exportCustomCSV(start, end)
+    {
+        const url = `/export_sales_csv/custom?start=${start}&end=${end}`;
+        window.location.href = url;
     }
+
 
     function exportPDF(custom_sales_table) {
         fetch(`/export_reports_pdf/${custom_sales_table}`, { method: 'POST' })

@@ -1,4 +1,4 @@
-from flask import render_template, Blueprint, request, jsonify
+from flask import render_template, Blueprint, request, jsonify, send_file
 from extensions import db
 from flask_login import current_user
 from models import Transaction
@@ -8,6 +8,7 @@ import datetime as dt
 from datetime import timedelta, datetime, date
 import calendar
 import pandas as pd
+import io
 
 
 # Create the Blueprint
@@ -15,19 +16,144 @@ Novel_sales_reports = Blueprint('Novel_sales_reports', __name__, template_folder
 
 
 # Function to export reports to CSV
-@Novel_sales_reports.route("/export_sales_csv/<string:table_to_export>", methods=["POST"])
-def export_reports_csv(table_to_export):
-    csv_table = pd.read_html(table_to_export)
-    df = csv_table[0]
-    df.to_csv(f'{table_to_export}_report.csv')
+@Novel_sales_reports.route("/export_sales_csv/<string:reportType>", methods=["GET"])
+def export_reports_csv(reportType):
+    now = datetime.today()
 
-    return jsonify({"message": "Table exported to CSV file.", "success": True})
+    # Initialize variables for transactions
+    transactions = []
+    subtotal = 0  # Initialize subtotal variable
+
+    # Determine start and end times based on report type
+    if reportType == "daily":
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+    elif reportType == "weekly":
+        start = now - timedelta(days=now.weekday())
+        end = start + timedelta(days=6)
+    elif reportType == "monthly":
+        start = now.replace(day=1)
+        last_day = calendar.monthrange(now.year, now.month)[1]
+        end = now.replace(day=last_day)
+    elif reportType == "custom":
+        start_str = request.args.get("start")
+        end_str = request.args.get("end")
+        if not start_str or not end_str:
+            flash("Custom report dates not specified.")
+            return redirect(url_for("Novel_sales_reports.sales_report"))
+        
+        # Ensure both start and end are in correct date format before adding time
+        if " " not in start_str:  # Check if no time part is already present
+            start_str += " 00:00:00"  # Add default time
+        if " " not in end_str:  # Check if no time part is already present
+            end_str += " 23:59:59"  # Add default time
+        
+        try:
+            start_date = datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
+            end_date = datetime.strptime(end_str, "%Y-%m-%d %H:%M:%S")  # End date inclusive
+        except ValueError as e:
+            flash(f"Invalid date format: {str(e)}")
+            return redirect(url_for("Novel_sales_reports.sales_report"))
+        
+        transactions = db.session.query(Transaction).filter(
+            Transaction.timestamp >= start_date,
+            Transaction.timestamp <= end_date
+        ).all()
+    else:
+        return jsonify({"message": "Unsupported report type", "success": False}), 400
+
+    # If the report type is not custom, fetch transactions accordingly
+    if reportType != "custom":
+        transactions = db.session.query(Transaction).filter(
+            Transaction.timestamp >= start,
+            Transaction.timestamp <= end
+        ).all()
+
+    # Prepare data for CSV export
+    data = []
+    for t in transactions:
+        for item in t.items:
+            line_total = item.unit_price * item.quantity  # Calculate line total in cents
+            subtotal += line_total  # Add to subtotal
+            data.append({
+                "Transaction ID": t.id,
+                "Timestamp": t.timestamp,
+                "Item": item.book.title,
+                "Quantity": item.quantity,
+                "Unit Price": item.unit_price / 100,
+                "Line Total": (item.unit_price * item.quantity) / 100
+            })
+
+    # Calculate totals
+    subtotal_dollars = subtotal / 100
+    tax_amount = round(subtotal_dollars * NC_TAX_RATE, 2)
+    total_price = round(subtotal_dollars + tax_amount, 2)
+
+    # Define labels for different report types
+    if reportType == "daily":
+        sales_label = "Daily Sales Amount"
+        tax_label = "Daily Sales Tax (7.25%)"
+        total_label = "Daily Sales Total"
+    elif reportType == "weekly":
+        sales_label = "Weekly Sales Amount"
+        tax_label = "Weekly Sales Tax (7.25%)"
+        total_label = "Weekly Sales Total"
+    elif reportType == "monthly":
+        sales_label = "Monthly Sales Amount"
+        tax_label = "Monthly Sales Tax (7.25%)"
+        total_label = "Monthly Sales Total"
+    elif reportType == "custom":
+        sales_label = "Custom Sales Amount"
+        tax_label = "Custom Sales Tax (7.25%)"
+        total_label = "Custom Sales Total"
+
+    # Add totals to the data
+    data.append({
+        "Transaction ID": "TOTAL",
+        "Timestamp": "",
+        "Item": sales_label,
+        "Quantity": "",
+        "Unit Price": "",
+        "Line Total": round(subtotal_dollars, 2)  # Use the calculated subtotal
+    })
+    data.append({
+        "Transaction ID": "TOTAL",
+        "Timestamp": "",
+        "Item": tax_label,
+        "Quantity": "",
+        "Unit Price": "",
+        "Line Total": round(tax_amount, 2)  # Use the calculated tax amount
+    })
+    data.append({
+        "Transaction ID": "TOTAL",
+        "Timestamp": "",
+        "Item": total_label,
+        "Quantity": "",
+        "Unit Price": "",
+        "Line Total": round(total_price, 2)  # Use the calculated total price
+    })
+
+    # Convert data to DataFrame
+    df = pd.DataFrame(data)
+
+    # Save to in-memory buffer
+    buffer = io.StringIO()
+    df.to_csv(buffer, index=False)
+    buffer.seek(0)
+
+    return send_file(
+        io.BytesIO(buffer.getvalue().encode()),
+        mimetype='text/csv',
+        download_name=f"{reportType}_sales_report.csv",
+        as_attachment=True
+    )
 
 
-# Function to export reports to PDF
-@Novel_sales_reports.route("/export_sales_pdf/<string:table_to_export>", methods=["POST"])
-def export_reports_pdf(table_to_export):
-    pass
+
+# # Function to export reports to PDF
+# @Novel_sales_reports.route("/export_sales_pdf/<string:table_to_export>", methods=["POST"])
+# def export_reports_pdf(table_to_export):
+#     pass
 
 
 # Generate sales report route
