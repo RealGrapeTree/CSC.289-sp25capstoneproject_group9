@@ -118,17 +118,4 @@
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
 
-
-<!-- Scripts -->
-<script>
-    function exportCSV(daily_sales_table) {
-        fetch(`/export_reports_csv/${daily_sales_table}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            location.reload();
-        });
-    }
-</script>
-
 {% endblock %}
