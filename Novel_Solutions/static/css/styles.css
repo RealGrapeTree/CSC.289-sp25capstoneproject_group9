@@ -44,6 +44,26 @@ body {
     text-align: center;
 }
 
+.container-payment {
+    margin: 20px auto;
+    padding: 20px;
+    width: 400px;
+    background-color: #f8fcff;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.container-confirmation{
+    margin: 50px auto;
+    padding: 20px;
+    max-width: 500px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
 #form-row {
     margin: 15px;
 }
@@ -81,6 +101,10 @@ h2 {
     padding: 15px;
 }
 
+h3 {
+    font-weight: bold;
+}
+
 h5 {
     color: #003343;
     background-color: #EBF8FF;
@@ -108,10 +132,21 @@ select {
     padding: 10px;
 }
 
+#payment-message {
+    margin-top: 15px;
+    font-size: 14px;
+}
 
 /* Labels and inputs */
 label {
     margin-right: 5px;
+}
+
+#payment-label {
+    display: block;
+    margin-top: 10px;
+    text-align: left;
+    font-weight: bold;
 }
 
 #inventory-input,
@@ -141,6 +176,22 @@ input[type=submit] {
     box-shadow: 0 9px #5BA3C2;
     margin-top: 25px;
     padding: 15px 45px;
+}
+
+#card-name {
+    background-color: #f8fcff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+#card-element {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
 
@@ -191,6 +242,22 @@ input[type=submit]:focus {
     background-color: #68ADCA;
     box-shadow: 0 5px #4291B3;
     transform: translateY(4px);
+}
+
+#payment-button {
+    width: 100%;
+    background-color: #FFD700;
+    text-align: center;
+    font-weight: bold;
+    border: none;
+    outline: none;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 15px;
+}
+
+#payment-button:hover {
+    background: #E5C100;
 }
 
 

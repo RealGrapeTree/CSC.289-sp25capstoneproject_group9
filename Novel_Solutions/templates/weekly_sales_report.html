@@ -38,9 +38,9 @@
     <thead>
         <tr>
             <th class="col-2">Timestamp</th>
-            <th class="col-2">Transaction ID</th>
+            <th class="col-1">Transaction ID</th>
             <th class="col-2">ISBN</th>
-            <th class="col-1">Title</th>
+            <th class="col-2">Title</th>
             <th class="col-1">Quantity</th>
             <th class="col-1">Unit Price</th>
             <th class="col-1">Subtotal</th>
@@ -52,7 +52,7 @@
         {% for transaction in transactions %}
             {% for item in transaction.items %}
             <tr>
-                <td>{{ transaction.timestamp.strftime("%Y-%m-%d %H:%M") }}</td>
+                <td>{{ transaction.timestamp.strftime('%B %d, %Y | %I:%M %p') }}</td>
                 <td>{{ transaction.id }}</td>
                 <td>{{ item.book.isbn }}</td>  
                 <td>{{ item.book.title }}</td>
@@ -121,22 +121,8 @@
 
 <!-- Scripts -->
 <script>
-    function exportCSV(weekly_sales_table) {
-        fetch(`/export_reports_csv/${weekly_sales_table}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            location.reload();
-        });
     }
 
-    function exportPDF(weekly_sales_table) {
-        fetch(`/export_reports_pdf/${weekly_sales_table}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            location.reload();
-        });
     }
 </script>
 

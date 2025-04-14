@@ -1,76 +1,84 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment</title>
-    <script src="https://js.stripe.com/v3/"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/payment.css') }}">
-</head>
-<body>
-    <div class="payment-container">
-        <h2>💫 <b>Payment Details</b></h2>
+{% extends "base.html" %}
 
-        <!-- 🛍️ Display Cart Summary -->
-        <div class="cart-summary">
-            <h3>🛍️ Cart Summary</h3>
-            <p><strong>Subtotal:</strong> ${{ "%.2f"|format(subtotal|float) }}</p>
-            <p><strong>Tax (7.25%):</strong> ${{ "%.2f"|format(tax_amount|float) }}</p>
-            <h3><strong>Total Amount:</strong> ${{ "%.2f"|format(total_amount|float) }}</h3>
-        </div>
+<title>{% block title %}Payment | NS{% endblock %}</title>
 
-        <form id="payment-form">
-            <label for="name">Name</label>
-            <input type="text" id="name" placeholder="Name" required>
-            
-            <label for="card-element">Card number</label>
-            <div id="card-element"></div> <!-- Stripe Elements card input -->
+{% block content %}
+<h2>Payment Details</h2>
 
-            <button id="submit">✨ Submit</button>
-        </form>
-        <p id="payment-message"></p>
+<div class="container-payment">
+    <h3>🛒 Cart Summary</h3>
+    <hr class="solid">
+    
+    <!-- Display Cart Summary -->
+    <div class="cart-summary">
+        <p><strong>Subtotal:</strong> ${{ "%.2f"|format(subtotal|float) }}</p>
+        <p><strong>Tax (7.25%):</strong> ${{ "%.2f"|format(tax_amount|float) }}</p>
+        <h4><strong>Total Amount:</strong> ${{ "%.2f"|format(total_amount|float) }}</h4>
     </div>
+    <hr class="solid">
 
-    <script>
-        const stripe = Stripe("{{ stripe_publishable_key }}");
-        const elements = stripe.elements();
-        const card = elements.create("card", { style: { base: { fontSize: '16px' } } });
-        card.mount("#card-element");
+    <!--- Enter payment information -->
+    <form id="payment-form">
+        <label id="payment-label" for="card-name">Name on Card</label>
+        <input type="text" id="card-name" placeholder="Name" required>
 
-        // Define total_amount in JavaScript using Jinja
-        const totalAmount = {{ total_amount }};  
+        <label id="payment-label" for="card-element">Card Information</label>
+        <div id="card-element"></div> <!-- Stripe Elements card input -->
 
-        async function fetchClientSecret() {
-            const response = await fetch("/create-payment-intent", {
-                method: "POST",
-                body: JSON.stringify({ amount: totalAmount * 100 }), // Convert to cents for Stripe
-                headers: { "Content-Type": "application/json" }
-            });
-            const { clientSecret } = await response.json();
-            return clientSecret;
-        }
+        <button type="submit" id="payment-button">Submit</button>
+    </form>
+    
+    <p id="payment-message"></p>
+</div>
 
-        document.getElementById("payment-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const clientSecret = await fetchClientSecret();
-            
-            const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
-                payment_method: {
-                    card: card,
-                    billing_details: { name: document.getElementById("name").value }
-                }
-            });
 
-            const message = document.getElementById("payment-message");
-            if (error) {
-                message.textContent = `❌ ${error.message}`;
-            } else {
-                message.textContent = "✅ Payment successful!";
-                setTimeout(() => {
-                    window.location.href = "/order-confirmation"; // Redirect after success
-                }, 2000);
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Back to Cart</a></li>
+</ul>
+
+
+<!-- Scripts -->
+<script>
+    const stripe = Stripe("{{ stripe_publishable_key }}");
+    const elements = stripe.elements();
+    const card = elements.create("card", { style: { base: { fontSize: '16px' } } });
+    card.mount("#card-element");
+
+    // Define total_amount in JavaScript using Jinja
+    const totalAmount = {{ total_amount }};  
+
+    async function fetchClientSecret() {
+        const response = await fetch("/create-payment-intent", {
+            method: "POST",
+            body: JSON.stringify({ amount: totalAmount * 100 }), // Convert to cents for Stripe
+            headers: { "Content-Type": "application/json" }
+        });
+        const { clientSecret } = await response.json();
+        return clientSecret;
+    }
+
+    document.getElementById("payment-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const clientSecret = await fetchClientSecret();
+        
+        const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: card,
+                billing_details: { name: document.getElementById("card-name").value }
             }
         });
-    </script>
-</body>
-</html>
+
+        const message = document.getElementById("payment-message");
+        if (error) {
+            message.textContent = `❌ ${error.message}`;
+        } else {
+            message.textContent = "✅ Payment successful!";
+            setTimeout(() => {
+                window.location.href = "/order-confirmation"; // Redirect after success
+            }, 2000);
+        }
+    });
+</script>
+
+{% endblock %}

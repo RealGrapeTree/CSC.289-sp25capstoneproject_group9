@@ -164,7 +164,7 @@ def inventory():
         return render_template('inventory.html', 
                              books=books, 
                              pagination=books_pagination,
-                             user=current_user.username)
+                             user=current_user)
     else:
         return redirect(url_for('Novel_login.login'))
         
