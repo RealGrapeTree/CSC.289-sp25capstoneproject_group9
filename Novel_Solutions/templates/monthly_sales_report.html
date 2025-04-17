@@ -127,14 +127,6 @@
     function exportCSV(reportType) {
         window.location.href = `/export_sales_csv/${reportType}`;
     }
-    function exportPDF(monthly_sales_table) {
-        fetch(`/export_reports_pdf/${monthly_sales_table}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            location.reload();
-        });
-    }
 </script>
 
 {% endblock %}
