@@ -1,48 +1,80 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Register User | NS{% endblock %}</title>
+{% block title %}Register User | NS{% endblock %}
 
 {% block content %}
 <h2>Register User</h2>
 
 <div class="container-message">
-    Current User: {{ user.username }} [{{ user.role }}]<br>
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
+</div>
 
 <!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
+    <h5>
         {% for message in messages %}
             {{ message }}
         {% endfor %}
+    </h5>
     {% endif %}
 {% endwith %}
-</div>
 
 <!-- Register new user form -->
 {{form.csrf_token}}
 <div class="container-form">
-    <form method="POST" class="container">
+    <form method="POST" class="ns-form" id="registerUserForm">
         {{form.hidden_tag()}}
         <!-- First Name & Last Name -->
-        <div class="row" id="form-row">
-            <div class="col">{{form.firstname.label}} {{form.firstname}}</div>
-            <div class="col">{{form.lastname.label}} {{form.lastname}}</div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>{{form.firstname.label}}</label>
+                    {{form.firstname(placeholder="First name")}}
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>{{form.lastname.label}}</label>
+                    {{form.lastname(placeholder="Last name")}}
+                </div>
+            </div>
         </div>
-
         <!-- Username & Password -->
-        <div class="row" id="form-row">
-            <div class="col">{{form.username.label}} {{form.username}}</div>
-            <div class="col">{{form.password.label}} {{form.password}}</div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>{{form.username.label}}</label>
+                    {{form.username(placeholder="Username")}}
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>{{form.password.label}}</label>
+                    {{form.password(placeholder="Password")}}
+                </div>
+            </div>
         </div>
-
         <!-- Email & Role -->
-        <div class="row" id="form-row">
-            <div class="col">{{form.email.label}} {{form.email}}</div>
-            <div class="col">{{form.role.label}} {{form.role}}</div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>{{form.email.label}}</label>
+                    {{form.email(placeholder="Email")}}
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>{{form.role.label}}</label>
+                    {{form.role}}
+                </div>
+            </div>
         </div>
-        
-        <!-- Add User -->
-        <div>{{form.submit}}</div>
+        <!-- Buttons -->
+        <div class="form-actions">
+            <button class="btn btn-primary">Submit</button>
+            <a href="{{ url_for('Novel_login.dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
     </form>
 </div>
 
@@ -54,10 +86,10 @@
     <li><a class="active" href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
     
-    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
     
@@ -71,5 +103,6 @@
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
+
 
 {% endblock %}

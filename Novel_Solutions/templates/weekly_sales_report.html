@@ -1,33 +1,35 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Weekly Sales Report | NS{% endblock %}</title>
+{% block title %}Weekly Sales Report | NS{% endblock %}
 
 {% block content %}
 <h2>Weekly Sales Report</h2>
 
 <div class="container-message">
-    Current User: {{ user.username }} [{{ user.role }}]<br>
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
+</div>
 
 <!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
+    <h5>
         {% for message in messages %}
             {{ message }}
         {% endfor %}
+    </h5>
     {% endif %}
 {% endwith %}
-</div>
 
 <!-- Weekly timestamp table -->
 <table id="timestamp-table">
     <tbody>
         <tr>
-            <td>Current Date: {{ current_date.strftime("%A, %B %d %Y") }}</td>
-            <td>Current Time: {{ current_date.strftime("%I:%M %p") }}</td>
+            <td><strong>Current Date:</strong> {{ current_date.strftime("%A, %B %d %Y") }}</td>
+            <td><strong>Current Time:</strong> {{ current_date.strftime("%I:%M %p") }}</td>
         </tr>
         <tr>
-            <td>Week Start Date: {{ week_start.strftime("%A, %B %d %Y") }}</td>
-            <td>Week End Date: {{ week_end.strftime("%A, %B %d %Y") }}</td>
+            <td><strong>Week Start Date:</strong> {{ week_start.strftime("%A, %B %d %Y") }}</td>
+            <td><strong>Week End Date:</strong> {{ week_end.strftime("%A, %B %d %Y") }}</td>
         </tr>
     </tbody>
 </table>
@@ -38,9 +40,9 @@
     <thead>
         <tr>
             <th class="col-2">Timestamp</th>
-            <th class="col-2">Transaction ID</th>
+            <th class="col-1">Transaction ID</th>
             <th class="col-2">ISBN</th>
-            <th class="col-1">Title</th>
+            <th class="col-2">Title</th>
             <th class="col-1">Quantity</th>
             <th class="col-1">Unit Price</th>
             <th class="col-1">Subtotal</th>
@@ -52,7 +54,7 @@
         {% for transaction in transactions %}
             {% for item in transaction.items %}
             <tr>
-                <td>{{ transaction.timestamp.strftime("%Y-%m-%d %H:%M") }}</td>
+                <td>{{ transaction.timestamp.strftime('%B %d, %Y | %I:%M %p') }}</td>
                 <td>{{ transaction.id }}</td>
                 <td>{{ item.book.isbn }}</td>  
                 <td>{{ item.book.title }}</td>
@@ -85,10 +87,10 @@
     </tbody>
 </table>
 
-<!-- Export buttons -->
+<!-- Export -->
 <div class="container-action">
     <div class="row" id="export-row">
-        <div class="col"><button onclick="exportCSV('weekly')" id="action-button">Export Weekly Sales</button></div>
+        <div class="col"><button onclick="exportCSV('weekly')" id="action-button">Download Weekly Sales CSV</button></div>
     </div>
 </div>
 
@@ -100,10 +102,10 @@
     <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
     
-    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
     
@@ -123,15 +125,6 @@
        function exportCSV(reportType) {
     window.location.href = `/export_sales_csv/${reportType}`;
 }
-
-    function exportPDF(weekly_sales_table) {
-        fetch(`/export_reports_pdf/${weekly_sales_table}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            location.reload();
-        });
-    }
 </script>
 
 {% endblock %}

@@ -1,27 +1,29 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Search Inventory | NS{% endblock %}</title>
+{% block title %}Search Inventory | NS{% endblock %}
 
 {% block content %}
 <h2>Search Inventory</h2>
 
 <div class="container-message">
-    Current User: {{ user.username }} [{{ user.role }}]<br>
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
+</div>
 
 <!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
+    <h5>
         {% for message in messages %}
             {{ message }}
         {% endfor %}
+    </h5>
     {% endif %}
 {% endwith %}
-</div>
 
 <!-- Search bar -->
 <div class="container-action">
     <form method="POST" action="{{ url_for('Novel_inventory.search') }}">
-        <input type="text" id="inventory-input" name="search_term" placeholder="Enter ISBN or SKU" required>
+        <input type="text" id="inventory-input" name="search_term" placeholder="Enter ISBN" required>
         <button type="submit" id="action-button">Search</button>
     </form>
 </div>
@@ -41,7 +43,7 @@
             <th class="col-1">Publish Date</th>
             <th class="col-1">Publishers</th>
             <th class="col-1">Pages</th>
-            <th class="col-2">Actions</th>
+            <th class="col-2">Actions</th> <!-- Actions column for Add to Cart/Edit/Delete -->
         </tr>
     </thead>
     <tbody>
@@ -55,7 +57,12 @@
             <td>{{book.publish_date}}</td>
             <td>{{book.publishers}}</td>
             <td>{{book.number_of_pages}}</td>
-            <td><button onclick="addToCart('{{ book.id }}')" id="table-button">Add to Cart</button></td>
+            <td> <!-- Actions column -->
+                <button onclick="addToCart('{{ book.id }}')" class="table-button">Add to Cart</button>
+                <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}">
+                    <button class="table-button">✏️ Edit</button>
+                </a>
+            </td>
         </tr>
     </tbody>
 </table>
@@ -69,10 +76,10 @@
     <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
     
-    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a class="active" href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
     

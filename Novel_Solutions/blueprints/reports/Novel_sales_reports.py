@@ -149,13 +149,6 @@ def export_reports_csv(reportType):
     )
 
 
-
-# # Function to export reports to PDF
-# @Novel_sales_reports.route("/export_sales_pdf/<string:table_to_export>", methods=["POST"])
-# def export_reports_pdf(table_to_export):
-#     pass
-
-
 # Generate sales report route
 @Novel_sales_reports.route('/sales_report')
 def sales_report():

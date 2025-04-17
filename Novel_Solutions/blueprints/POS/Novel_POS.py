@@ -75,12 +75,13 @@ def checkout():
         )
 
         return render_template("payment.html",
-                            stripe_publishable_key=stripe_publishable_key,
-                            client_secret=intent.client_secret,
-                            subtotal=subtotal,
-                            tax_amount=tax_amount,
-                            total_amount=total_amount,
-                            extra_values=extra_values)
+                               user=current_user,
+                               stripe_publishable_key=stripe_publishable_key,
+                               client_secret=intent.client_secret,
+                               subtotal=subtotal,
+                               tax_amount=tax_amount,
+                               total_amount=total_amount,
+                               extra_values=extra_values)
 
     except Exception as e:
         return jsonify(error=str(e)), 400
@@ -118,7 +119,9 @@ def select_payment():
         cart = session.get('cart', {})
         totals = get_cart_total()
         subtotal, tax_amount, total_amount = totals[:3]
-        return render_template("select_payment.html", total_amount=total_amount)
+        return render_template("select_payment.html", 
+                               user=current_user,
+                               total_amount=total_amount)
     except Exception as e:
         return jsonify(error=str(e)), 400
 
@@ -129,7 +132,11 @@ def cash_checkout():
         cart = session.get('cart', {})
         subtotal, tax_amount, total_amount = get_cart_total()[:3] 
         save_transaction_to_db(current_user.username, total_amount, "Cash Payment", f"Cash Payment {random.randint(0, 999999)}", cart)
-        return render_template('cash_checkout.html', total_amount=total_amount)
+        return render_template('cash_checkout.html', 
+                               user=current_user, 
+                               subtotal=subtotal,
+                               tax_amount=tax_amount,
+                               total_amount=total_amount)
     except Exception as e:
         return jsonify(error=str(e)), 400
 
