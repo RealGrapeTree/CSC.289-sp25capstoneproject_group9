@@ -90,7 +90,7 @@
 <!-- Export -->
 <div class="container-action">
     <div class="row" id="export-row">
-        <div class="col"><button onclick="exportCSV('weekly_sales_table')" id="action-button">Export to CSV</button></div>
+        <div class="col"><button onclick="exportCSV('weekly')" id="action-button">Export Weekly Sales</button></div>
     </div>
 </div>
 
@@ -119,5 +119,21 @@
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
+
+<!-- Scripts -->
+<script>
+       function exportCSV(reportType) {
+    window.location.href = `/export_sales_csv/${reportType}`;
+}
+
+    function exportPDF(weekly_sales_table) {
+        fetch(`/export_reports_pdf/${weekly_sales_table}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload();
+        });
+    }
+</script>
 
 {% endblock %}
