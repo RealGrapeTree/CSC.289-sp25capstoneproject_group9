@@ -14,7 +14,6 @@ def insert_book_into_db(isbn, title, authors, number_of_pages, publishers, publi
     return new_book
 
 
-
 # ✅ Fetch book data from Open Library API using ISBN
 def get_book_data(isbn):
     url = f'https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data'
@@ -31,14 +30,11 @@ def get_book_data(isbn):
         thumbnail_url = book_info.get('cover', {}).get('medium', 'Unknown')
         cover = book_info.get('cover', {}).get('large', 'Unknown')
 
-
         return isbn, title, authors, number_of_pages, publishers, publish_date, thumbnail_url, cover
     return None, None, None, None, None, None, None, None
 
 
-
-
-# use this function in a show all inventory page
+# Use this function in a Show All Inventory page
 # Function to check all books in the database
 def check_books():
     books = Book.query.all()
@@ -46,14 +42,11 @@ def check_books():
         print(f"ID: {book.id}, ISBN: {book.isbn}, SKU: {book.sku}, Title: {book.title}, Stock: {book.stock}, Price: ${book.price:.2f}")
 
 
-
 @Novel_inventory.route('/add_book', methods=['GET', 'POST'])
 @login_required
 def add_book():
-
     # Check if the user is logged in
     if current_user.is_authenticated:
-
         # Get the search term from the form
         if request.method == 'POST':
 
@@ -79,12 +72,11 @@ def add_book():
                 }
                 
                 if not form_data['title'] or not form_data['authors']:
-                    flash('Title and Authors are required fields.', 'danger')
+                    flash('Title and Author(s) are required fields.', 'danger')
                     return render_template('add_book.html',
                                        not_found=True,
                                        form_data=form_data,
                                        user=current_user)
-                
                 try:
                     new_book = insert_book_into_db(**form_data)
                     flash('Book added to inventory.', 'success')
@@ -104,7 +96,6 @@ def add_book():
             if book:
                 # Render the inventory.html template with the book data
                 return render_template('add_book.html', book=book, user=current_user)
-            
             # Fetch book data from Open Library API if not found within database
             else:
                 # Fetch book data from Open Library API
@@ -115,15 +106,8 @@ def add_book():
                 if isbn and title and authors:
                     flash('Book added to inventory.', 'success')
                     new_book = insert_book_into_db(isbn, title, authors, number_of_pages, publishers, publish_date, thumbnail_url, cover, stock, price)
-
-
                     return render_template('add_book.html', book=new_book , user=current_user)
-                
-
-                    return render_template('add_book.html', book=new_book , user=current_user)
-
                 else:
-
                     # Book not found - prepare form data
                     form_data = {
                         'isbn': search_term,
@@ -185,7 +169,6 @@ def search():
             if not book:
                 flash('Book not found in inventory.', 'danger')
                 return render_template('search.html', user=current_user)
-    
   
     return render_template('search.html', user=current_user)
 
@@ -231,7 +214,7 @@ def update_book(book_id):
         if has_error:
             return render_template('update_book.html', book=book, 
                                  form_data=request.form, 
-                                 user=current_user.username)
+                                 user=current_user)
         
         db.session.commit()
         flash(f'Success! "{book.title}" has been updated.', 'success')  # <-- Specific success message
@@ -239,7 +222,7 @@ def update_book(book_id):
 
     return render_template('update_book.html', book=book, 
                          form_data=None, 
-                         user=current_user.username)
+                         user=current_user)
 
 # Route to delete a book
 @Novel_inventory.route('/delete_book/<int:book_id>', methods=['POST'])
@@ -256,4 +239,3 @@ def delete_book(book_id):
     db.session.commit()
     flash('Book deleted successfully!', 'success')
     return redirect(url_for('Novel_inventory.inventory'))
-

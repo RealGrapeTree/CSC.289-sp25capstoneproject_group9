@@ -1,22 +1,24 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Dashboard | NS{% endblock %}</title>
+{% block title %}Dashboard | NS{% endblock %}
 
 {% block content %}
 <h2>Dashboard</h2>
 
 <div class="container-message">
-    Welcome, {{ user.username }}! [{{ user.role }}]<br>
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
+</div>
 
 <!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
+    <h5>
         {% for message in messages %}
             {{ message }}
         {% endfor %}
+    </h5>
     {% endif %}
 {% endwith %}
-</div>
 
 <!-- Table of all users -->
 {% if user.role == 'manager' %}
@@ -38,11 +40,11 @@
                 <td>{{ user.email }}</td>
                 <td>{{ user.role }}</td>
                 <td>
-                    <form action="{{ url_for('Novel_login.delete_user', username=user.username) }}" method="POST">
-                        <button type="submit"  id="table-button" onclick="return confirm('Are you sure?')">Delete</button>
-                    </form>
                     <form action="{{ url_for('Novel_login.reset_password', username=user.username) }}" method="POST">
-                        <button type="submit"  id="table-button">Reset User Password</button>
+                        <button type="submit" class="table-button">Reset User Password</button>
+                    </form>
+                    <form action="{{ url_for('Novel_login.delete_user', username=user.username) }}" method="POST">
+                        <button type="submit" class="table-button" id="delete-button" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
                 </td>    
             </tr>
@@ -67,10 +69,10 @@
     <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
     
-    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
     

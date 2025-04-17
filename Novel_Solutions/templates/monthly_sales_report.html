@@ -1,33 +1,35 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Monthly Sales Report | NS{% endblock %}</title>
+{% block title %}Monthly Sales Report | NS{% endblock %}
 
 {% block content %}
 <h2>Monthly Sales Report</h2>
 
 <div class="container-message">
-    Current User: {{ user.username }} [{{ user.role }}]<br>
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
+</div>
 
 <!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
+    <h5>
         {% for message in messages %}
             {{ message }}
         {% endfor %}
+    </h5>
     {% endif %}
 {% endwith %}
-</div>
 
 <!-- Monthly timestamp table -->
 <table id="timestamp-table">
     <tbody>
         <tr>
-            <td>Current Date: {{ current_date.strftime("%A, %B %d %Y") }}</td>
-            <td>Current Time: {{ current_date.strftime("%I:%M %p") }}</td>
+            <td><strong>Current Date:</strong> {{ current_date.strftime("%A, %B %d %Y") }}</td>
+            <td><strong>Current Time:</strong> {{ current_date.strftime("%I:%M %p") }}</td>
         </tr>
         <tr>
-            <td>Month Start Date: {{ first_of_month.strftime("%A, %B %d %Y") }}</td>
-            <td>Month End Date: {{ last_of_month.strftime("%A, %B %d %Y") }}</td>
+            <td><strong>Month Start Date:</strong> {{ first_of_month.strftime("%A, %B %d %Y") }}</td>
+            <td><strong>Month End Date:</strong> {{ last_of_month.strftime("%A, %B %d %Y") }}</td>
         </tr>
     </tbody>
 </table>
@@ -86,14 +88,12 @@
     </tbody>
 </table>
 
-<!-- Export buttons -->
+<!-- Export -->
 <div class="container-action">
     <div class="row" id="export-row">
         <div class="col"><button onclick="exportCSV('monthly_sales_table')" id="action-button">Export to CSV</button></div>
-        <div class="col"><button id="action-button">Export to PDF</button></div>
     </div>
  </div>
-
 
 <!-- Navigation Links -->
 <ul class="nav-links">
@@ -103,10 +103,10 @@
     <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
     
-    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
     

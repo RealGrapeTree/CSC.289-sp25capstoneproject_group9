@@ -1,9 +1,24 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Payment | NS{% endblock %}</title>
+{% block title %}Card Checkout | NS{% endblock %}
 
 {% block content %}
-<h2>Payment Details</h2>
+<h2>💳 Pay with Card</h2>
+
+<div class="container-message">
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
+</div>
+
+<!-- System messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <h5>
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </h5>
+    {% endif %}
+{% endwith %}
 
 <div class="container-payment">
     <h3>🛒 Cart Summary</h3>
@@ -13,7 +28,7 @@
     <div class="cart-summary">
         <p><strong>Subtotal:</strong> ${{ "%.2f"|format(subtotal|float) }}</p>
         <p><strong>Tax (7.25%):</strong> ${{ "%.2f"|format(tax_amount|float) }}</p>
-        <h4><strong>Total Amount:</strong> ${{ "%.2f"|format(total_amount|float) }}</h4>
+        <h4><strong>Total Due:</strong> ${{ "%.2f"|format(total_amount|float) }}</h4>
     </div>
     <hr class="solid">
 
@@ -30,7 +45,6 @@
     
     <p id="payment-message"></p>
 </div>
-
 
 <!-- Navigation Links -->
 <ul class="nav-links">

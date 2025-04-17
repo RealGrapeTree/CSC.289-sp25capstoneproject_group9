@@ -1,70 +1,114 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Update Book | NS{% endblock %}</title>
+{% block title %}Edit Book | NS{% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Flash Messages Container -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="message-container">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                        <span class="close-btn" onclick="this.parentElement.style.display='none'">×</span>
-                    </div>
-                {% endfor %}
+<h2>Edit Book</h2>
+
+<div class="container-message">
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
+</div>
+
+<!-- System messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <h5>
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+                <span class="close-btn" onclick="this.parentElement.style.display='none'">×</span>
             </div>
-        {% endif %}
-    {% endwith %}
+        {% endfor %}
+    </h5>
+    {% endif %}
+{% endwith %}
 
-    <h2>Edit Book</h2>
-    
-    <form method="POST" id="bookForm" class="book-form">
-        <div class="form-group">
-            <label>Title:</label>
-            <input type="text" name="title" value="{{ book.title }}" required>
+<!-- Update Book Form -->
+<div class="container-form">
+    <form method="POST" class="ns-form" id="updateBookForm">
+        <!-- Title and Author(s) -->
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" name="title" placeholder="Title" value="{{ book.title }}" required>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Author(s):</label>
+                    <input type="text" name="authors" placeholder="Author(s)" value="{{ book.authors }}" required>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label>Authors:</label>
-            <input type="text" name="authors" value="{{ book.authors }}" required>
+        <!-- Unit price and stock -->
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Unit Price ($):</label>
+                    <input type="number" name="price" placeholder="Unit price"
+                           value="{{ '%.2f'|format(book.price|float) if not form_data else form_data.price }}" 
+                           min="0" 
+                           step="0.01"
+                           required
+                           oninput="validatePrice(this)">
+                    <p id="price_error" class="error-message"></p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Stock:</label>
+                    <input type="number" name="stock" placeholder="Stock amount"
+                           value="{{ form_data.stock if form_data else book.stock }}" 
+                           min="0"
+                           required
+                           oninput="validateStock(this)">
+                    <p id="stock_error" class="error-message"></p>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label>Stock:</label>
-            <input type="number" name="stock" 
-                   value="{{ form_data.stock if form_data else book.stock }}" 
-                   min="0"
-                   required
-                   oninput="validateStock(this)">
-            <p id="stock_error" class="error-message"></p>
-        </div>
-
-        <div class="form-group">
-            <label>Price ($):</label>
-            <input type="number" name="price" 
-                   value="{{ '%.2f'|format(book.price|float) if not form_data else form_data.price }}" 
-                   min="0" 
-                   step="0.01"
-                   required
-                   oninput="validatePrice(this)">
-            <p id="price_error" class="error-message"></p>
-        </div>
-
+        <!-- Buttons -->
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Update Book</button>
+            <button type="submit" class="btn btn-primary">Edit Book</button>
             <a href="{{ url_for('Novel_inventory.inventory') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>
 
+<!-- Navigation Links -->
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+    {% endif %}
+    
+    <li><a class="active" href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
+
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
+
+
+<!-- Scripts -->
 <script>
     // Client-side validation
     function validateStock(input) {
         const errorElement = document.getElementById('stock_error');
         if (input.value < 0) {
-            errorElement.textContent = "Stock cannot be negative";
+            errorElement.textContent = "Stock cannot be negative.";
             return false;
         } else {
             errorElement.textContent = "";
@@ -77,10 +121,10 @@
         const price = parseFloat(input.value);
         
         if (isNaN(price)) {
-            errorElement.textContent = "Price must be a number (e.g. 12.99)";
+            errorElement.textContent = "Price must be a number (e.g. 12.99).";
             return false;
         } else if (price < 0) {
-            errorElement.textContent = "Price cannot be negative";
+            errorElement.textContent = "Price cannot be negative.";
             return false;
         } else {
             // Auto-format to 2 decimal places
@@ -117,170 +161,5 @@
         }, 5000);
     };
 </script>
-
-<style>
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .message-container {
-        margin-bottom: 20px;
-    }
-
-    .alert {
-        padding: 15px;
-        margin-bottom: 20px;
-        border: 1px solid transparent;
-        border-radius: 4px;
-        position: relative;
-    }
-
-    .alert-success {
-        color: #3c763d;
-        background-color: #dff0d8;
-        border-color: #d6e9c6;
-    }
-
-    .alert-danger {
-        color: #a94442;
-        background-color: #f2dede;
-        border-color: #ebccd1;
-    }
-
-    .close-btn {
-        position: absolute;
-        right: 15px;
-        top: 15px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    .book-form {
-        background: #f9f9f9;
-        padding: 20px;
-        border-radius: 5px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-    }
-
-    .form-group input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-
-    .error-message {
-        color: #d9534f;
-        margin: 5px 0 0 0;
-        font-size: 0.9em;
-        height: 20px;
-    }
-
-    .form-actions {
-        margin-top: 20px;
-    }
-
-    .btn {
-        padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-primary {
-        background-color: #337ab7;
-        color: white;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        margin-left: 10px;
-    }
-</style>
-<h2>Update Book</h2>
-
-<div class="container-message">
-    Current User: {{ user.username }} [{{ user.role }}]<br>
-
-<!-- System messages -->
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
-    {% endif %}
-{% endwith %}
-</div>
-
-<!-- Update Book Form -->
-<div class="container-form">
-    <form method="POST">
-        <div class="row" id="form-row">
-            <!-- Title -->
-            <div class="col">
-                <label>Title:</label>
-                <input type="text" id="inventory-input" name="title" value="{{ book.title }}" required>
-            </div>
-            <!-- Author -->
-            <div class="col">
-                <label>Author(s):</label>
-                <input type="text" id="inventory-input" name="authors" value="{{ book.authors }}" required>
-            </div>
-            <!-- Stock -->
-            <div class="col">
-                <label>Stock:</label>
-                <input type="number" id="inventory-input" name="stock" value="{{ book.stock }}" required>
-            </div>
-            <!-- Price -->
-            <div class="col">
-                <label>Unit Price:</label>
-                <input type="text" id="inventory-input" name="price" value="{{ book.price }}" required>
-            </div>
-        </div>
-        <!-- Update Book -->
-        <div><button type="submit" id="action-button" style="margin-top:15px;">Update Book</button></div>
-    </form>
-</div>
-
-<!-- Navigation Links -->
-<ul class="nav-links">
-    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
-
-    {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
-    {% endif %}
-    
-    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
-    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
-    {% if user.role == 'manager' %}
-    <li><a class="active" href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
-    {% endif %}
-    
-    {% if user.role == 'cashier' %}
-    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
-    {% endif %}
-    {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
-    {% endif %}
-    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
-
-    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
-</ul>
 
 {% endblock %}
