@@ -14,7 +14,6 @@ def insert_book_into_db(isbn, title, authors, number_of_pages, publishers, publi
     return new_book
 
 
-
 # ✅ Fetch book data from Open Library API using ISBN
 def get_book_data(isbn):
     url = f'https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data'
@@ -34,8 +33,6 @@ def get_book_data(isbn):
 
         return isbn, title, authors, number_of_pages, publishers, publish_date, thumbnail_url, cover
     return None, None, None, None, None, None, None, None
-
-
 
 
 # use this function in a show all inventory page
@@ -99,11 +96,19 @@ def add_book():
             stock = request.form['stock']
             price = request.form['price']
             book = Book.query.filter((Book.isbn == search_term) | (Book.sku == search_term)).first()
-
+            
             # Check if the book exists within database
             if book:
-                # Render the inventory.html template with the book data
+                if book.stock == 0:
+                    book.stock = int(stock)
+                    book.price = float(price)
+                    db.session.commit()
+                    flash('Book restocked successfully.', 'success')
+                else:
+                    flash('Book already exists in inventory.', 'info')
+
                 return render_template('add_book.html', book=book, user=current_user)
+                
             
             # Fetch book data from Open Library API if not found within database
             else:
@@ -119,9 +124,6 @@ def add_book():
 
                     return render_template('add_book.html', book=new_book , user=current_user)
                 
-
-                    return render_template('add_book.html', book=new_book , user=current_user)
-
                 else:
 
                     # Book not found - prepare form data
@@ -158,7 +160,9 @@ def inventory():
         per_page = 10  # Number of items per page
         
         # Get paginated books
-        books_pagination = Book.query.paginate(page=page, per_page=per_page, error_out=False)
+        books_pagination = Book.query.filter(Book.stock > 0)\
+                                   .order_by(Book.title)\
+                                    .paginate(page=page, per_page=per_page, error_out=False)
         books = books_pagination.items
         
         return render_template('inventory.html', 
@@ -241,6 +245,7 @@ def update_book(book_id):
                          form_data=None, 
                          user=current_user.username)
 
+
 # Route to delete a book
 @Novel_inventory.route('/delete_book/<int:book_id>', methods=['POST'])
 @login_required
@@ -252,8 +257,10 @@ def delete_book(book_id):
         flash("You do not have permission to delete books.", "danger")
         return redirect(url_for('Novel_inventory.inventory'))
 
-    db.session.delete(book)
+    # Soft-delete by setting stock to 0
+    book.stock = 0
     db.session.commit()
-    flash('Book deleted successfully!', 'success')
+
+    flash('Book removed from inventory', 'success')
     return redirect(url_for('Novel_inventory.inventory'))
 
