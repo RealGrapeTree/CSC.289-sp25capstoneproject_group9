@@ -68,7 +68,7 @@ def create_default_manager():
                            email="admin@example.com", password=hashed_password, role="manager")
             db.session.add(manager)
             db.session.commit()
-            print("Default manager account created: admin/admin123")
+            print("Default manager account created")
 
 
 
@@ -101,4 +101,4 @@ def fetch_transactions():
 
 if __name__ == "__main__":
    
-    app.run(debug=True)
+    app.run
