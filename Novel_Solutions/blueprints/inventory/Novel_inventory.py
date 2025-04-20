@@ -1,4 +1,4 @@
-from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for
+from flask import request, jsonify, Blueprint, render_template, flash, redirect, url_for,abort
 import requests
 from extensions import db
 from models import Book
@@ -168,7 +168,7 @@ def inventory():
         return render_template('inventory.html', 
                              books=books, 
                              pagination=books_pagination,
-                             user=current_user.username)
+                             user=current_user)
     else:
         return redirect(url_for('Novel_login.login'))
         
@@ -198,7 +198,9 @@ def search():
 @Novel_inventory.route('/update_book/<int:book_id>', methods=['GET', 'POST'])
 @login_required
 def update_book(book_id):
-    book = Book.query.get_or_404(book_id)
+    book = db.session.get(Book, book_id)
+    if not book:
+        abort(404)
 
     if current_user.role != "manager":
         flash("You do not have permission to update books.", "danger")
@@ -206,6 +208,7 @@ def update_book(book_id):
 
     if request.method == 'POST':
         book.title = request.form['title']
+        book.authors = request.form['authors']
         has_error = False
 
         # Validate stock
@@ -250,7 +253,9 @@ def update_book(book_id):
 @Novel_inventory.route('/delete_book/<int:book_id>', methods=['POST'])
 @login_required
 def delete_book(book_id):
-    book = Book.query.get_or_404(book_id)
+    book = db.session.get(Book, book_id)
+    if not book:
+        abort(404)
 
     # Ensure only managers can delete books
     if current_user.role != "manager":

@@ -16,204 +16,10 @@
                 {% endfor %}
             </div>
         {% endif %}
-    {% endwith %}
-
-    <h2>Edit Book</h2>
-    
-    <form method="POST" id="bookForm" class="book-form">
-        <div class="form-group">
-            <label>Title:</label>
-            <input type="text" name="title" value="{{ book.title }}" required>
-        </div>
-
-        <div class="form-group">
-            <label>Authors:</label>
-            <input type="text" name="authors" value="{{ book.authors }}" required>
-        </div>
-
-        <div class="form-group">
-            <label>Stock:</label>
-            <input type="number" name="stock" 
-                   value="{{ form_data.stock if form_data else book.stock }}" 
-                   min="0"
-                   required
-                   oninput="validateStock(this)">
-            <p id="stock_error" class="error-message"></p>
-        </div>
-
-        <div class="form-group">
-            <label>Price ($):</label>
-            <input type="number" name="price" 
-                   value="{{ '%.2f'|format(book.price|float) if not form_data else form_data.price }}" 
-                   min="0" 
-                   step="0.01"
-                   required
-                   oninput="validatePrice(this)">
-            <p id="price_error" class="error-message"></p>
-        </div>
-
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Update Book</button>
-            <a href="{{ url_for('Novel_inventory.inventory') }}" class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
+    {% endwith %}  
 </div>
 
-<script>
-    // Client-side validation
-    function validateStock(input) {
-        const errorElement = document.getElementById('stock_error');
-        if (input.value < 0) {
-            errorElement.textContent = "Stock cannot be negative";
-            return false;
-        } else {
-            errorElement.textContent = "";
-            return true;
-        }
-    }
-
-    function validatePrice(input) {
-        const errorElement = document.getElementById('price_error');
-        const price = parseFloat(input.value);
-        
-        if (isNaN(price)) {
-            errorElement.textContent = "Price must be a number (e.g. 12.99)";
-            return false;
-        } else if (price < 0) {
-            errorElement.textContent = "Price cannot be negative";
-            return false;
-        } else {
-            // Auto-format to 2 decimal places
-            if (input.value.split('.')[1]?.length > 2) {
-                input.value = price.toFixed(2);
-            }
-            errorElement.textContent = "";
-            return true;
-        }
-    }
-
-    // Form submission handler
-    document.getElementById('bookForm').onsubmit = function(e) {
-        const stockValid = validateStock(document.querySelector('input[name="stock"]'));
-        const priceValid = validatePrice(document.querySelector('input[name="price"]'));
-        
-        if (!stockValid || !priceValid) {
-            e.preventDefault(); // Stop form submission if validation fails
-            return false;
-        }
-        return true;
-    };
-
-    // Auto-hide success messages after 5 seconds
-    window.onload = function() {
-        setTimeout(function() {
-            var alerts = document.querySelectorAll('.alert-success');
-            alerts.forEach(function(alert) {
-                alert.style.opacity = '0';
-                setTimeout(function() {
-                    alert.style.display = 'none';
-                }, 600);
-            });
-        }, 5000);
-    };
-</script>
-
-<style>
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-
-    .message-container {
-        margin-bottom: 20px;
-    }
-
-    .alert {
-        padding: 15px;
-        margin-bottom: 20px;
-        border: 1px solid transparent;
-        border-radius: 4px;
-        position: relative;
-    }
-
-    .alert-success {
-        color: #3c763d;
-        background-color: #dff0d8;
-        border-color: #d6e9c6;
-    }
-
-    .alert-danger {
-        color: #a94442;
-        background-color: #f2dede;
-        border-color: #ebccd1;
-    }
-
-    .close-btn {
-        position: absolute;
-        right: 15px;
-        top: 15px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    .book-form {
-        background: #f9f9f9;
-        padding: 20px;
-        border-radius: 5px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-    }
-
-    .form-group input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-
-    .error-message {
-        color: #d9534f;
-        margin: 5px 0 0 0;
-        font-size: 0.9em;
-        height: 20px;
-    }
-
-    .form-actions {
-        margin-top: 20px;
-    }
-
-    .btn {
-        padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-primary {
-        background-color: #337ab7;
-        color: white;
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        margin-left: 10px;
-    }
-</style>
 <h2>Update Book</h2>
-
 <div class="container-message">
     Current User: {{ user.username }} [{{ user.role }}]<br>
 
@@ -229,31 +35,49 @@
 
 <!-- Update Book Form -->
 <div class="container-form">
-    <form method="POST">
-        <div class="row" id="form-row">
+    <form method="POST" id="updateForm">
+        <div class="form-row">
             <!-- Title -->
-            <div class="col">
+            <div class="form-col">
                 <label>Title:</label>
-                <input type="text" id="inventory-input" name="title" value="{{ book.title }}" required>
+                <input type="text" class="form-input" name="title" value="{{ book.title }}" required>
             </div>
+            
             <!-- Author -->
-            <div class="col">
+            <div class="form-col">
                 <label>Author(s):</label>
-                <input type="text" id="inventory-input" name="authors" value="{{ book.authors }}" required>
+                <input type="text" class="form-input" name="authors" value="{{ book.authors }}" required>
             </div>
+            
             <!-- Stock -->
-            <div class="col">
+            <div class="form-col">
                 <label>Stock:</label>
-                <input type="number" id="inventory-input" name="stock" value="{{ book.stock }}" required>
+                <input type="number" class="form-input" name="stock" 
+                       value="{{ book.stock }}" 
+                       min="0" 
+                       required
+                       oninput="validateStock(this)">
+                <p id="stock_error" class="error-message"></p>
             </div>
+            
             <!-- Price -->
-            <div class="col">
+            <div class="form-col">
                 <label>Unit Price:</label>
-                <input type="text" id="inventory-input" name="price" value="{{ book.price }}" required>
+                <input type="number" class="form-input" name="price" 
+                       value="{{ '%.2f'|format(book.price|float) }}" 
+                       min="0" 
+                       step="0.01"
+                       required
+                       oninput="validatePrice(this)">
+                <p id="price_error" class="error-message"></p>
             </div>
         </div>
+        
         <!-- Update Book -->
-        <div><button type="submit" id="action-button" style="margin-top:15px;">Update Book</button></div>
+        <div>
+            <button type="submit" id="action-button" style="margin-top:15px;">Update Book</button>
+            <button type="button" onclick="window.history.back();" class="submit-button cancel-button">Cancel</button>
+        </div>
     </form>
 </div>
 
@@ -283,4 +107,123 @@
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
 
+<script>
+    // Real-time validation functions
+    function validateStock(input) {
+        const errorElement = document.getElementById('stock_error');
+        const value = parseInt(input.value);
+        
+        if (isNaN(value)) {
+            errorElement.textContent = "Stock must be a number";
+            return false;
+        } else if (value < 0) {
+            errorElement.textContent = "Stock cannot be negative";
+            return false;
+        } else {
+            errorElement.textContent = "";
+            return true;
+        }
+    }
+
+    function validatePrice(input) {
+        const errorElement = document.getElementById('price_error');
+        const value = parseFloat(input.value);
+        
+        if (isNaN(value)) {
+            errorElement.textContent = "Price must be a number (e.g. 12.99)";
+            return false;
+        } else if (value < 0) {
+            errorElement.textContent = "Price cannot be negative";
+            return false;
+        } else {
+            // Auto-format to 2 decimal places
+            if (input.value.split('.')[1]?.length > 2) {
+                input.value = value.toFixed(2);
+            }
+            errorElement.textContent = "";
+            return true;
+        }
+    }
+
+    // Real-time event listeners
+    document.querySelector('input[name="stock"]').addEventListener('input', function() {
+        validateStock(this);
+    });
+
+    document.querySelector('input[name="price"]').addEventListener('input', function() {
+        validatePrice(this);
+    });
+
+    // Form submission handler
+    document.getElementById('bookForm').addEventListener('submit', function(e) {
+        const stockValid = validateStock(document.querySelector('input[name="stock"]'));
+        const priceValid = validatePrice(document.querySelector('input[name="price"]'));
+        
+        if (!stockValid || !priceValid) {
+            e.preventDefault();
+            // Highlight problematic fields
+            if (!stockValid) {
+                document.querySelector('input[name="stock"]').focus();
+            } else {
+                document.querySelector('input[name="price"]').focus();
+            }
+            return false;
+        }
+        return true;
+    });
+</script>
+
+<style>
+    /* Form layout styles */
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px; /* Space between columns */
+        margin-bottom: 15px;
+    }
+    
+    .form-col {
+        flex: 1; /* Each column takes equal width */
+        min-width: 200px; /* Minimum width for each field */
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+    
+    .error-message {
+        color: #dc3545;
+        font-size: 0.8em;
+        height: 18px;
+        margin: 4px 0 0 0;
+    }
+
+    .form-submit {
+        text-align: right;
+        margin-top: 15px;
+    }
+    
+    .submit-button {
+        padding: 8px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .submit-button:hover {
+        background-color: #0069d9;
+    }
+    .cancel-button {
+        background-color: #6c757d; /* Bootstrap's secondary/gray */
+    }
+
+    .cancel-button:hover {
+        background-color: #5a6268;
+    }    
+
+</style>
 {% endblock %}

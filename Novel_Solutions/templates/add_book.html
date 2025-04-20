@@ -20,10 +20,23 @@
 
 <!-- Add book to inventory form -->
 <div class="container-action">
-    <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}">
+    <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}" id="addBookForm" class="form-inline">
         <input type="text" id="inventory-input" name="search_term" placeholder="Enter ISBN or SKU" required>
-        <input type="number" id="inventory-input" name="stock" placeholder="Enter stock" required>
-        <input type="number" id="inventory-input" name="price" placeholder="Enter unit price" required step="0.01">
+        
+        <!-- Stock input with validation -->
+        <div class="input-group">
+            <input type="number" id="inventory-input" name="stock" placeholder="Enter stock" required
+                   oninput="validateStock(this)">
+            <span id="stock_error" class="error-message"></span>
+        </div>
+        
+        <!-- Price input with validation -->
+        <div class="input-group">
+            <input type="number" id="inventory-input" name="price" placeholder="Enter unit price" required step="0.01"
+                   oninput="validatePrice(this)">
+            <span id="price_error" class="error-message"></span>
+        </div>
+        
         <button type="submit" id="action-button">Add Book</button>
     </form>
 </div>
@@ -161,5 +174,56 @@
             });
     }
 </script>
+<script>
+    // Real-time validation functions
+    function validateStock(input) {
+        const errorElement = document.getElementById('stock_error');
+        const value = parseInt(input.value);
+        
+        if (isNaN(value)) {
+            errorElement.textContent = "Stock must be a number";
+            return false;
+        } else if (value < 0) {
+            errorElement.textContent = "Stock cannot be negative";
+            return false;
+        } else {
+            errorElement.textContent = "";
+            return true;
+        }
+    }
+
+    function validatePrice(input) {
+        const errorElement = document.getElementById('price_error');
+        const value = parseFloat(input.value);
+        
+        if (isNaN(value)) {
+            errorElement.textContent = "Price must be a number (e.g. 12.99)";
+            return false;
+        } else if (value < 0) {
+            errorElement.textContent = "Price cannot be negative";
+            return false;
+        } else {
+            // Auto-format to 2 decimal places
+            if (input.value.split('.')[1]?.length > 2) {
+                input.value = value.toFixed(2);
+            }
+            errorElement.textContent = "";
+            return true;
+        }
+    }
+
+    // Form submission handler
+    document.getElementById('addBookForm').addEventListener('submit', function(e) {
+        const stockValid = validateStock(document.querySelector('input[name="stock"]'));
+        const priceValid = validatePrice(document.querySelector('input[name="price"]'));
+        
+        if (!stockValid || !priceValid) {
+            e.preventDefault();
+            return false;
+        }
+        return true;
+    });
+</script>
+
 
 {% endblock %}
