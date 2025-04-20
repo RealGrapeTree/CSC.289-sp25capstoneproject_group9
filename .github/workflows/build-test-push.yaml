@@ -2,7 +2,7 @@
 
 name: Build - Test - Push 
 on: 
-  push: 
+  push:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
@@ -28,8 +28,15 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
 
+    - name: Docker - Metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        flavor: latest=false  
+        images: ghcr.io/${{ github.repository_owner }}/Novel-Solutions
+        tags: |
+          type=sha, format=short, prefix={{ branch }}-
     
-
     - name: Docker - Build / Push 
       uses: docker/build-push-action@v6
       with:
