@@ -11,4 +11,5 @@ wtforms
 stripe
 pytest
 pandas
+gunicorn
 

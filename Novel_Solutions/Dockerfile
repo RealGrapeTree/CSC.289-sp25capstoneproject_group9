@@ -13,4 +13,4 @@ ENV FLASK_APP=app.py
 
 EXPOSE 5000
 
-CMD ["flask", "run" , "--host=0.0.0.0", "--port=5000"]
+CMD ["gunicorn", "app:app", "-b", "0.0.0.0:8000", "--workers=4"]

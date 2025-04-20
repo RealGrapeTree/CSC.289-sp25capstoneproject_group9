@@ -9,7 +9,7 @@ services:
     environment:
       SQLALCHEMY_DATABASE_URI: mysql://root:rootpassword@novel_solutions_db:3306/yourdatabase
     ports:
-      - "5000:5000"
+      - "8000:8000"
     
 
   novel_solutions_db:
