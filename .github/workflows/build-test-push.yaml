@@ -35,7 +35,7 @@ jobs:
         flavor: latest=false  
         images: ghrc.io/${{ github.repositry_owner }}/${{ github.event.reposity.name }}
         tags: |
-          type=sha, format=short, prefix=${{ branch }}, event=pr
+          type=sha, format=short, prefix={{ branch }}, event=pr
 
     - name: Docker - Build / Push 
       uses: docker/build-push-action@v6
