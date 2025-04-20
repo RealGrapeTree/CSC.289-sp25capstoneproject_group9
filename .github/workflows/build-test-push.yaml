@@ -2,7 +2,8 @@
 
 name: Build - Test - Push 
 on: 
-  push: 
+  push:
+  pull_request: 
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
