@@ -3,7 +3,6 @@
 name: Build - Test - Push 
 on: 
   push:
-  pull_request: 
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
@@ -36,8 +35,8 @@ jobs:
         flavor: latest=false  
         images: ghcr.io/${{ github.repository_owner }}/Novel-Solutions
         tags: |
-          type=sha, format=short, prefix=${{ github.ref_name }}-, event=pr, enable=${{ github.event_name == 'pull_request' }}
-
+          type=sha, format=short, prefix={{ branch }}-
+    
     - name: Docker - Build / Push 
       uses: docker/build-push-action@v6
       with:
