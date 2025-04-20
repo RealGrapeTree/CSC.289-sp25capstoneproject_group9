@@ -33,7 +33,7 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         flavor: latest=false  
-        images: ghrc.io/${{ github.repositry_owner }}/${{ github.event.reposity.name }}
+        images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
         tags: |
           type=sha, format=short, prefix={{ branch }}, event=pr
 
