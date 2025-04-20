@@ -28,7 +28,14 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ github.token }}
 
-    
+    - name: Docker - Metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        flavor: latest=false  
+        images: ghrc.io/${{ github.repositry_owner }}/${{ github.event.reposity.name }}
+        tags: |
+          type=sha, format=short, prefix=${{ branch }}, event=pr
 
     - name: Docker - Build / Push 
       uses: docker/build-push-action@v6
