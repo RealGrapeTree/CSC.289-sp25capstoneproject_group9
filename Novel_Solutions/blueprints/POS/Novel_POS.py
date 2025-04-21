@@ -32,7 +32,7 @@ def save_transaction_to_db(user_id, amount, status, stripe_payment_id, cart):
     for book_id, quantity in cart.items():
         print(f"Processing book ID: {book_id} with quantity: {quantity}")
         
-        book = Book.query.get(int(book_id))
+        book = db.session.get(Book, int(book_id))
         
         if book is None:
             print(f"❌ Book not found for ID: {book_id}")
@@ -97,7 +97,7 @@ def validate_stock_before_payment(cart):
 def update_inventory_after_sale(cart):
     try:
         for book_id, quantity in cart.items():
-            book = Book.query.get(int(book_id))
+            book = db.session.get(Book, int(book_id))
             if book:
                 book.stock -= quantity
                 if book.stock < 0:
