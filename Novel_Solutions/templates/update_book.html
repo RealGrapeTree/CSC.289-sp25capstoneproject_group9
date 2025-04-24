@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Update Book | NS{% endblock %}</title>
+{% block title %}Edit Book | NS{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -23,14 +23,14 @@
 <div class="container-message">
     Current User: {{ user.username }} [{{ user.role }}]<br>
 
-<!-- System messages -->
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+    <!-- System messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 </div>
 
 <!-- Update Book Form -->
@@ -161,7 +161,6 @@
         
         if (!stockValid || !priceValid) {
             e.preventDefault();
-            // Highlight problematic fields
             if (!stockValid) {
                 document.querySelector('input[name="stock"]').focus();
             } else {
@@ -174,17 +173,16 @@
 </script>
 
 <style>
-    /* Form layout styles */
     .form-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 15px; /* Space between columns */
+        gap: 15px;
         margin-bottom: 15px;
     }
     
     .form-col {
-        flex: 1; /* Each column takes equal width */
-        min-width: 200px; /* Minimum width for each field */
+        flex: 1;
+        min-width: 200px;
     }
     
     .form-input {
@@ -218,12 +216,11 @@
         background-color: #0069d9;
     }
     .cancel-button {
-        background-color: #6c757d; /* Bootstrap's secondary/gray */
+        background-color: #6c757d;
     }
 
     .cancel-button:hover {
         background-color: #5a6268;
     }    
-
 </style>
 {% endblock %}

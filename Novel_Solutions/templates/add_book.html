@@ -1,23 +1,124 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Add Book | NS{% endblock %}</title>
+{% block title %}Add Book | NS{% endblock %}
 
 {% block content %}
 <h2>Add Book to Inventory</h2>
 
 <div class="container-message">
-    Current User: {{ user.username }} [{{ user.role }}]<br>
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
+</div>
 
 <!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
+    <h5>
         {% for message in messages %}
             {{ message }}
         {% endfor %}
+    </h5>
     {% endif %}
 {% endwith %}
-</div>
 
+<!-- Manual Entry Form -->
+{% if not_found and current_user.is_authenticated and current_user.role == 'manager' %}
+<div class="container-update">
+    <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}" class="ns-form" id="addBookForm">
+        <input type="hidden" name="manual_add" value="true">
+        <!-- ISBN and Title -->
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>ISBN:</label>
+                    <input type="text" name="isbn" value="{{ form_data.isbn }}" placeholder="ISBN">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" name="title" value="{{ form_data.title }}" placeholder="Title" required>
+                </div>
+            </div>
+        </div>
+        <!-- Author(s) and Pages -->
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Author(s):</label>
+                    <input type="text" name="authors" value="{{ form_data.authors }}" placeholder="Author(s), comma separated" required>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Number of Pages:</label>
+                    <input type="number" name="number_of_pages" value="{{ form_data.number_of_pages }}" placeholder="Page count">
+                </div>
+            </div>
+        </div>
+        <!-- Publishers and Date -->
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Publishers:</label>
+                    <input type="text" name="publishers" value="{{ form_data.publishers }}" placeholder="Publisher names">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Publish Date:</label>
+                    <input type="text" name="publish_date" value="{{ form_data.publish_date }}" placeholder="Publication date">
+                </div>
+            </div>
+        </div>
+        <!-- Cover URLS -->
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Thumbnail URL:</label>
+                    <input type="text" name="thumbnail_url" value="{{ form_data.thumbnail_url }}" placeholder="Small cover image URL">
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Cover Image URL:</label>
+                    <input type="text" name="cover" value="{{ form_data.cover }}" placeholder="Large cover image URL">
+                </div>
+            </div>
+        </div>
+        <!-- Unit price and Stock-->
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Unit Price ($):</label>
+                    <input type="number" name="price" placeholder="Unit price"
+                           value="{{ '%.2f'|format(form_data.price|float) }}" 
+                           min="0" 
+                           step="0.01"
+                           required
+                           oninput="validatePrice(this)">
+                    <p id="price_error" class="error-message"></p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label>Stock:</label>
+                    <input type="number" name="stock" placeholder="Stock amount"
+                           value="{{ form_data.stock }}" 
+                           min="0"
+                           required
+                           oninput="validateStock(this)">
+                    <p id="stock_error" class="error-message"></p>
+                </div>
+            </div>
+        </div>
+        <!-- Buttons -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Book Manually</button>
+            <a href="{{ url_for('Novel_inventory.inventory') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% else %}
 <!-- Add book to inventory form -->
 <div class="container-action">
     <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}" id="addBookForm" class="form-inline">
@@ -40,73 +141,10 @@
         <button type="submit" id="action-button">Add Book</button>
     </form>
 </div>
-
-<!-- Manual Entry Form -->
-{% if not_found and current_user.is_authenticated and current_user.role == 'manager' %}
-    <h3>Book Not Found - Please Enter Details Manually</h3>
-    <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}">
-        <input type="hidden" name="manual_add" value="true">
-        
-        <div class="form-group">
-            <label>ISBN:</label>
-            <input type="text" name="isbn" value="{{ form_data.isbn }}" placeholder="ISBN">
-        </div>
-        
-        <div class="form-group">
-            <label>Title*:</label>
-            <input type="text" name="title" value="{{ form_data.title }}" placeholder="Book title" required>
-        </div>
-        
-        <div class="form-group">
-            <label>Authors*:</label>
-            <input type="text" name="authors" value="{{ form_data.authors }}" placeholder="Author names, comma separated" required>
-        </div>
-        
-        <div class="form-group">
-            <label>Number of Pages:</label>
-            <input type="number" name="number_of_pages" value="{{ form_data.number_of_pages }}" placeholder="Page count">
-        </div>
-        
-        <div class="form-group">
-            <label>Publishers:</label>
-            <input type="text" name="publishers" value="{{ form_data.publishers }}" placeholder="Publisher names">
-        </div>
-        
-        <div class="form-group">
-            <label>Publish Date:</label>
-            <input type="text" name="publish_date" value="{{ form_data.publish_date }}" placeholder="Publication date">
-        </div>
-        
-        <div class="form-group">
-            <label>Thumbnail URL:</label>
-            <input type="text" name="thumbnail_url" value="{{ form_data.thumbnail_url }}" placeholder="Small cover image URL">
-        </div>
-        
-        <div class="form-group">
-            <label>Cover Image URL:</label>
-            <input type="text" name="cover" value="{{ form_data.cover }}" placeholder="Large cover image URL">
-        </div>
-        
-        <div class="form-group">
-            <label>Stock*:</label>
-            <input type="number" name="stock" value="{{ form_data.stock }}" min="0" required>
-        </div>
-        
-        <div class="form-group">
-            <label>Price*:</label>
-            <input type="number" name="price" value="{{ form_data.price }}" min="0" step="0.01" required>
-        </div>
-        
-        <button type="submit">Add Book Manually</button>
-    </form>
 {% endif %}
 
 <!-- Added book table -->
 {% if book %}
-<div class="success-message">
-    <h3>Book Successfully Added!</h3>
-    <p>Details for {{ book.title }}</p>
-</div>
 <table id="added-book-table">
     <caption><h3>Added Book</h3></caption>
     <thead>
@@ -120,7 +158,7 @@
             <th class="col-1">Publish Date</th>
             <th class="col-1">Publishers</th>
             <th class="col-1">Pages</th>
-            <th class="col-2">Actions</th>
+            <th class="col-2">Actions</th> <!-- Actions column for Add to Cart/Edit/Delete -->
         </tr>
     </thead>
     <tbody>
@@ -134,7 +172,12 @@
             <td>{{book.publish_date}}</td>
             <td>{{book.publishers}}</td>
             <td>{{book.number_of_pages}}</td>
-            <td><button onclick="addToCart('{{ book.id }}')" id="table-button">🛒 Add to Cart</button></td>
+            <td> <!-- Actions column -->
+                <button onclick="addToCart('{{ book.id }}')" class="table-button">Add to Cart</button>
+                <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}">
+                    <button class="table-button">✏️ Edit</button>
+                </a>
+            </td>
         </tr>
     </tbody>
 </table> 
@@ -148,10 +191,10 @@
     <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
     
-    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-    <li><a class="active" href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a class="active" href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
     
@@ -172,6 +215,38 @@
             .then(data => {
                 alert(data.message);
             });
+    }
+
+    // Client-side validation
+    function validateStock(input) {
+        const errorElement = document.getElementById('stock_error');
+        if (input.value < 0) {
+            errorElement.textContent = "Stock cannot be negative.";
+            return false;
+        } else {
+            errorElement.textContent = "";
+            return true;
+        }
+    }
+
+    function validatePrice(input) {
+        const errorElement = document.getElementById('price_error');
+        const price = parseFloat(input.value);
+        
+        if (isNaN(price)) {
+            errorElement.textContent = "Price must be a number (e.g. 12.99).";
+            return false;
+        } else if (price < 0) {
+            errorElement.textContent = "Price cannot be negative.";
+            return false;
+        } else {
+            // Auto-format to 2 decimal places
+            if (input.value.split('.')[1]?.length > 2) {
+                input.value = price.toFixed(2);
+            }
+            errorElement.textContent = "";
+            return true;
+        }
     }
 </script>
 <script>
