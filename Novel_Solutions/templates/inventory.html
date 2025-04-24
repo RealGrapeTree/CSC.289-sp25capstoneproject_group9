@@ -25,7 +25,7 @@
 <div class="container-action">
     <form method="POST" action="{{ url_for('Novel_inventory.search') }}">
         <input type="text" id="inventory-input" name="search_term" placeholder="Enter ISBN" required>
-           <button type="submit" id="action-button">Search</button>
+        <button type="submit" id="action-button">Search</button>
     </form>
 </div>
 
@@ -38,7 +38,7 @@
                    value="{{ pagination.page }}" id="page-input">
             <button type="submit" class="pagination-button">Go</button>
         </form>
-   </div>
+    </div>
 </div>
 
 <!-- Inventory table -->
@@ -54,22 +54,28 @@
             <th class="col-1">Publish Date</th>
             <th class="col-1">Unit Price</th>
             <th class="col-1">Stock</th>
-            <th class="col-2">Actions</th> <!-- Actions column for Add to Cart/Edit/Delete -->
+            <th class="col-2">Actions</th>
         </tr>
     </thead>
     <tbody>
         {% for book in books %}
         <tr>
-            <td><img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150"/></td>
+            <td>
+                {% if book.thumbnail_url != 'Unknown' %}
+                    <img src="{{ book.thumbnail_url }}" alt="book cover thumbnail" width="100" height="150"/>
+                {% else %}
+                    <img src="/static/images/logo.png" alt="No Thumbnail Available" width="100" height="150"/>
+                {% endif %}
+            </td>
             <td>{{book.isbn}}</td>
             <td>{{book.title}}</td>
             <td>{{book.authors}}</td>
-            <td>{{book.number_of_pages}}</td>
+            <td>{{book.number_of_pages or 'Unknown'}}</td>
             <td>{{book.publishers}}</td>
             <td>{{book.publish_date}}</td>
             <td>${{ "%.2f"|format(book.price|float) }}</td>
             <td>{{book.stock}}</td>
-            <td> <!-- Actions column -->
+            <td>
                 <button onclick="addToCart('{{ book.id }}')" class="table-button">🛒 Add to Cart</button>
                 <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}">
                     <button class="table-button">✏️ Edit</button>
@@ -87,11 +93,9 @@
 <!-- Pagination bottom controls -->
 <div class="pagination-bottom">
     <div class="page-links">
-        <!-- Previous page -->
         {% if pagination.has_prev %}
             <a href="?page={{ pagination.prev_num }}" id="page-link">« Previous</a>
         {% endif %}
-        <!-- Page numbers -->
         {% for page_num in pagination.iter_pages() %}
             {% if page_num %}
                 {% if page_num == pagination.page %}
@@ -103,128 +107,34 @@
                 <span class="ellipsis">...</span>
             {% endif %}
         {% endfor %}
-        <!-- Next page -->
         {% if pagination.has_next %}
             <a href="?page={{ pagination.next_num }}" id="page-link">Next »</a>
         {% endif %}
     </div>
 </div>
-
-{% if books %}
-    <form method="POST" action="{{ url_for('Novel_inventory.search') }}">
-        <input type="text" name="search_term" placeholder="Enter ISBN or SKU" required>
-        <button type="submit">Search</button>
-    </form>
-    <table>
-        <thead>
-            <tr>
-                <th class="col-1">Cover</th>
-                <th class="col-1">ISBN</th>
-                <th class="col-2">Title</th>
-                <th class="col-1">Author(s)</th>
-                <th class="col-1">Stock</th>
-                <th class="col-1">Unit Price</th>
-                <th class="col-1">Publish Date</th>
-                <th class="col-1">Publishers</th>
-                <th class="col-1">Pages</th>
-                <th class="col-2">Actions</th> <!-- Actions column for Add to Cart/Edit/Delete -->
-            </tr>
-        </thead>
-        <tbody>
-            {% for book in books %}
-            <tr>
-                <td>
-                    {% if book.thumbnail_url != 'Unknown' %}
-                        <img src="{{ book.thumbnail_url }}" alt="book cover thumbnail" width="100" height="150"/>
-                    {% else %}
-                        <img src="\static\images\logo.png" alt="No Thumbnail Available" width="100" height="150"/>
-                    {% endif %}
-                </td>
-                <td>{{book.isbn}}</td>
-                <td>{{book.title}}</td>
-                <td>{{book.authors}}</td>
-                <td>{{book.stock}}</td>
-                <td>${{ "%.2f"|format(book.price|float) }}</td>
-                <td>{{book.publish_date}}</td>
-                <td>{{book.publishers}}</td>
-                <td>{{ book.number_of_pages if book.number_of_pages else 'Unknown' }}</td>
-                <td> <!-- Actions column -->
-                    <button onclick="addToCart('{{ book.id }}')" id="table-button">🛒 Add to Cart</button>
-                    <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}" class="update-button">
-                        <button id="table-button">✏️ Update</button>
-                    </a>
-                    {% if current_user.role == 'manager' %}
-                    <form action="{{ url_for('Novel_inventory.delete_book', book_id=book.id) }}" method="POST" class="delete-button">
-                        <button type="submit" id="table-button" onclick="return confirm('Are you sure you want to delete this book?');">🗑️ Delete</button>
-                    </form>
-                    {% else %}
-                    <form action="{{ url_for('Novel_inventory.delete_book', book_id=book.id) }}" method="POST" class="delete-button">
-                        <button type="submit" id="table-button">🗑️ Delete</button>
-                    </form>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- Repeat Pagination Controls at Bottom -->
-    <div class="pagination-controls">
-        <div class="go-to-page">
-            <form method="GET" action="">
-                <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
-                <input type="number" name="page" min="1" max="{{ pagination.pages }}" 
-                       value="{{ pagination.page }}" class="page-input">
-                <button type="submit" class="go-button">Go</button>
-            </form>
-        </div>
-        <div class="page-links">
-            {% if pagination.has_prev %}
-                <a href="?page={{ pagination.prev_num }}" class="page-link">« Previous</a>
-            {% endif %}
-            {% for page_num in pagination.iter_pages() %}
-                {% if page_num %}
-                    {% if page_num == pagination.page %}
-                        <strong class="current-page">{{ page_num }}</strong>
-                    {% else %}
-                        <a href="?page={{ page_num }}" class="page-link">{{ page_num }}</a>
-                    {% endif %}
-                {% else %}
-                    <span class="ellipsis">...</span>
-                {% endif %}
-            {% endfor %}
-            {% if pagination.has_next %}
-                <a href="?page={{ pagination.next_num }}" class="page-link">Next »</a>
-            {% endif %}
-        </div>
-    </div>
+{% endif %}
 
 <!-- Navigation Links -->
 <ul class="nav-links">
     <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
-
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+        <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
-    
     <li><a class="active" href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+        <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
+        <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
-    
     {% if user.role == 'cashier' %}
-    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+        <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
     {% endif %}
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+        <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
     <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
-
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
-
 
 <!-- Scripts -->
 <script>
