@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt ./
 
 RUN pip install -r requirements.txt
-
+RUN pip install pytest 
 COPY . .
 
 ENV FLASK_APP=app.py
