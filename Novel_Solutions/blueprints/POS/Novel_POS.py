@@ -32,7 +32,7 @@ def save_transaction_to_db(user_id, amount, status, stripe_payment_id, cart):
     for book_id, quantity in cart.items():
         print(f"Processing book ID: {book_id} with quantity: {quantity}")
         
-        book = Book.query.get(int(book_id))
+        book = db.session.get(Book, int(book_id))
         
         if book is None:
             print(f"❌ Book not found for ID: {book_id}")
@@ -75,12 +75,13 @@ def checkout():
         )
 
         return render_template("payment.html",
-                            stripe_publishable_key=stripe_publishable_key,
-                            client_secret=intent.client_secret,
-                            subtotal=subtotal,
-                            tax_amount=tax_amount,
-                            total_amount=total_amount,
-                            extra_values=extra_values)
+                               user=current_user,
+                               stripe_publishable_key=stripe_publishable_key,
+                               client_secret=intent.client_secret,
+                               subtotal=subtotal,
+                               tax_amount=tax_amount,
+                               total_amount=total_amount,
+                               extra_values=extra_values)
 
     except Exception as e:
         return jsonify(error=str(e)), 400
@@ -97,7 +98,7 @@ def validate_stock_before_payment(cart):
 def update_inventory_after_sale(cart):
     try:
         for book_id, quantity in cart.items():
-            book = Book.query.get(int(book_id))
+            book = db.session.get(Book, int(book_id))
             if book:
                 book.stock -= quantity
                 if book.stock < 0:
@@ -118,7 +119,9 @@ def select_payment():
         cart = session.get('cart', {})
         totals = get_cart_total()
         subtotal, tax_amount, total_amount = totals[:3]
-        return render_template("select_payment.html", total_amount=total_amount)
+        return render_template("select_payment.html", 
+                               user=current_user,
+                               total_amount=total_amount)
     except Exception as e:
         return jsonify(error=str(e)), 400
 
@@ -129,7 +132,11 @@ def cash_checkout():
         cart = session.get('cart', {})
         subtotal, tax_amount, total_amount = get_cart_total()[:3] 
         save_transaction_to_db(current_user.username, total_amount, "Cash Payment", f"Cash Payment {random.randint(0, 999999)}", cart)
-        return render_template('cash_checkout.html', total_amount=total_amount)
+        return render_template('cash_checkout.html', 
+                               user=current_user, 
+                               subtotal=subtotal,
+                               tax_amount=tax_amount,
+                               total_amount=total_amount)
     except Exception as e:
         return jsonify(error=str(e)), 400
 

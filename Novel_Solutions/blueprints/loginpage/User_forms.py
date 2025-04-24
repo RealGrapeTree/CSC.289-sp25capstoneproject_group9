@@ -13,12 +13,12 @@ from models import User
 
 # User Registration Form class
 class RegisterForm(FlaskForm):
-    username = StringField("Username", validators=[InputRequired(), Length(min=4, max=20)]) 
-    firstname = StringField("First Name", validators=[InputRequired(), Length(min=2, max=30)])
-    lastname = StringField("Last Name", validators=[InputRequired(), Length(min=2, max=30)])
-    password = PasswordField("Password", validators=[InputRequired(), Length(min=8, max=20)]) 
-    email = EmailField("Email", validators=[InputRequired(), Length(max=254)]) 
-    role = SelectField('Role', choices=[('manager', 'Manager'), ('cashier', 'Cashier')])
+    username = StringField("Username:", validators=[InputRequired(), Length(min=4, max=20)]) 
+    firstname = StringField("First Name:", validators=[InputRequired(), Length(min=2, max=30)])
+    lastname = StringField("Last Name:", validators=[InputRequired(), Length(min=2, max=30)])
+    password = PasswordField("Password:", validators=[InputRequired(), Length(min=8, max=20)]) 
+    email = EmailField("Email:", validators=[InputRequired(), Length(max=254)]) 
+    role = SelectField('Role:', choices=[('manager', 'Manager'), ('cashier', 'Cashier')])
 
     submit = SubmitField("Submit")
 
@@ -38,18 +38,17 @@ class RegisterForm(FlaskForm):
 
 # Form for User Login
 class LoginForm(FlaskForm):
-    username = StringField("Username", validators=[InputRequired(), Length(min=4, max=20)])
-    password = PasswordField("Password", validators=[InputRequired(), Length(min=8, max=80)])
+    username = StringField("Username:", validators=[InputRequired(), Length(min=4, max=20)])
+    password = PasswordField("Password:", validators=[InputRequired(), Length(min=8, max=80)])
     submit = SubmitField("Login")
+
+# Form for Reset Password
 class ResetPasswordForm(FlaskForm):
-    
-    password = PasswordField("Enter Password", validators=[InputRequired(), Length(min=8, max=80)])
-    confirm_password = PasswordField("Confirm Password", 
+    password = PasswordField("Enter New Password:", validators=[InputRequired(), Length(min=8, max=80)])
+    confirm_password = PasswordField("Confirm New Password:", 
                                      validators=[InputRequired(), Length(min=8, max=80), 
                                                  EqualTo('password', message="Passwords must match")])
     submit = SubmitField("Reset Password")
-
-    
 
     def validate_password(self, password):
         if len(password.data) < 8:

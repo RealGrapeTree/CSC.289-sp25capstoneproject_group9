@@ -109,7 +109,7 @@ def get_cart_total():
     subtotal = 0
 
     for book_id, quantity in session["cart"].items():
-        book = Book.query.get(int(book_id))
+        book = db.session.get(Book, int(book_id))
         if book:
             subtotal += book.price * quantity
 
