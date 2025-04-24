@@ -12,6 +12,9 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps: 
 
     - name: Checkout
@@ -42,5 +45,6 @@ jobs:
       with:
         context: ./Novel_Solutions
         file: ./Novel_Solutions/Dockerfile
-        push: false
-        tags: wip
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}

@@ -163,7 +163,13 @@
     </thead>
     <tbody>
         <tr>
-            <td> <img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150" /></td>
+            <td>
+                {% if book.thumbnail_url != 'Unknown' %}
+                    <img src="{{ book.thumbnail_url }}" alt="book cover thumbnail" width="100" height="150"/>
+                {% else %}
+                    <img src="\static\images\logo.png" alt="No Thumbnail Available" width="100" height="150"/>
+                {% endif %}
+            </td>
             <td>{{book.isbn}}</td>
             <td>{{book.title}}</td>
             <td>{{book.authors}}</td>
@@ -171,13 +177,16 @@
             <td>${{ "%.2f"|format(book.price|float) }}</td>
             <td>{{book.publish_date}}</td>
             <td>{{book.publishers}}</td>
-            <td>{{book.number_of_pages}}</td>
+
+            <td>{{ book.number_of_pages if book.number_of_pages else 'Unknown' }}</td>
+            <td><button onclick="addToCart('{{ book.id }}')" id="table-button">🛒 Add to Cart</button></td>
             <td> <!-- Actions column -->
                 <button onclick="addToCart('{{ book.id }}')" class="table-button">Add to Cart</button>
                 <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}">
                     <button class="table-button">✏️ Edit</button>
                 </a>
             </td>
+
         </tr>
     </tbody>
 </table> 
@@ -197,7 +206,7 @@
     <li><a class="active" href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
-    
+
     {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}

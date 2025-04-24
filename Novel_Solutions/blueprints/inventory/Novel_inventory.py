@@ -24,7 +24,7 @@ def get_book_data(isbn):
     if book_info:
         title = book_info.get('title', 'Unknown Title')
         authors = ', '.join([author['name'] for author in book_info.get('authors', [])])
-        number_of_pages = book_info.get('number_of_pages', 'Unknown')
+        number_of_pages = book_info.get('number_of_pages', None)
         publishers = ', '.join([publisher['name'] for publisher in book_info.get('publishers', [])])
         publish_date = book_info.get('publish_date', 'Unknown')
         thumbnail_url = book_info.get('cover', {}).get('medium', 'Unknown')

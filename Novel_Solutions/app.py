@@ -32,7 +32,9 @@ app.secret_key = os.getenv('SECRET_KEY')
 app.config['SESSION_PERMANENT'] = False
 
 # Configure the SQLite database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'SQLALCHEMY_DATABASE_URI',
+    'sqlite:///database.db' )
 db.init_app(app)
 
 # Create the database tables
@@ -68,7 +70,7 @@ def create_default_manager():
                            email="admin@example.com", password=hashed_password, role="manager")
             db.session.add(manager)
             db.session.commit()
-            print("Default manager account created: admin/admin123")
+            print("Default manager account created")
 
 
 
@@ -101,4 +103,4 @@ def fetch_transactions():
 
 if __name__ == "__main__":
    
-    app.run(debug=True)
+    app.run
