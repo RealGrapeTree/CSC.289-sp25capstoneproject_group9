@@ -1,50 +1,111 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Inventory | NS{% endblock %}</title>
+{% block title %}Inventory | NS{% endblock %}
 
 {% block content %}
 <h2>Inventory</h2>
 
 <div class="container-message">
-    Current User: {{ user.username }} [{{ user.role }}]<br>
-
-    <!-- System messages -->
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                {{ message }}
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
 </div>
 
-<!-- Pagination Top Controls -->
-<div class="pagination-controls">
-    <div class="go-to-page">
-        <form method="GET" action="">
-            <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
-            <input type="number" name="page" min="1" max="{{ pagination.pages }}" 
-                   value="{{ pagination.page }}" class="page-input">
-            <button type="submit" class="go-button">Go</button>
-        </form>
-    </div>
+<!-- System messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <h5>
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </h5>
+    {% endif %}
+{% endwith %}
+
+{% if books %}
+<!-- Search bar -->
+<div class="container-action">
+    <form method="POST" action="{{ url_for('Novel_inventory.search') }}">
+        <input type="text" id="inventory-input" name="search_term" placeholder="Enter ISBN" required>
+           <button type="submit" id="action-button">Search</button>
+    </form>
+</div>
+
+<!-- Pagination top controls -->
+<div class="pagination-top">
+    <div id="page-of">Page {{ pagination.page }} of {{ pagination.pages }}</div>
     <div class="page-links">
+        <form method="GET" action="">
+            <input type="number" name="page" min="1" max="{{ pagination.pages }}" 
+                   value="{{ pagination.page }}" id="page-input">
+            <button type="submit" class="pagination-button">Go</button>
+        </form>
+   </div>
+</div>
+
+<!-- Inventory table -->
+<table id="inventory-table">
+    <thead>
+        <tr>
+            <th class="col-1">Cover</th>
+            <th class="col-1">ISBN</th>
+            <th class="col-2">Title</th>
+            <th class="col-1">Author(s)</th>
+            <th class="col-1">Pages</th>
+            <th class="col-1">Publishers</th>
+            <th class="col-1">Publish Date</th>
+            <th class="col-1">Unit Price</th>
+            <th class="col-1">Stock</th>
+            <th class="col-2">Actions</th> <!-- Actions column for Add to Cart/Edit/Delete -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td><img src="{{book.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150"/></td>
+            <td>{{book.isbn}}</td>
+            <td>{{book.title}}</td>
+            <td>{{book.authors}}</td>
+            <td>{{book.number_of_pages}}</td>
+            <td>{{book.publishers}}</td>
+            <td>{{book.publish_date}}</td>
+            <td>${{ "%.2f"|format(book.price|float) }}</td>
+            <td>{{book.stock}}</td>
+            <td> <!-- Actions column -->
+                <button onclick="addToCart('{{ book.id }}')" class="table-button">🛒 Add to Cart</button>
+                <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}">
+                    <button class="table-button">✏️ Edit</button>
+                </a>
+                <form action="{{ url_for('Novel_inventory.delete_book', book_id=book.id) }}" method="POST">
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this book?');" 
+                            class="table-button" id="delete-button">🗑️ Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Pagination bottom controls -->
+<div class="pagination-bottom">
+    <div class="page-links">
+        <!-- Previous page -->
         {% if pagination.has_prev %}
-            <a href="?page={{ pagination.prev_num }}" class="page-link">« Previous</a>
+            <a href="?page={{ pagination.prev_num }}" id="page-link">« Previous</a>
         {% endif %}
+        <!-- Page numbers -->
         {% for page_num in pagination.iter_pages() %}
             {% if page_num %}
                 {% if page_num == pagination.page %}
-                    <strong class="current-page">{{ page_num }}</strong>
+                    <strong id="current-page">{{ page_num }}</strong>
                 {% else %}
-                    <a href="?page={{ page_num }}" class="page-link">{{ page_num }}</a>
+                    <a href="?page={{ page_num }}" id="page-link">{{ page_num }}</a>
                 {% endif %}
             {% else %}
                 <span class="ellipsis">...</span>
             {% endif %}
         {% endfor %}
+        <!-- Next page -->
         {% if pagination.has_next %}
-            <a href="?page={{ pagination.next_num }}" class="page-link">Next »</a>
+            <a href="?page={{ pagination.next_num }}" id="page-link">Next »</a>
         {% endif %}
     </div>
 </div>
@@ -86,9 +147,15 @@
                     <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}" class="update-button">
                         <button id="table-button">✏️ Update</button>
                     </a>
+                    {% if current_user.role == 'manager' %}
                     <form action="{{ url_for('Novel_inventory.delete_book', book_id=book.id) }}" method="POST" class="delete-button">
                         <button type="submit" id="table-button" onclick="return confirm('Are you sure you want to delete this book?');">🗑️ Delete</button>
                     </form>
+                    {% else %}
+                    <form action="{{ url_for('Novel_inventory.delete_book', book_id=book.id) }}" method="POST" class="delete-button">
+                        <button type="submit" id="table-button">🗑️ Delete</button>
+                    </form>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -125,113 +192,35 @@
             {% endif %}
         </div>
     </div>
-{% endif %}
 
 <!-- Navigation Links -->
-<div class="nav-links">
-    <a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a>
-    <a href="{{ url_for('Novel_inventory.search') }}" >Search Inventory</a>
-    <a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 My Cart</a>
-    <a href="{{ url_for('Novel_login.dashboard') }}" class="go-to-button">Go To Dashboard</a>
-    <a href="{{ url_for('Novel_login.logout') }}">Logout</a>
-</div>
+<ul class="nav-links">
+    <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
 
-<style>
-    /* Style to align links horizontally */
-    .nav-links {
-        margin-top: 15px;
-    }
-    .nav-links a {
-        margin-right: 15px;
-        font-weight: bold;
-        text-decoration: none;
-        color: #007bff;
-    }
-    .nav-links a:hover {
-        color: #0056b3;
-        text-decoration: underline;
-    }
-    /* Style for Edit and Delete buttons */
-    .update-button {
-        color: blue;
-        text-decoration: none;
-        margin-right: 10px;
-    }
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+    {% endif %}
+    
+    <li><a class="active" href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
+    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
+    {% endif %}
+    
+    {% if user.role == 'cashier' %}
+    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
+    {% endif %}
+    {% if user.role == 'manager' %}
+    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
-    .delete-button {
-        color: red;
-        text-decoration: none;
-    }
+    <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
+</ul>
 
-    .delete-button:hover {
-        font-weight: bold;
-    }  
-    /* ===== Pagination Styles ===== */
-    .pagination-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 15px 0;
-        padding: 10px;
-        background-color: #f5f5f5;
-        border-radius: 4px;
-    }
-    .go-to-page {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .go-to-page span {
-        font-weight: bold;
-    }
-    .page-input {
-        width: 45px;
-        padding: 4px;
-        text-align: center;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-    }
-    .go-button {
-        padding: 4px 12px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-        font-size: 14px;
-    }
-    .go-button:hover {
-        background-color: #45a049;
-    }
-    .page-links {
-        display: flex;
-        gap: 5px;
-    }
-    .page-link {
-        padding: 4px 8px;
-        text-decoration: none;
-        color: #333;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-        font-size: 14px;
-    }
-    .page-link:hover {
-        background-color: #ddd;
-    }
-    .current-page {
-        padding: 4px 8px;
-        background-color: #007bff;
-        color: white;
-        border-radius: 3px;
-        font-size: 14px;
-    }
-    .ellipsis {
-        padding: 4px;
-        color: #666;
-    }
 
-</style>
-
+<!-- Scripts -->
 <script>
     function addToCart(bookId) {
         fetch(`/add_to_cart/${bookId}`, { method: 'POST' })

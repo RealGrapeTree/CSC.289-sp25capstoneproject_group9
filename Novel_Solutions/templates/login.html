@@ -6,25 +6,34 @@
 <!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
-    <div class="container-message">
+    <h5>
         {% for message in messages %}
             {{ message }}
         {% endfor %}
-    </div>
+    </h5>
     {% endif %}
 {% endwith %}
-
 
 <!-- Login form -->
 {{form.csrf_token}}
 <div class="container-form">
-    <form class="container" method="POST">
+    <form method="POST" id="loginForm">
         {{form.hidden_tag()}}
-        <div class="row" id="form-row">
-            <div class="col">{{form.username.label}} {{form.username}}</div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>{{form.username.label}}</label>
+                    {{form.username(placeholder="Enter username")}}
+                </div>
+            </div>
         </div>
-        <div class="row" id="form-row">
-            <div class="col">{{form.password.label}} {{form.password}}</div>
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>{{form.password.label}}</label>
+                    {{form.password(placeholder="Enter password")}}
+                </div>
+            </div>
         </div>
 
         <div>{{form.submit}}</div>

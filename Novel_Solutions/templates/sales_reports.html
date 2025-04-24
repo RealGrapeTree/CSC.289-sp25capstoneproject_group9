@@ -1,26 +1,28 @@
 {% extends "base.html" %}
 
-<title>{% block title %}Sales Reports | NS{% endblock %}</title>
+{% block title %}Sales Reports | NS{% endblock %}
 
 {% block content %}
 <h2>Sales Reports</h2>
 
 <div class="container-message">
-    Current User: {{ user.username }} [{{ user.role }}]<br>
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
+</div>
 
 <!-- System messages -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
+    <h5>
         {% for message in messages %}
             {{ message }}
         {% endfor %}
+    </h5>
     {% endif %}
 {% endwith %}
-</div>
 
 <!-- Sales report selection -->
+<h5>Choose Sales Report Type</h5>
 <div class="container-action">
-    <h5>Choose Sales Report Type</h5>
     <div class="row" id="report-row">
         <div class="col"><a href="{{ url_for('Novel_sales_reports.daily_sales_report') }}">
             <button id="action-button">Daily Report</button>
@@ -39,7 +41,6 @@
     </form>
 </div>
 
-
 <!-- Navigation Links -->
 <ul class="nav-links">
     <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
@@ -48,10 +49,10 @@
     <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
     
-    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
     <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
     {% endif %}
     

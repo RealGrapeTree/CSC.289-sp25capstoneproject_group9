@@ -22,6 +22,9 @@ login_manager.login_view = "Novel_login.login"
 # Create a UserLoader for flask-login
 @login_manager.user_loader
 def load_user(user_id):
+
+    #return User.query.get(user_id)
+
     return db.session.get(User, user_id)
 
 
