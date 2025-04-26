@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   web:
@@ -9,9 +9,6 @@ services:
       dockerfile: Dockerfile
     environment:
       SQLALCHEMY_DATABASE_URI: mysql://admin:admin@host.docker.internal:3306/novel_solutions_db
-    
-
-
     ports:
       - "8000:8000"
     depends_on:
@@ -31,6 +28,17 @@ services:
       - db_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - /usr/share/zoneinfo:/usr/share/zoneinfo:ro
+
+  db_backup:
+    build:
+      context: Novel_Solutions/backup
+      dockerfile: Dockerfile
+    container_name: novel_solutions_backup
+    volumes:
+      - ./backup:/backup
+    depends_on:
+      - novel_solutions_db
+ 
 
 volumes:
   db_data:
