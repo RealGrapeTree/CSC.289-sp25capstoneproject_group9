@@ -1,14 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction History</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Transaction History | NS</title>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" href="{{url_for('static', filename='images/favicon.png')}}">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
     <div class="container mt-4">
+        <ul class="nav nav-underline justify-content-center sticky-top bg-white">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('Novel_login.dashboard') }}">⬅ Back to Dashboard</a>
+            </li>
+        </ul>
+        
         <h2>Transaction History</h2>
         
         <!-- Filters -->
@@ -95,7 +105,6 @@
         }
 
 
-
         // Display error message
         function showError(message) {
             $('#errorAlert').removeClass('d-none');
@@ -128,4 +137,5 @@
 
     </script>
 </body>
+
 </html>

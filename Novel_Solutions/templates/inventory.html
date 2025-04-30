@@ -129,6 +129,7 @@
 
     <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
+    <li><a href="{{ url_for('Novel_POS.view_transactions') }}">Transaction History</a></li>
     <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
