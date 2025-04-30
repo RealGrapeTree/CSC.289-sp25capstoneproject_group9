@@ -3,80 +3,75 @@
 {% block title %}Edit Book | NS{% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Flash Messages Container -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="message-container">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                        <span class="close-btn" onclick="this.parentElement.style.display='none'">×</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}  
-</div>
+<h2>Edit Book</h2>
 
-<h2>Update Book</h2>
 <div class="container-message">
-    Current User: {{ user.username }} [{{ user.role }}]<br>
-
-    <!-- System messages -->
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                {{ message }}
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <strong>Current User:</strong> {{ user.username }} [{{ user.role }}]<br/>
 </div>
 
+<!-- System messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <h5>
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+                <span class="close-btn" onclick="this.parentElement.style.display='none'">×</span>
+            </div>
+        {% endfor %}
+    </h5>
+    {% endif %}
+{% endwith %}
+
+<h5>Edit Book</h5>
 <!-- Update Book Form -->
 <div class="container-form">
-    <form method="POST" id="updateForm">
-        <div class="form-row">
-            <!-- Title -->
-            <div class="form-col">
-                <label>Title:</label>
-                <input type="text" class="form-input" name="title" value="{{ book.title }}" required>
+    <form method="POST" class="ns-form" id="updateForm">
+        <!-- Title and Author(s) -->
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" name="title" value="{{ book.title }}" placeholder="Title" required>
+                </div>
             </div>
-            
-            <!-- Author -->
-            <div class="form-col">
-                <label>Author(s):</label>
-                <input type="text" class="form-input" name="authors" value="{{ book.authors }}" required>
+            <div class="col">
+                <div class="form-group">
+                    <label>Author(s):</label>
+                    <input type="text" name="authors" value="{{ book.authors }}" placeholder="Author(s), comma separated" required>
+                </div>
             </div>
-            
-            <!-- Stock -->
-            <div class="form-col">
-                <label>Stock:</label>
-                <input type="number" class="form-input" name="stock" 
+        </div>
+        <!-- Stock and Unit Price -->
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label>Stock:</label>
+                    <input type="number" name="stock" placeholder="Stock amount"
                        value="{{ book.stock }}" 
                        min="0" 
                        required
                        oninput="validateStock(this)">
-                <p id="stock_error" class="error-message"></p>
+                    <p id="stock_error" class="error-message"></p>
+                </div>
             </div>
-            
-            <!-- Price -->
-            <div class="form-col">
-                <label>Unit Price:</label>
-                <input type="number" class="form-input" name="price" 
+            <div class="col">
+                <div class="form-group">
+                    <label>Unit Price ($):</label>
+                    <input type="number" name="price" placeholder="Unit price"
                        value="{{ '%.2f'|format(book.price|float) }}" 
                        min="0" 
                        step="0.01"
                        required
                        oninput="validatePrice(this)">
-                <p id="price_error" class="error-message"></p>
+                    <p id="price_error" class="error-message"></p>
+                </div>
             </div>
         </div>
-        
-        <!-- Update Book -->
+        <!-- Buttons -->
         <div>
-            <button type="submit" id="action-button" style="margin-top:15px;">Update Book</button>
-            <button type="button" onclick="window.history.back();" class="submit-button cancel-button">Cancel</button>
+            <button class="btn btn-primary">Edit Book</button>
+            <a href="{{ url_for('Novel_inventory.inventory') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>
@@ -89,17 +84,11 @@
     <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
     
-    <li><a href="{{ url_for('Novel_inventory.inventory') }}">View Inventory</a></li>
+    <li><a class="active" href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-    <li><a class="active" href="{{ url_for('Novel_inventory.add_book') }}">Add Book to Inventory</a></li>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
-    {% endif %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
     
-    {% if user.role == 'cashier' %}
-    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
-    {% endif %}
-    {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
     <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
@@ -107,6 +96,8 @@
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
 
+
+<!-- Scripts -->
 <script>
     // Real-time validation functions
     function validateStock(input) {
@@ -172,55 +163,4 @@
     });
 </script>
 
-<style>
-    .form-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        margin-bottom: 15px;
-    }
-    
-    .form-col {
-        flex: 1;
-        min-width: 200px;
-    }
-    
-    .form-input {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-    }
-    
-    .error-message {
-        color: #dc3545;
-        font-size: 0.8em;
-        height: 18px;
-        margin: 4px 0 0 0;
-    }
-
-    .form-submit {
-        text-align: right;
-        margin-top: 15px;
-    }
-    
-    .submit-button {
-        padding: 8px 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    
-    .submit-button:hover {
-        background-color: #0069d9;
-    }
-    .cancel-button {
-        background-color: #6c757d;
-    }
-
-    .cancel-button:hover {
-        background-color: #5a6268;
-    }    
-</style>
 {% endblock %}

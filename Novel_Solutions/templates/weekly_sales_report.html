@@ -43,8 +43,8 @@
             <th class="col-1">Transaction ID</th>
             <th class="col-2">ISBN</th>
             <th class="col-2">Title</th>
-            <th class="col-1">Quantity</th>
             <th class="col-1">Unit Price</th>
+            <th class="col-1">Quantity</th>
             <th class="col-1">Subtotal</th>
             <th class="col-1">Tax</th>
             <th class="col-2">Total</th>
@@ -58,8 +58,8 @@
                 <td>{{ transaction.id }}</td>
                 <td>{{ item.book.isbn }}</td>  
                 <td>{{ item.book.title }}</td>
+                <td>${{ '%.2f' % (item.unit_price / 100) }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>${{ "%.2f"|format(item.unit_price / 100) }}</td>  
                 <td>${{ '%.2f' % ((item.unit_price * item.quantity) / 100) }}</td>
                 <td>${{ '%.2f' % (((item.unit_price * item.quantity) * NC_TAX_RATE) / 100) }}</td>
                 <td>${{ '%.2f' % (((item.unit_price * item.quantity) * (1 + NC_TAX_RATE)) / 100) }}</td>
@@ -74,7 +74,7 @@
     <thead>
         <tr>
             <th class="col-4">Weekly Sales Amount</th>
-            <th class="col-4">Weekly Sales Tax (7.25%)</th>
+            <th class="col-4">Sales Tax (7.25%)</th>
             <th class="col-4">Weekly Sales Total</th>
         </tr>
     </thead>
@@ -106,19 +106,14 @@
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
-    {% endif %}
     
-    {% if user.role == 'cashier' %}
-    <li><a href="{{ url_for('Novel_POS.process_sale') }}">Process Sale</a></li>
-    {% endif %}
-    {% if user.role == 'manager' %}
     <li><a class="active" href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
     <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
+
 
 <!-- Scripts -->
 <script>

@@ -22,28 +22,32 @@
 
 <!-- Cart table -->
 <table id="cart-table">
-    <caption>
-        <h3>Your Cart</h3>
-    </caption>
+    <caption><h3>Your Cart</h3></caption>
     <thead>
         <tr>
             <th class="col-1">Cover</th>
-            <th class="col-2">Title</th>
-            <th class="col-2">Author(s)</th>
+            <th class="col-3">Title</th>
+            <th class="col-3">Author(s)</th>
+            <th class="col-1">Unit Price</th>
             <th class="col-1">Quantity</th>
-            <th class="col-2">Unit Price</th>
-            <th class="col-2">Total</th>
+            <th class="col-1">Item Total</th>
             <th class="col-2">Actions</th>
         </tr>
     </thead>
     <tbody id="cart-items">
         {% for item in cart_items %}
         <tr>
-            <td><img src="{{item.thumbnail_url}}" alt="book cover thumbnail" width="100" height="150" /></td>
+            <td>
+                {% if book.thumbnail_url != 'Unknown' %}
+                    <img src="{{ book.thumbnail_url }}" alt="Book Cover Thumbnail" width="100" height="150"/>
+                {% else %}
+                    <img src="/static/images/logo.png" alt="No Thumbnail Available" width="100" height="150"/>
+                {% endif %}
+            </td>
             <td>{{ item.title }}</td>
             <td>{{ item.author }}</td>
-            <td>{{ item.quantity }}</td>
             <td>${{ "%.2f"|format(item.price|float) }}</td>
+            <td>{{ item.quantity }}</td>
             <td>${{ "%.2f"|format(item.total|float) }}</td>
             <td><button onclick="removeFromCart('{{ item.id }}')" class="table-button" id="clear-button">Remove</button></td>
         </tr>
@@ -86,9 +90,13 @@
         <tr><td>
             <div id="discount-section">
                 <strong>Discount Applied:</strong> {{ discount_percentage }}% off<br/>
+                {% if discount_percentage > 0 %}
                 <strong>Total After Discount:</strong> ${{ "%.2f"|format(total_price|float) }}
+                {% endif %}
             </div>
+            {% if discount_percentage > 0 %}
             <button onclick="removeDiscount()" id="remove-discount-button">Remove Discount</button>
+            {% endif %}
         </td></tr>
         <tr><td>
             <a href="{{ url_for('Novel_POS.select_payment') }}" id="checkout-button">
@@ -110,11 +118,7 @@
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
-    {% endif %}
     
-  
-    {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
     <li><a class="active" href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>

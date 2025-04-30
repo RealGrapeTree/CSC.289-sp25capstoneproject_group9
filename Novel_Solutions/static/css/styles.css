@@ -2,8 +2,8 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     color: #020301;
     background-color: #d0e6f2;
-    background-repeat: no-repeat, repeat;
-    background-size: auto;
+    background-repeat: repeat-y;
+    background-size: cover;
     background-image: url('/static/images/login-background-image.jpg');
 }
 
@@ -25,7 +25,6 @@ body {
     margin: auto;
     background-color: #d0e6f2;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
 }
 
 .container-message {
@@ -72,7 +71,6 @@ body {
     margin-bottom: 50px;
 }
 #export-row {
-    width: 30%;
     margin: auto;
 }
 #reset-row {

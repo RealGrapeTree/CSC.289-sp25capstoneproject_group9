@@ -118,27 +118,48 @@
         </div>
     </form>
 </div>
-{% else %}
+
 <!-- Add book to inventory form -->
-<div class="container-action">
-    <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}" id="addBookForm" class="form-inline">
-        <input type="text" id="inventory-input" name="search_term" placeholder="Enter ISBN or SKU" required>
-        
-        <!-- Stock input with validation -->
-        <div class="input-group">
-            <input type="number" id="inventory-input" name="stock" placeholder="Enter stock" required
-                   oninput="validateStock(this)">
-            <span id="stock_error" class="error-message"></span>
+{% else %}
+<div class="container-form">
+    <form method="POST" action="{{ url_for('Novel_inventory.add_book') }}" class="ns-form" id="addBookForm">
+        <div class="row">
+            <!-- ISBN input -->
+            <div class="col">
+                <div class="form-group">
+                    <label>ISBN:</label>
+                    <input type="text" name="search_term" placeholder="Enter ISBN" required>
+                </div>
+            </div>
+            <!-- Stock input with validation -->
+            <div class="col">
+                <div class="form-group">
+                    <label>Stock:</label>
+                    <input type="number" name="stock" placeholder="Enter stock"
+                       min="0" 
+                       required
+                       oninput="validateStock(this)">
+                    <p id="stock_error" class="error-message"></p>
+                </div>
+            </div>
+            <!-- Price input with validation -->
+            <div class="col">
+                <div class="form-group">
+                    <label>Unit Price ($):</label>
+                    <input type="number" name="price" placeholder="Enter unit price"
+                       min="0" 
+                       step="0.01"
+                       required
+                       oninput="validatePrice(this)">
+                    <p id="price_error" class="error-message"></p>
+                </div>
+            </div>
         </div>
-        
-        <!-- Price input with validation -->
-        <div class="input-group">
-            <input type="number" id="inventory-input" name="price" placeholder="Enter unit price" required step="0.01"
-                   oninput="validatePrice(this)">
-            <span id="price_error" class="error-message"></span>
+        <!-- Buttons -->
+        <div>
+            <button class="btn btn-primary">Add Book</button>
+            <a href="{{ url_for('Novel_inventory.inventory') }}" class="btn btn-secondary">Cancel</a>
         </div>
-        
-        <button type="submit" id="action-button">Add Book</button>
     </form>
 </div>
 {% endif %}
@@ -153,19 +174,19 @@
             <th class="col-1">ISBN</th>
             <th class="col-2">Title</th>
             <th class="col-1">Author(s)</th>
-            <th class="col-1">Stock</th>
-            <th class="col-1">Unit Price</th>
-            <th class="col-1">Publish Date</th>
-            <th class="col-1">Publishers</th>
             <th class="col-1">Pages</th>
-            <th class="col-2">Actions</th> <!-- Actions column for Add to Cart/Edit/Delete -->
+            <th class="col-1">Publishers</th>
+            <th class="col-1">Publish Date</th>
+            <th class="col-1">Unit Price</th>
+            <th class="col-1">Stock</th>
+            <th class="col-2">Actions</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>
                 {% if book.thumbnail_url != 'Unknown' %}
-                    <img src="{{ book.thumbnail_url }}" alt="book cover thumbnail" width="100" height="150"/>
+                    <img src="{{ book.thumbnail_url }}" alt="Book Cover Thumbnail" width="100" height="150"/>
                 {% else %}
                     <img src="\static\images\logo.png" alt="No Thumbnail Available" width="100" height="150"/>
                 {% endif %}
@@ -173,20 +194,21 @@
             <td>{{book.isbn}}</td>
             <td>{{book.title}}</td>
             <td>{{book.authors}}</td>
-            <td>{{book.stock}}</td>
-            <td>${{ "%.2f"|format(book.price|float) }}</td>
-            <td>{{book.publish_date}}</td>
-            <td>{{book.publishers}}</td>
-
             <td>{{ book.number_of_pages if book.number_of_pages else 'Unknown' }}</td>
-            <td><button onclick="addToCart('{{ book.id }}')" id="table-button">🛒 Add to Cart</button></td>
-            <td> <!-- Actions column -->
-                <button onclick="addToCart('{{ book.id }}')" class="table-button">Add to Cart</button>
+            <td>{{book.publishers}}</td>
+            <td>{{book.publish_date}}</td>
+            <td>${{ "%.2f"|format(book.price|float) }}</td>
+            <td>{{book.stock}}</td>
+            <td>
+                <button onclick="addToCart('{{ book.id }}')" class="table-button">🛒 Add to Cart</button>
                 <a href="{{ url_for('Novel_inventory.update_book', book_id=book.id) }}">
                     <button class="table-button">✏️ Edit</button>
                 </a>
-            </td>
-
+                <form action="{{ url_for('Novel_inventory.delete_book', book_id=book.id) }}" method="POST">
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this book?');" 
+                            class="table-button" id="delete-button">🗑️ Delete</button>
+                </form>
+            </td>      
         </tr>
     </tbody>
 </table> 
@@ -204,10 +226,7 @@
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
     <li><a class="active" href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
-    {% endif %}
-
-    {% if user.role == 'manager' %}
+    
     <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
     <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
@@ -226,39 +245,6 @@
             });
     }
 
-    // Client-side validation
-    function validateStock(input) {
-        const errorElement = document.getElementById('stock_error');
-        if (input.value < 0) {
-            errorElement.textContent = "Stock cannot be negative.";
-            return false;
-        } else {
-            errorElement.textContent = "";
-            return true;
-        }
-    }
-
-    function validatePrice(input) {
-        const errorElement = document.getElementById('price_error');
-        const price = parseFloat(input.value);
-        
-        if (isNaN(price)) {
-            errorElement.textContent = "Price must be a number (e.g. 12.99).";
-            return false;
-        } else if (price < 0) {
-            errorElement.textContent = "Price cannot be negative.";
-            return false;
-        } else {
-            // Auto-format to 2 decimal places
-            if (input.value.split('.')[1]?.length > 2) {
-                input.value = price.toFixed(2);
-            }
-            errorElement.textContent = "";
-            return true;
-        }
-    }
-</script>
-<script>
     // Real-time validation functions
     function validateStock(input) {
         const errorElement = document.getElementById('stock_error');
@@ -308,6 +294,5 @@
         return true;
     });
 </script>
-
 
 {% endblock %}

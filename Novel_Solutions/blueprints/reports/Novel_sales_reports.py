@@ -79,8 +79,8 @@ def export_reports_csv(reportType):
                 "Transaction ID": t.id,
                 "Timestamp": t.timestamp,
                 "Item": item.book.title,
-                "Quantity": item.quantity,
                 "Unit Price": item.unit_price / 100,
+                "Quantity": item.quantity,
                 "Line Total": (item.unit_price * item.quantity) / 100
             })
 
@@ -92,19 +92,19 @@ def export_reports_csv(reportType):
     # Define labels for different report types
     if reportType == "daily":
         sales_label = "Daily Sales Amount"
-        tax_label = "Daily Sales Tax (7.25%)"
+        tax_label = "Sales Tax (7.25%)"
         total_label = "Daily Sales Total"
     elif reportType == "weekly":
         sales_label = "Weekly Sales Amount"
-        tax_label = "Weekly Sales Tax (7.25%)"
+        tax_label = "Sales Tax (7.25%)"
         total_label = "Weekly Sales Total"
     elif reportType == "monthly":
-        sales_label = "Monthly Sales Amount"
+        sales_label = "Sales Amount"
         tax_label = "Monthly Sales Tax (7.25%)"
         total_label = "Monthly Sales Total"
     elif reportType == "custom":
         sales_label = "Custom Sales Amount"
-        tax_label = "Custom Sales Tax (7.25%)"
+        tax_label = "Sales Tax (7.25%)"
         total_label = "Custom Sales Total"
 
     # Add totals to the data
@@ -112,24 +112,24 @@ def export_reports_csv(reportType):
         "Transaction ID": "TOTAL",
         "Timestamp": "",
         "Item": sales_label,
-        "Quantity": "",
         "Unit Price": "",
+        "Quantity": "",
         "Total": round(subtotal_dollars, 2)  # Use the calculated subtotal
     })
     data.append({
         "Transaction ID": "TOTAL",
         "Timestamp": "",
         "Item": tax_label,
-        "Quantity": "",
         "Unit Price": "",
+        "Quantity": "",
         "Total": round(tax_amount, 2)  # Use the calculated tax amount
     })
     data.append({
         "Transaction ID": "TOTAL",
         "Timestamp": "",
         "Item": total_label,
-        "Quantity": "",
         "Unit Price": "",
+        "Quantity": "",
         "Total": round(total_price, 2)  # Use the calculated total price
     })
 
@@ -160,7 +160,6 @@ def sales_report():
 def daily_sales_report():
     subtotal = 0
 
-
     # Get current date
     current_date = datetime.today()
 
@@ -178,10 +177,11 @@ def daily_sales_report():
             line_total = item.unit_price * item.quantity  # Still in cents
             subtotal += line_total
 
-        # Convert subtotal to dollars
-        subtotal_dollars = subtotal / 100
-        tax_amount = round(subtotal_dollars * NC_TAX_RATE, 2)
-        total_price = round(subtotal_dollars + tax_amount, 2)
+    # Convert subtotal to dollars
+    subtotal_dollars = subtotal / 100
+    tax_amount = round(subtotal_dollars * NC_TAX_RATE, 2)
+    total_price = round(subtotal_dollars + tax_amount, 2)
+
     return render_template('daily_sales_report.html',
                            user=current_user,
                            current_date=current_date,
@@ -196,6 +196,7 @@ def daily_sales_report():
 @Novel_sales_reports.route('/sales_report/weekly')
 def weekly_sales_report():
     subtotal = 0
+
     # Get current date
     current_date = datetime.today()
 
@@ -231,11 +232,9 @@ def weekly_sales_report():
                            NC_TAX_RATE=NC_TAX_RATE) 
 
 
-
 # Monthly sales report route
 @Novel_sales_reports.route('/sales_report/monthly')
 def monthly_sales_report():
-    
     subtotal = 0
 
     # Get current date
@@ -277,12 +276,10 @@ def monthly_sales_report():
                            total_price=total_price,
                            NC_TAX_RATE=NC_TAX_RATE)
 
-    
 
 # Custom sales report route
 @Novel_sales_reports.route('/sales_report/custom', methods=['GET', 'POST'])
 def custom_sales_report():
-    
     subtotal = 0
 
     # Get current date

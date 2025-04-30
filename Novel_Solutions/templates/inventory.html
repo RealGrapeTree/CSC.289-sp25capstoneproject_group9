@@ -62,7 +62,7 @@
         <tr>
             <td>
                 {% if book.thumbnail_url != 'Unknown' %}
-                    <img src="{{ book.thumbnail_url }}" alt="book cover thumbnail" width="100" height="150"/>
+                    <img src="{{ book.thumbnail_url }}" alt="Book Cover Thumbnail" width="100" height="150"/>
                 {% else %}
                     <img src="/static/images/logo.png" alt="No Thumbnail Available" width="100" height="150"/>
                 {% endif %}
@@ -70,7 +70,7 @@
             <td>{{book.isbn}}</td>
             <td>{{book.title}}</td>
             <td>{{book.authors}}</td>
-            <td>{{book.number_of_pages or 'Unknown'}}</td>
+            <td>{{ book.number_of_pages if book.number_of_pages else 'Unknown' }}</td>
             <td>{{book.publishers}}</td>
             <td>{{book.publish_date}}</td>
             <td>${{ "%.2f"|format(book.price|float) }}</td>
@@ -117,22 +117,23 @@
 <!-- Navigation Links -->
 <ul class="nav-links">
     <li style="float:left;"><a href="{{ url_for('Novel_login.dashboard') }}">Dashboard</a></li>
+
     {% if user.role == 'manager' %}
-        <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
+    <li><a href="{{ url_for('Novel_login.add_user') }}">Register User</a></li>
     {% endif %}
+    
     <li><a class="active" href="{{ url_for('Novel_inventory.inventory') }}">Inventory</a></li>
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
-        <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
-        <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
-    {% endif %}
+    <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
 
-    {% if user.role == 'manager' %}
-        <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
+    <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
     <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
+
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>
 </ul>
+
 
 <!-- Scripts -->
 <script>
