@@ -136,7 +136,7 @@ def add_book():
                     }
                     # Book not found in Open Library - show manual entry form for managers
                     if current_user.role == "manager":
-                        flash('Book not found. Please enter details manually.', 'info')
+                        flash('Book not found in Open Library. Please enter details manually.', 'info')
                         return render_template('add_book.html', 
                                              not_found=True,
                                              form_data=form_data,

@@ -21,8 +21,9 @@
 {% endwith %}
 
 <!-- Table of all users -->
-{% if user.role == 'manager' %}
 <table id="users-table">
+    <!-- Manager View -->
+    {% if user.role == 'manager' %}
     <caption><h3>Manage Users</h3></caption>
     <thead>
         <tr>
@@ -32,10 +33,10 @@
             <th class="col-2">Actions</th>
         </tr>
     </thead>
-    {% for user in users %}
-        {% if user.username != 'admin' %}
+        {% for user in users %}
         <tbody>
             <tr>
+                {% if user.username != 'admin' %}
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.role }}</td>
@@ -46,20 +47,36 @@
                     <form action="{{ url_for('Novel_login.delete_user', username=user.username) }}" method="POST">
                         <button type="submit" class="table-button" id="delete-button" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
-                </td>    
-            </tr>
-            {% else %}
-            <tr>
+                </td>
+                {% else %}
                 <td>{{ user.username }}</td>
                 <td></td>
                 <td>{{ user.role }}</td>
                 <td></td>
+                {% endif %}
             </tr>
         </tbody>
-        {% endif %}
-    {% endfor %}
+        {% endfor %}
+    
+    <!-- Cashier View -->
+     {% else %}
+     <caption><h3>Current User</h3></caption>
+     <thead>
+         <tr>
+             <th class="col-4">Username</th>
+             <th class="col-4">Email</th>
+             <th class="col-4">Role</th>
+         </tr>
+     </thead>
+         <tbody>
+             <tr>
+                 <td>{{ user.username }}</td>
+                 <td>{{ user.email }}</td>
+                 <td>{{ user.role }}</td>
+             </tr>
+         </tbody>
+    {% endif %}
 </table>
-{% endif %}
 
 <!-- Navigation Links -->
 <ul class="nav-links">
@@ -73,13 +90,10 @@
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
-    {% endif %}
-    
 
-    {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
+    <li><a href="{{ url_for('Novel_POS.view_transactions') }}">Transaction History</a></li>
     <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>

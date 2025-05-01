@@ -21,6 +21,7 @@ def view_cart():
     initialize_cart()
     cart_items = []
     subtotal = 0
+    book = Book.query.all()
 
     # Get discount percentage (stored in session)
     discount_percentage = session.get("discount", 0)
@@ -61,6 +62,7 @@ def view_cart():
         total_price=total_price,
         user=current_user,
         promo_code=promo_code,
+        book=book
     )
 
 
@@ -121,7 +123,7 @@ def get_cart_total():
 
     tax_amount = round(discounted_subtotal * NC_TAX_RATE, 2)
     total_price = round(discounted_subtotal + tax_amount, 2)  # Total with tax
-    return subtotal, discount_amount, tax_amount, total_price
+    return subtotal, tax_amount, total_price, discount_amount
 
 # Apply discount via promo code
 @Novel_cart.route("/apply_discount", methods=["POST"])

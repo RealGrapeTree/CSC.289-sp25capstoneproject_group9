@@ -22,6 +22,7 @@
 
 <!-- Sales report selection -->
 <h5>Choose Sales Report Type</h5>
+
 <div class="container-action">
     <div class="row" id="report-row">
         <div class="col"><a href="{{ url_for('Novel_sales_reports.daily_sales_report') }}">
@@ -53,14 +54,10 @@
     <li><a href="{{ url_for('Novel_inventory.search') }}">Search Inventory</a></li>
     {% if user.role == 'manager' %}
     <li><a href="{{ url_for('Novel_inventory.add_book') }}">Add Book</a></li>
-    <li><a href="{{ url_for('Novel_login.dashboard') }}">Inventory Reports</a></li>
-    {% endif %}
     
-
-
-    {% if user.role == 'manager' %}
     <li><a class="active" href="{{ url_for('Novel_sales_reports.sales_report') }}">Sales Reports</a></li>
     {% endif %}
+    <li><a href="{{ url_for('Novel_POS.view_transactions') }}">Transaction History</a></li>
     <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Cart</a></li>
 
     <li style="float:right;"><a href="{{ url_for('Novel_login.logout') }}">Logout</a></li>

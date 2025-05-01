@@ -58,15 +58,21 @@
         </div>
 
         <!-- Buttons -->
-        <button class="btn btn-primary" onclick="sendEmailReceipt()">📧 Send Email</button>
-        <button class="btn btn-primary" onclick="sendSMSReceipt()">📱 Send SMS</button>
+        <div class="form-group">
+            <button class="btn btn-primary" onclick="sendEmailReceipt()">📧 Send Email</button>
+            <button class="btn btn-primary" onclick="sendSMSReceipt()">📱 Send SMS</button>
 
-        <div id="receipt-msg"></div>
+            <div id="receipt-msg"></div>
+        </div>
+        <div class="form-group">
+            <a href="{{ url_for('Novel_login.dashboard') }}" class="btn btn-secondary">No Receipt</a>
+        </div>
     </div>
 </div>
 
 <!-- Navigation Links -->
 <ul class="nav-links">
+    <li><a href="{{ url_for('Novel_POS.select_payment') }}">Select Payment Method</a></li>
     <li><a href="{{ url_for('Novel_cart.view_cart') }}" class="cart-link">🛒 Back to Cart</a></li>
 </ul>
 
@@ -101,7 +107,7 @@
             document.getElementById("receipt-msg").innerText = data.message;
             setTimeout(() => {
                 window.location.href = "/dashboard"; // Redirect after success
-            }, 2000);
+            }, 1000);
         });
     }
 
@@ -117,7 +123,7 @@
             document.getElementById("receipt-msg").innerText = data.message;
             setTimeout(() => {
                 window.location.href = "/dashboard"; // Redirect after success
-            }, 2000);
+            }, 1000);
         });
     }
 </script>

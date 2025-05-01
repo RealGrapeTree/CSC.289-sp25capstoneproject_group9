@@ -23,10 +23,15 @@
         </div>
         
         <!-- Buttons -->
-        <button class="btn btn-primary" onclick="sendEmailReceipt()">📧 Send Email</button>
-        <button class="btn btn-primary" onclick="sendSMSReceipt()">📱 Send SMS</button>
+        <div class="form-group">
+            <button class="btn btn-primary" onclick="sendEmailReceipt()">📧 Send Email</button>
+            <button class="btn btn-primary" onclick="sendSMSReceipt()">📱 Send SMS</button>
 
-        <div id="receipt-msg"></div>
+            <div id="receipt-msg"></div>
+        </div>
+        <div class="form-group">
+            <a href="{{ url_for('Novel_login.dashboard') }}" class="btn btn-secondary">No Receipt</a>
+        </div>
     </div>
 </div>
 
