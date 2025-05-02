@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   web:
@@ -9,9 +8,6 @@ services:
       dockerfile: Dockerfile
     environment:
       SQLALCHEMY_DATABASE_URI: mysql://admin:admin@host.docker.internal:3306/novel_solutions_db
-    
-
-
     ports:
       - "8000:8000"
     depends_on:
@@ -32,20 +28,18 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - /usr/share/zoneinfo:/usr/share/zoneinfo:ro
 
-volumes:
-  db_data:
-    
-
-
-
   test:
     build:
       context: ./Novel_Solutions
       dockerfile: Dockerfile
-    command: pytest test_app.py
+    command: >
+      sh -c "sleep 10 && pytest test_app.py"
     depends_on:
-      - novel_solutions_db
+      - web
     environment:
       SQLALCHEMY_DATABASE_URI: mysql://admin:admin@host.docker.internal:3306/novel_solutions_db
     volumes:
       - ./Novel_Solutions:/app
+
+volumes:
+  db_data:

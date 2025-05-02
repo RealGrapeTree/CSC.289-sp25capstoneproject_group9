@@ -32,7 +32,7 @@ from blueprints.inventory.Novel_inventory import Novel_inventory, check_books, i
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
     app.config['SECRET_KEY'] = 'testkey'
     app.config['WTF_CSRF_ENABLED'] = False
@@ -164,7 +164,7 @@ def test_refund_success(mock_refund, client):
 
     response = client.post(f"/refund/{transaction_id}")
     assert response.status_code == 302  # assuming it redirects after refund
-=======
+
 def login(client, username):
     with client.session_transaction() as session:
         user = User.query.filter_by(username=username).first()

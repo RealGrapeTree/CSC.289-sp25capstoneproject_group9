@@ -35,7 +35,7 @@ services:
       dockerfile: Dockerfile
     container_name: novel_solutions_backup
     volumes:
-      - ./backup:/backup
+      - ./Novel_Solutions/backup:/Novel_Solutions/backup
     depends_on:
       - novel_solutions_db
  
